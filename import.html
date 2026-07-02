@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DotMM Importer</title>
+<style>
+  :root {
+    --bg: #16141d;
+    --panel: #201d2a;
+    --panel-2: #2a2637;
+    --line: #3a3450;
+    --text: #e9e5f4;
+    --muted: #9d95b5;
+    --accent: #b48cff;
+    --accent-2: #7c5cff;
+    --good: #5fd39a;
+    --warn: #f0b35f;
+    --bad: #f07a7a;
+    --radius: 10px;
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font: 13px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  .wrap { padding: 14px 14px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  header { display: flex; align-items: baseline; justify-content: space-between; }
+  header h1 { font-size: 15px; margin: 0; letter-spacing: 0.02em; }
+  header .sub { color: var(--muted); font-size: 11px; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+  .tab {
+    appearance: none; background: none; border: none; color: var(--muted);
+    padding: 7px 12px; font: inherit; cursor: pointer; border-radius: 8px 8px 0 0;
+    border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.03); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px; box-shadow: var(--shadow);
+  }
+  .card h2 { font-size: 12px; margin: 0 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .drop {
+    border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 18px 12px;
+    text-align: center; color: var(--muted); cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, transform 0.12s;
+  }
+  .drop:hover { border-color: var(--accent); background: rgba(180, 140, 255, 0.05); }
+  .drop.dragging { border-color: var(--accent); background: rgba(180, 140, 255, 0.10); transform: scale(1.01); }
+  .drop .big { color: var(--text); font-size: 13px; margin-bottom: 3px; }
+  .drop input { display: none; }
+
+  .mapchip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px;
+    font-size: 12px; margin: 2px 4px 2px 0; transition: border-color 0.15s;
+  }
+  .mapchip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background 0.2s; }
+  .mapchip.ok .dot { background: var(--good); }
+  .mapchip.ok { border-color: rgba(95, 211, 154, 0.4); }
+
+  .btn {
+    appearance: none; border: none; border-radius: 8px; padding: 9px 14px; font: inherit;
+    font-weight: 600; cursor: pointer; color: #fff;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    transition: filter 0.15s, transform 0.1s, box-shadow 0.15s; width: 100%;
+    box-shadow: 0 2px 10px rgba(124, 92, 255, 0.35);
+  }
+  .btn:hover:not(:disabled) { filter: brightness(1.1); box-shadow: 0 4px 16px rgba(124, 92, 255, 0.5); }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  .btn.ghost {
+    background: transparent; color: var(--accent); border: 1px solid var(--line);
+    box-shadow: none; font-weight: 500;
+  }
+  .btn.ghost:hover:not(:disabled) { border-color: var(--accent); background: rgba(180, 140, 255, 0.06); }
+
+  .tokrow { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .tok {
+    font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line);
+    color: var(--muted); transition: transform 0.12s;
+  }
+  .tok:hover { transform: translateY(-1px); }
+  .tok.matched { color: var(--good); border-color: rgba(95, 211, 154, 0.45); background: rgba(95, 211, 154, 0.07); }
+  .tok.missing { color: var(--warn); border-color: rgba(240, 179, 95, 0.45); background: rgba(240, 179, 95, 0.07); }
+
+  .progress { height: 5px; background: var(--panel-2); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+  .progress .bar {
+    height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    transition: width 0.3s ease;
+  }
+  .status { font-size: 12px; color: var(--muted); margin-top: 6px; min-height: 16px; transition: color 0.2s; }
+  .status.ok { color: var(--good); }
+  .status.err { color: var(--bad); }
+
+  .roomlist { display: flex; flex-direction: column; gap: 4px; max-height: 350px; overflow-y: auto; padding-right: 2px; }
+  .roomlist::-webkit-scrollbar { width: 8px; }
+  .roomlist::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  .room {
+    display: flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 8px;
+    background: var(--panel-2); border: 1px solid transparent; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+  .room:hover { border-color: var(--accent); transform: translateX(2px); }
+  .room .num {
+    min-width: 34px; text-align: center; font-weight: 700; font-size: 12px;
+    color: var(--accent); background: rgba(124, 92, 255, 0.12); border-radius: 6px; padding: 3px 4px;
+  }
+  .room .nm { flex: 1; }
+  .room .mon { font-size: 11px; color: var(--warn); }
+  .room .tp { font-size: 13px; }
+  .roomdetail {
+    background: var(--panel-2); border-left: 3px solid var(--accent); border-radius: 8px;
+    padding: 10px; margin-top: 8px; font-size: 12px;
+    animation: slidein 0.2s ease;
+  }
+  @keyframes slidein { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .roomdetail h3 { margin: 0 0 6px; font-size: 13px; }
+  .roomdetail .monline { color: var(--warn); margin: 2px 0; }
+  .roomdetail .note { color: var(--muted); margin-top: 6px; }
+  .roomdetail .jump {
+    display: inline-block; margin-top: 8px; padding: 5px 12px; border-radius: 6px;
+    background: rgba(124, 92, 255, 0.15); color: var(--accent); border: 1px solid var(--line);
+    cursor: pointer; font-size: 12px; transition: background 0.15s;
+  }
+  .roomdetail .jump:hover { background: rgba(124, 92, 255, 0.3); }
+  .search {
+    width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--text); font: inherit; margin-bottom: 8px;
+    transition: border-color 0.15s;
+  }
+  .search:focus { outline: none; border-color: var(--accent); }
+  .hidden { display: none !important; }
+  .hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .hint code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>DotMM · Level 1</h1>
+    <span class="sub">all-in-one importer</span>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="import">Import</button>
+    <button class="tab" data-tab="rooms">Rooms</button>
+  </nav>
+
+  <!-- ============ IMPORT TAB ============ -->
+  <section id="tab-import">
+    <div class="card">
+      <h2>1 · Map file</h2>
+      <label class="drop" id="drop">
+        <div class="big" id="dropTitle">Drop a Level1_*.dd2vtt here</div>
+        <div id="dropSub">or click to browse — sub-map is auto-detected</div>
+        <input type="file" id="file" accept=".dd2vtt,.uvtt,application/json" />
+      </label>
+      <div style="margin-top:8px" id="mapchips"></div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <h2>2 · Monster tokens <span style="text-transform:none;letter-spacing:0">(optional)</span></h2>
+      <button class="btn ghost" id="pickTokens">Match tokens from my OBR library…</button>
+      <div class="hint">Upload your token pack to the OBR asset library first (as
+        <code>Character</code> images named after each monster), then match here.
+        Unmatched monsters get labelled placeholder tokens.</div>
+      <div class="tokrow" id="tokrow"></div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <h2>3 · Import</h2>
+      <button class="btn" id="importBtn" disabled>Import scene</button>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="status" id="status"></div>
+    </div>
+  </section>
+
+  <!-- ============ ROOMS TAB ============ -->
+  <section id="tab-rooms" class="hidden">
+    <div class="card">
+      <h2>Room browser <span style="text-transform:none;letter-spacing:0" id="roomsScene"></span></h2>
+      <input class="search" id="search" placeholder="Filter rooms, names, monsters…" />
+      <div class="roomlist" id="roomlist"></div>
+      <div id="roomdetail"></div>
+    </div>
+  </section>
+</div>
+<script type="module" src="import.js"></script>
+</body>
+</html>
