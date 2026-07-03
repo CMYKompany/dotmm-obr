@@ -2,15 +2,15 @@
   "name": "DotMM Level 1 Importer",
   "version": "1.0.0",
   "manifest_version": 1,
-  "description": "DOTMM Importer",
+  "description": "All-in-one Dungeon of the Mad Mage Level 1 importer: maps, dynamic fog, doors, lights, room labels, GM notes, monsters, teleports.",
   "author": "DotMM Pipeline",
-  "icon": "icon.svg",
+  "icon": "https://cmykompany.github.io/dotmm-obr/icon.svg",
   "action": {
     "title": "DotMM Importer",
-    "icon": "icon.svg",
-    "popover": "import.html",
+    "icon": "https://cmykompany.github.io/dotmm-obr/icon.svg",
+    "popover": "https://cmykompany.github.io/dotmm-obr/import.html",
     "width": 420,
     "height": 640
   },
-  "background_url": "background.html"
+  "background_url": "https://cmykompany.github.io/dotmm-obr/background.html"
 }

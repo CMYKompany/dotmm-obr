@@ -177,7 +177,7 @@ function registerContextMenus() {
     id: `${PLUGIN}/toggle-door`,
     icons: [
       {
-        icon: "door.svg",
+        icon: new URL("door.svg", import.meta.url).href,
         label: "Open / Close Door",
         filter: {
           every: [{ key: ["metadata", K.door], operator: "!=", value: undefined }],
@@ -206,7 +206,7 @@ function registerContextMenus() {
     id: `${PLUGIN}/toggle-vision`,
     icons: [
       {
-        icon: "eye.svg",
+        icon: new URL("eye.svg", import.meta.url).href,
         label: "DotMM: Toggle Vision (60 ft)",
         filter: {
           every: [
