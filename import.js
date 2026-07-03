@@ -5,12 +5,11 @@ import OBR, {
   buildLabel,
   buildImage,
   buildShape,
-  buildCurve,
 } from "https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3/+esm";
 import { DOTMM_PACKS, TOKEN_MANIFEST } from "./content.js";
 import {
   PLUGIN, K, DPI, MONSTER_SIZE,
-  normalizeName, ringOffsets, chunkString, extractFog, base64ToFile,
+  normalizeName, ringOffsets, chunkString, extractFog, base64ToFile, fmtError,
 } from "./common.js";
 
 // ---------- state ----------
@@ -68,10 +67,8 @@ $("file").addEventListener("change", (e) => {
 });
 
 function detectPack(filename, vtt) {
-  // filename like Level1_A_BG_70x64_FVTT.dd2vtt
   const m = /Level1?_([A-F])_/i.exec(filename);
   if (m) return DOTMM_PACKS[m[1].toUpperCase()] || null;
-  // fallback: match by grid size
   const sz = vtt?.resolution?.map_size;
   if (sz) {
     for (const pack of Object.values(DOTMM_PACKS)) {
@@ -104,7 +101,7 @@ async function loadVtt(file) {
     renderChips();
     renderTokenRow();
   } catch (err) {
-    setStatus(`Could not read file: ${err.message}`, "err");
+    setStatus(`Could not read file: ${fmtError(err)}`, "err");
   }
 }
 
@@ -139,204 +136,216 @@ $("pickTokens").addEventListener("click", async () => {
     const matched = neededMonsters().filter((n) => state.tokenMap.has(normalizeName(n))).length;
     setStatus(`${matched}/${neededMonsters().length} monsters matched to token images.`, "ok");
   } catch (err) {
-    setStatus(`Token picking failed: ${err.message}`, "err");
+    setStatus(`Token picking failed: ${fmtError(err)}`, "err");
   }
 });
 
-// ---------- item construction ----------
-function cellToWorld(g) {
-  return { x: g[0] * DPI, y: g[1] * DPI };
-}
+// ------------------------------------------------------------------
+// Item construction. Every position derives from grid cells via a
+// dpi parameter so the same builders serve both the preferred
+// 100-dpi grid and the 150-dpi default-grid fallback.
+// ------------------------------------------------------------------
+function makeBuilders(dpi) {
+  const cw = (g) => ({ x: g[0] * dpi, y: g[1] * dpi });
 
-function buildRoomLabel(room) {
-  const pos = cellToWorld(room.grid);
-  const title = `${room.label} · ${room.name}`;
-  const item = buildText()
-    .position(pos)
-    .plainText(title)
-    .fontSize(30)
-    .fontWeight(700)
-    .fillColor("#ffd66b")
-    .strokeColor("#1a1408")
-    .strokeWidth(2)
-    .textAlign("CENTER")
-    .layer("TEXT")
-    .visible(false)
-    .locked(true)
-    .name(`Room ${room.label}`)
-    .metadata({ [K.room]: room })
-    .build();
-  // Text items anchor at top-left; nudge so the label centers on the anchor.
-  item.position = { x: pos.x - 90, y: pos.y - 18 };
-  item.text.width = 180;
-  item.text.height = 36;
-  return item;
-}
-
-function buildSecretDoorMarker(grid) {
-  return buildShape()
-    .shapeType("CIRCLE")
-    .position(cellToWorld(grid))
-    .width(DPI * 0.6)
-    .height(DPI * 0.6)
-    .fillColor("#7c5cff")
-    .fillOpacity(0.25)
-    .strokeColor("#b48cff")
-    .strokeWidth(3)
-    .strokeDash([8, 6])
-    .layer("PROP")
-    .visible(false)
-    .locked(true)
-    .name("Secret door")
-    .build();
-}
-
-function buildDoorMarker(door, index) {
-  const item = buildShape()
-    .shapeType("CIRCLE")
-    .position(door.center)
-    .width(DPI * 0.5)
-    .height(DPI * 0.5)
-    .fillColor(door.secret ? "#7c5cff" : "#f07a7a")
-    .fillOpacity(0.55)
-    .strokeColor("#ffffff")
-    .strokeWidth(2)
-    .layer("PROP")
-    .visible(false)
-    .locked(false)
-    .name(`Door ${index + 1}`)
-    .metadata({ [K.door]: { a: door.a, b: door.b, open: door.open, secret: door.secret } })
-    .build();
-  return item;
-}
-
-function buildTeleportMarker(room) {
-  const pos = cellToWorld(room.grid);
-  const item = buildLabel()
-    .position({ x: pos.x, y: pos.y + DPI * 0.8 })
-    .plainText(`⇋ ${room.teleport.label}`)
-    .pointerHeight(0)
-    .backgroundColor("#12324a")
-    .backgroundOpacity(0.9)
-    .layer("TEXT")
-    .visible(false)
-    .locked(true)
-    .name(`Teleport ${room.id}`)
-    .build();
-  return item;
-}
-
-function buildConnectorMarker(conn) {
-  const pos = cellToWorld(conn.grid);
-  const target = conn.to === "expanded" ? "Expanded dungeon"
-    : conn.to === "level2" ? "Stairs to Level 2"
-    : `To map ${conn.to}`;
-  return buildLabel()
-    .position(pos)
-    .plainText(`→ ${target}`)
-    .pointerHeight(0)
-    .backgroundColor("#233123")
-    .backgroundOpacity(0.9)
-    .layer("TEXT")
-    .visible(false)
-    .locked(true)
-    .name(`Connector ${target}`)
-    .build();
-}
-
-function buildMonsterItems(room) {
-  const items = [];
-  const tokens = [];
-  for (const mon of room.monsters) {
-    const count = mon.count || 1;
-    for (let i = 0; i < count; i++) tokens.push(mon);
+  function roomLabel(room) {
+    const pos = cw(room.grid);
+    const item = buildText()
+      .position({ x: pos.x - 90, y: pos.y - 18 })
+      .plainText(`${room.label} · ${room.name}`)
+      .fontSize(30)
+      .fontWeight(700)
+      .fillColor("#ffd66b")
+      .strokeColor("#1a1408")
+      .strokeWidth(2)
+      .textAlign("CENTER")
+      .layer("TEXT")
+      .visible(false)
+      .locked(true)
+      .name(`Room ${room.label}`)
+      .metadata({ [K.room]: room })
+      .build();
+    item.text.width = 180;
+    item.text.height = 36;
+    return item;
   }
-  const offsets = ringOffsets(tokens.length);
-  tokens.forEach((mon, i) => {
-    const size = MONSTER_SIZE[mon.name] || 1;
-    const base = cellToWorld(room.grid);
-    const pos = {
-      x: base.x + offsets[i][0] * DPI * 1.2,
-      y: base.y + offsets[i][1] * DPI * 1.2,
-    };
-    const dl = state.tokenMap.get(normalizeName(mon.name));
-    const label = tokens.length > 1 ? `${mon.name} ${i + 1}` : mon.name;
-    if (dl) {
-      const grid = {
-        dpi: Math.max(dl.image.width, dl.image.height) / size,
-        offset: { x: dl.image.width / 2, y: dl.image.height / 2 },
-      };
-      const item = buildImage(dl.image, grid)
-        .position(pos)
-        .layer("CHARACTER")
-        .visible(false)
-        .plainText(label)
-        .textItemType("LABEL")
-        .name(label)
-        .build();
-      if (mon.note) item.metadata[`${PLUGIN}/monster-note`] = mon.note;
-      items.push(item);
-    } else {
-      // Placeholder: labelled pill on the character layer.
-      const item = buildLabel()
-        .position(pos)
-        .plainText(label)
-        .pointerHeight(0)
-        .backgroundColor("#5a1f1f")
-        .backgroundOpacity(0.95)
-        .layer("CHARACTER")
-        .visible(false)
-        .name(label)
-        .build();
-      if (mon.note) item.metadata[`${PLUGIN}/monster-note`] = mon.note;
-      items.push(item);
-    }
-  });
-  return items;
-}
 
-function buildControllerItems(pack, fog) {
-  // Hidden controller carrying chunked fog JSON + pack summary for the background runtime.
-  const payload = JSON.stringify({ w: fog.walls, l: fog.lights });
-  const chunks = chunkString(payload, 8000);
-  const items = [];
-  const controller = buildText()
-    .position({ x: -3 * DPI, y: -3 * DPI })
-    .plainText(`DotMM controller · map ${pack.map} — do not delete`)
-    .fontSize(14)
-    .fillColor("#665f80")
-    .layer("TEXT")
-    .visible(false)
-    .locked(true)
-    .name(`DotMM controller ${pack.map}`)
-    .metadata({
-      [K.controller]: {
-        map: pack.map,
-        level: pack.level,
-        chunks: chunks.length,
-        rooms: pack.rooms,
-      },
-    })
-    .build();
-  controller.text.width = 400;
-  controller.text.height = 24;
-  items.push(controller);
-  chunks.forEach((data, i) => {
-    const chunkItem = buildText()
-      .position({ x: -3 * DPI, y: (-3 - 0.4 * (i + 1)) * DPI })
-      .plainText(`DotMM fog data ${i + 1}/${chunks.length}`)
-      .fontSize(10)
+  function secretDoorMarker(grid) {
+    return buildShape()
+      .shapeType("CIRCLE")
+      .position(cw(grid))
+      .width(dpi * 0.6)
+      .height(dpi * 0.6)
+      .fillColor("#7c5cff")
+      .fillOpacity(0.25)
+      .strokeColor("#b48cff")
+      .strokeWidth(3)
+      .strokeDash([8, 6])
+      .layer("PROP")
+      .visible(false)
+      .locked(true)
+      .name("Secret door")
+      .build();
+  }
+
+  function doorMarker(door, index) {
+    return buildShape()
+      .shapeType("CIRCLE")
+      .position(cw([door.center.x, door.center.y]))
+      .width(dpi * 0.5)
+      .height(dpi * 0.5)
+      .fillColor(door.secret ? "#7c5cff" : "#f07a7a")
+      .fillOpacity(0.55)
+      .strokeColor("#ffffff")
+      .strokeWidth(2)
+      .layer("PROP")
+      .visible(false)
+      .locked(false)
+      .name(`Door ${index + 1}`)
+      .metadata({ [K.door]: { a: door.a, b: door.b, open: door.open, secret: door.secret } })
+      .build();
+  }
+
+  function teleportMarker(room) {
+    const pos = cw(room.grid);
+    return buildLabel()
+      .position({ x: pos.x, y: pos.y + dpi * 0.8 })
+      .plainText(`⇋ ${room.teleport.label}`)
+      .pointerHeight(0)
+      .backgroundColor("#12324a")
+      .backgroundOpacity(0.9)
+      .layer("TEXT")
+      .visible(false)
+      .locked(true)
+      .name(`Teleport ${room.id}`)
+      .build();
+  }
+
+  function connectorMarker(conn) {
+    const target = conn.to === "expanded" ? "Expanded dungeon"
+      : conn.to === "level2" ? "Stairs to Level 2"
+      : `To map ${conn.to}`;
+    return buildLabel()
+      .position(cw(conn.grid))
+      .plainText(`→ ${target}`)
+      .pointerHeight(0)
+      .backgroundColor("#233123")
+      .backgroundOpacity(0.9)
+      .layer("TEXT")
+      .visible(false)
+      .locked(true)
+      .name(`Connector ${target}`)
+      .build();
+  }
+
+  function monsterItems(room) {
+    const items = [];
+    const tokens = [];
+    for (const mon of room.monsters) {
+      const count = mon.count || 1;
+      for (let i = 0; i < count; i++) tokens.push(mon);
+    }
+    const offsets = ringOffsets(tokens.length);
+    tokens.forEach((mon, i) => {
+      const size = MONSTER_SIZE[mon.name] || 1;
+      const base = cw(room.grid);
+      const pos = {
+        x: base.x + offsets[i][0] * dpi * 1.2,
+        y: base.y + offsets[i][1] * dpi * 1.2,
+      };
+      const dl = state.tokenMap.get(normalizeName(mon.name));
+      const label = tokens.length > 1 ? `${mon.name} ${i + 1}` : mon.name;
+      let item;
+      if (dl) {
+        const grid = {
+          dpi: Math.max(dl.image.width, dl.image.height) / size,
+          offset: { x: dl.image.width / 2, y: dl.image.height / 2 },
+        };
+        item = buildImage(dl.image, grid)
+          .position(pos)
+          .layer("CHARACTER")
+          .visible(false)
+          .plainText(label)
+          .textItemType("LABEL")
+          .name(label)
+          .build();
+      } else {
+        item = buildLabel()
+          .position(pos)
+          .plainText(label)
+          .pointerHeight(0)
+          .backgroundColor("#5a1f1f")
+          .backgroundOpacity(0.95)
+          .layer("CHARACTER")
+          .visible(false)
+          .name(label)
+          .build();
+      }
+      if (mon.note) item.metadata[`${PLUGIN}/monster-note`] = mon.note;
+      items.push(item);
+    });
+    return items;
+  }
+
+  function controllerItems(pack, fog) {
+    const payload = JSON.stringify({ w: fog.walls, l: fog.lights });
+    const chunks = chunkString(payload, 8000);
+    const items = [];
+    const controller = buildText()
+      .position({ x: -3 * dpi, y: -3 * dpi })
+      .plainText(`DotMM controller · map ${pack.map} — do not delete`)
+      .fontSize(14)
       .fillColor("#665f80")
       .layer("TEXT")
       .visible(false)
       .locked(true)
-      .name(`DotMM fog chunk ${i + 1}`)
-      .metadata({ [K.fogChunk]: { i, n: chunks.length, data } })
+      .name(`DotMM controller ${pack.map}`)
+      .metadata({
+        [K.controller]: {
+          map: pack.map,
+          level: pack.level,
+          chunks: chunks.length,
+          rooms: pack.rooms,
+        },
+      })
       .build();
-    chunkItem.text.width = 300;
-    chunkItem.text.height = 18;
-    items.push(chunkItem);
-  });
+    controller.text.width = 400;
+    controller.text.height = 24;
+    items.push(controller);
+    chunks.forEach((data, i) => {
+      const chunkItem = buildText()
+        .position({ x: -3 * dpi, y: (-3 - 0.4 * (i + 1)) * dpi })
+        .plainText(`DotMM fog data ${i + 1}/${chunks.length}`)
+        .fontSize(10)
+        .fillColor("#665f80")
+        .layer("TEXT")
+        .visible(false)
+        .locked(true)
+        .name(`DotMM fog chunk ${i + 1}`)
+        .metadata({ [K.fogChunk]: { i, n: chunks.length, data } })
+        .build();
+      chunkItem.text.width = 300;
+      chunkItem.text.height = 18;
+      items.push(chunkItem);
+    });
+    return items;
+  }
+
+  return { roomLabel, secretDoorMarker, doorMarker, teleportMarker, connectorMarker, monsterItems, controllerItems };
+}
+
+function buildAllItems(pack, fog, dpi) {
+  const B = makeBuilders(dpi);
+  const items = [];
+  for (const room of pack.rooms) {
+    items.push(B.roomLabel(room));
+    items.push(...B.monsterItems(room));
+    if (room.teleport) items.push(B.teleportMarker(room));
+  }
+  for (const conn of pack.connectors) items.push(B.connectorMarker(conn));
+  fog.doors.forEach((door, i) => items.push(B.doorMarker(door, i)));
+  for (const grid of pack.secret_doors) items.push(B.secretDoorMarker(grid));
+  items.push(...B.controllerItems(pack, fog));
   return items;
 }
 
@@ -345,65 +354,98 @@ $("importBtn").addEventListener("click", async () => {
   if (state.importing || !state.vtt || !state.pack) return;
   state.importing = true;
   $("importBtn").disabled = true;
+  let stage = "start";
   try {
     const pack = state.pack;
     const vtt = state.vtt;
 
+    stage = "extracting walls/doors/lights";
     setStatus("Extracting walls, doors and lights…");
     setProgress(10);
     const fog = extractFog(vtt);
-    // Overlay-derived secret doors become extra door segments (short walls until opened).
     for (const grid of pack.secret_doors) {
-      const c = cellToWorld(grid);
       fog.doors.push({
-        a: { x: c.x - DPI * 0.5, y: c.y },
-        b: { x: c.x + DPI * 0.5, y: c.y },
+        a: { x: grid[0] - 0.5, y: grid[1] },
+        b: { x: grid[0] + 0.5, y: grid[1] },
         open: false,
         secret: true,
-        center: c,
+        center: { x: grid[0], y: grid[1] },
       });
     }
 
+    stage = "decoding map image";
     setStatus("Decoding map image…");
     setProgress(25);
     const mapFile = base64ToFile(vtt.image, `DotMM-L1-${pack.map}`);
-    const baseMap = buildImageUpload(mapFile)
-      .dpi(DPI)
-      .name(`DotMM Level 1 — Map ${pack.map}`)
-      .build();
 
+    stage = "building scene items";
     setStatus("Building rooms, labels and monsters…");
     setProgress(45);
-    const items = [];
-    for (const room of pack.rooms) {
-      items.push(buildRoomLabel(room));
-      items.push(...buildMonsterItems(room));
-      if (room.teleport) items.push(buildTeleportMarker(room));
-    }
-    for (const conn of pack.connectors) items.push(buildConnectorMarker(conn));
-    fog.doors.forEach((door, i) => items.push(buildDoorMarker(door, i)));
-    for (const grid of pack.secret_doors) items.push(buildSecretDoorMarker(grid));
-    items.push(...buildControllerItems(pack, fog));
 
-    setStatus("Uploading scene to your library…");
-    setProgress(70);
-    const scene = buildSceneUpload()
-      .name(`DotMM L1 · Map ${pack.map}`)
-      .baseMap(baseMap)
-      .items(items)
-      .build();
-    // Set grid/fog as plain properties: keeps world units at 100 px/cell so
-    // every item position computed from the dd2vtt lands exactly on the map,
-    // and starts the scene fully fogged.
-    scene.grid = { dpi: DPI, type: "SQUARE", measurement: "CHEBYSHEV", scale: "5ft" };
-    scene.fog = { filled: true, style: { color: "#000000", strokeWidth: 5 } };
-    await OBR.assets.uploadScenes([scene]);
+    // Attempt 1: preferred 100-dpi grid (positions match the dd2vtt exactly).
+    // Attempt 2: OBR default grid (150 dpi) with every position rebuilt for it.
+    // The background runtime reads the live grid dpi, so fog works either way.
+    const attempts = [
+      {
+        label: "custom 100-dpi grid",
+        dpi: DPI,
+        grid: {
+          dpi: DPI,
+          type: "SQUARE",
+          measurement: "CHEBYSHEV",
+          scale: "5ft",
+          style: { lineType: "SOLID", lineColor: "#000000", lineOpacity: 0, lineWidth: 1 },
+        },
+        fogSetting: { filled: true, style: { color: "#222222", strokeWidth: 5 } },
+      },
+      {
+        label: "default grid (150 dpi)",
+        dpi: 150,
+        grid: null,
+        fogSetting: null,
+      },
+    ];
+
+    let lastErr = null;
+    let succeeded = null;
+    for (const attempt of attempts) {
+      stage = `uploading scene (${attempt.label})`;
+      setStatus(`Uploading scene — ${attempt.label}…`);
+      setProgress(70);
+      try {
+        const baseMap = buildImageUpload(mapFile)
+          .dpi(DPI)
+          .name(`DotMM Level 1 — Map ${pack.map}`)
+          .build();
+        const items = buildAllItems(pack, fog, attempt.dpi);
+        const scene = buildSceneUpload()
+          .name(`DotMM L1 · Map ${pack.map}`)
+          .baseMap(baseMap)
+          .items(items)
+          .build();
+        if (attempt.grid) scene.grid = attempt.grid;
+        if (attempt.fogSetting) scene.fog = attempt.fogSetting;
+        await OBR.assets.uploadScenes([scene]);
+        succeeded = attempt;
+        break;
+      } catch (err) {
+        lastErr = err;
+        console.error(`[DotMM] upload attempt failed (${attempt.label}):`, err);
+      }
+    }
+
+    if (!succeeded) {
+      throw lastErr ?? new Error("all upload attempts failed");
+    }
 
     setProgress(100);
-    setStatus(`Map ${pack.map} imported. Open it from your scene Atlas — fog, doors and lights activate automatically.`, "ok");
+    const suffix = succeeded === attempts[0]
+      ? ""
+      : " (used OBR's default grid — custom grid was rejected; please report this)";
+    setStatus(`Map ${pack.map} imported${suffix}. Open it from your Atlas — fog, doors and lights activate automatically.`, "ok");
   } catch (err) {
-    console.error(err);
-    setStatus(`Import failed: ${err.message}`, "err");
+    console.error("[DotMM] import failed:", err);
+    setStatus(`Import failed at ${stage}: ${fmtError(err)}`, "err");
     setProgress(0);
   } finally {
     state.importing = false;
@@ -446,7 +488,7 @@ function renderRoomList() {
     return hay.includes(q);
   });
   list.innerHTML = rooms
-    .map((r, i) => {
+    .map((r) => {
       const monCount = r.monsters.reduce((s, m) => s + (m.count || 1), 0);
       return `<div class="room" data-i="${currentRooms.indexOf(r)}">
         <span class="num">${r.label}</span>
@@ -476,12 +518,17 @@ async function showRoom(i) {
     <span class="jump" data-i="${i}">Jump to room</span>
   </div>`;
   det.querySelector(".jump").addEventListener("click", async () => {
-    const c = cellToWorld(room.grid);
-    const span = 12 * DPI;
-    await OBR.viewport.animateToBounds({
-      min: { x: c.x - span / 2, y: c.y - span / 2 },
-      max: { x: c.x + span / 2, y: c.y + span / 2 },
-    });
+    try {
+      const dpi = await OBR.scene.grid.getDpi();
+      const c = { x: room.grid[0] * dpi, y: room.grid[1] * dpi };
+      const span = 12 * dpi;
+      await OBR.viewport.animateToBounds({
+        min: { x: c.x - span / 2, y: c.y - span / 2 },
+        max: { x: c.x + span / 2, y: c.y + span / 2 },
+      });
+    } catch (err) {
+      console.error("[DotMM] jump failed:", err);
+    }
   });
 }
 

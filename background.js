@@ -2,7 +2,7 @@ import OBR, {
   buildWall,
   buildLight,
 } from "https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3/+esm";
-import { PLUGIN, K, DPI } from "./common.js";
+import { PLUGIN, K } from "./common.js";
 
 // ------------------------------------------------------------------
 // The importer persists fog data (walls + lights from the dd2vtt) as
@@ -20,6 +20,7 @@ const state = {
   visionItems: [],    // synced character items with vision metadata
   rebuildQueued: false,
   lastSignature: "",  // cheap change detector: skip rebuilds when inputs are unchanged
+  dpi: 150,           // live scene grid dpi; fog metadata is stored in cells
 };
 
 function computeSignature() {
@@ -28,7 +29,7 @@ function computeSignature() {
     .sort()
     .join("|");
   const vision = state.visionItems
-    .map((it) => `${it.id}:${it.metadata[K.vision]?.radius ?? 0}`)
+    .map((it) => `${it.id}:${it.metadata[K.vision]?.cells ?? 0}`)
     .sort()
     .join("|");
   return `${state.active ? 1 : 0};${state.fog ? state.fog.w.length : -1};${doors};${vision}`;
@@ -53,10 +54,10 @@ async function readFogData() {
 }
 
 // ---------- local item construction ----------
-function wallFromFlat(flat) {
+function wallFromFlat(flat, dpi) {
   const points = [];
   for (let i = 0; i + 1 < flat.length; i += 2) {
-    points.push({ x: flat[i], y: flat[i + 1] });
+    points.push({ x: flat[i] * dpi, y: flat[i + 1] * dpi });
   }
   const item = buildWall()
     .points(points)
@@ -67,9 +68,12 @@ function wallFromFlat(flat) {
   return item;
 }
 
-function wallFromDoor(door) {
+function wallFromDoor(door, dpi) {
   const item = buildWall()
-    .points([door.a, door.b])
+    .points([
+      { x: door.a.x * dpi, y: door.a.y * dpi },
+      { x: door.b.x * dpi, y: door.b.y * dpi },
+    ])
     .doubleSided(true)
     .blocking(true)
     .build();
@@ -77,10 +81,10 @@ function wallFromDoor(door) {
   return item;
 }
 
-function lightFromEntry(entry) {
+function lightFromEntry(entry, dpi) {
   const item = buildLight()
-    .position({ x: entry.x, y: entry.y })
-    .attenuationRadius(entry.r)
+    .position({ x: entry.x * dpi, y: entry.y * dpi })
+    .attenuationRadius(entry.r * dpi)
     .sourceRadius(0)
     .falloff(0.35)
     .lightType("SECONDARY")
@@ -89,10 +93,10 @@ function lightFromEntry(entry) {
   return item;
 }
 
-function visionLight(charItem, radiusPx) {
+function visionLight(charItem, radiusCells, dpi) {
   const item = buildLight()
     .position(charItem.position)
-    .attenuationRadius(radiusPx)
+    .attenuationRadius(radiusCells * dpi)
     .sourceRadius(0)
     .falloff(0.25)
     .lightType("PRIMARY")
@@ -125,19 +129,20 @@ async function rebuildLocal() {
     return;
   }
 
+  const dpi = state.dpi;
   const items = [];
-  state.fog.w.forEach((flat) => items.push(wallFromFlat(flat)));
+  state.fog.w.forEach((flat) => items.push(wallFromFlat(flat, dpi)));
   state.doorItems.forEach((marker) => {
     const door = marker.metadata[K.door];
     if (door && !door.open) {
-      items.push(wallFromDoor(door));
+      items.push(wallFromDoor(door, dpi));
     }
   });
-  state.fog.l.forEach((entry) => items.push(lightFromEntry(entry)));
+  state.fog.l.forEach((entry) => items.push(lightFromEntry(entry, dpi)));
   state.visionItems.forEach((ch) => {
     const v = ch.metadata[K.vision];
-    if (v && v.radius > 0) {
-      items.push(visionLight(ch, v.radius));
+    if (v && v.cells > 0) {
+      items.push(visionLight(ch, v.cells, dpi));
     }
   });
 
@@ -161,6 +166,9 @@ async function syncFromScene() {
   );
   state.active = controllers.length > 0;
   state.fog = state.active ? await readFogData() : null;
+  if (state.active) {
+    state.dpi = await OBR.scene.grid.getDpi().catch(() => 150);
+  }
   state.doorItems = state.active
     ? await OBR.scene.items.getItems((it) => it.metadata && it.metadata[K.door] !== undefined)
     : [];
@@ -223,7 +231,7 @@ function registerContextMenus() {
           if (item.metadata[K.vision]) {
             delete item.metadata[K.vision];
           } else {
-            item.metadata[K.vision] = { radius: 12 * DPI };
+            item.metadata[K.vision] = { cells: 12 };
           }
         }
       });

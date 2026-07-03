@@ -49,31 +49,44 @@ export function chunkString(s, size) {
 }
 
 // Parse a dd2vtt JSON object into the compact fog payload used in metadata.
-// Walls: flat arrays of world-px coords [x0,y0,x1,y1,...]. Lights: world px + range.
+// ALL coordinates are in GRID CELLS (dpi-agnostic): consumers multiply by the
+// live scene dpi at materialization time, so any grid dpi renders correctly.
+const R2 = (v) => Math.round(v * 100) / 100;
 export function extractFog(vtt) {
   const walls = [];
   const polys = [...(vtt.line_of_sight || []), ...(vtt.objects_line_of_sight || [])];
   for (const poly of polys) {
     if (!poly || poly.length < 2) continue;
     const flat = [];
-    for (const p of poly) flat.push(Math.round(p.x * DPI), Math.round(p.y * DPI));
+    for (const p of poly) flat.push(R2(p.x), R2(p.y));
     walls.push(flat);
   }
   const lights = (vtt.lights || []).map((l) => ({
-    x: Math.round(l.position.x * DPI),
-    y: Math.round(l.position.y * DPI),
-    r: Math.round((l.range || 2) * DPI),
+    x: R2(l.position.x),
+    y: R2(l.position.y),
+    r: R2(l.range || 2),
     c: `#${String(l.color || "ffdd99").slice(-6)}`,
     i: l.intensity ?? 1,
   }));
   const doors = (vtt.portals || []).map((p) => ({
-    a: { x: Math.round(p.bounds[0].x * DPI), y: Math.round(p.bounds[0].y * DPI) },
-    b: { x: Math.round(p.bounds[1].x * DPI), y: Math.round(p.bounds[1].y * DPI) },
+    a: { x: R2(p.bounds[0].x), y: R2(p.bounds[0].y) },
+    b: { x: R2(p.bounds[1].x), y: R2(p.bounds[1].y) },
     open: false,
     secret: false,
-    center: { x: Math.round(p.position.x * DPI), y: Math.round(p.position.y * DPI) },
+    center: { x: R2(p.position.x), y: R2(p.position.y) },
   }));
   return { walls, lights, doors };
+}
+
+// Extract a human-readable message from any rejection shape the OBR SDK or
+// browser can produce: Error, string, {error:{message}}, {message}, other.
+export function fmtError(err) {
+  if (err == null) return "unknown error (rejection carried no value)";
+  if (typeof err === "string") return err;
+  if (err instanceof Error) return err.message || String(err);
+  if (typeof err.message === "string") return err.message;
+  if (err.error && typeof err.error.message === "string") return err.error.message;
+  try { return JSON.stringify(err); } catch { return String(err); }
 }
 
 // Decode a base64 string into a File, sniffing PNG vs WebP.
