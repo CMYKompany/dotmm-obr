@@ -159,9 +159,9 @@
     <div class="card">
       <h2>1 · Map file</h2>
       <label class="drop" id="drop">
-        <div class="big" id="dropTitle">Drop a Level1_*.dd2vtt here</div>
-        <div id="dropSub">or click to browse — sub-map is auto-detected</div>
-        <input type="file" id="file" accept=".dd2vtt,.uvtt,application/json" />
+        <div class="big" id="dropTitle">Drop Level1_*.dd2vtt files here</div>
+        <div id="dropSub">one file = single scene · several files = one combined scene</div>
+        <input type="file" id="file" multiple accept=".dd2vtt,.uvtt,application/json" />
       </label>
       <div style="margin-top:8px" id="mapchips"></div>
     </div>
@@ -173,6 +173,15 @@
         <code>Character</code> images named after each monster), then match here.
         Unmatched monsters get labelled placeholder tokens.</div>
       <div class="tokrow" id="tokrow"></div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <h2>2b · Combined scene maps <span style="text-transform:none;letter-spacing:0">(2+ maps only)</span></h2>
+      <button class="btn ghost" id="uploadMaps">Upload extra map images to my library…</button>
+      <button class="btn ghost" id="pickMaps" style="margin-top:6px">Pick uploaded maps…</button>
+      <div class="hint">A scene upload carries one map file; the rest are placed from
+        your library. Upload once, then pick — the importer matches them by their
+        <code>DotMM-L1-*</code> names automatically.</div>
     </div>
 
     <div class="card" style="margin-top:10px">

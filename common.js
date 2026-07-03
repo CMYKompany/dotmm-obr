@@ -5,11 +5,31 @@ export const K = {
   fogChunk: `${PLUGIN}/fog-chunk`,      // value: {i, n, data} - chunked JSON of {w: walls, l: lights}
   door: `${PLUGIN}/door`,               // on door markers; value: {a:{x,y}, b:{x,y}, open, secret}
   room: `${PLUGIN}/room`,               // on room label items; value: room record from the content pack
-  vision: `${PLUGIN}/vision`,           // on character images; value: {radius} in world px
+  vision: `${PLUGIN}/vision`,           // on character images; value: {cells}
   localTag: `${PLUGIN}/local`,          // on local items we own; value: "wall" | "light" | "vision" | "door-wall"
+  cell: `${PLUGIN}/cell`,               // on every positioned item; value: [x, y] intended position in grid cells
+  mapImage: `${PLUGIN}/map-image`,      // on map image items; value: {letter, cells: [w,h], origin: [x,y]}
 };
 
 export const DPI = 100; // dd2vtt pixels_per_grid for all six maps
+
+// Sub-map origins in the global Level 1 frame (grid cells), derived from the
+// "to map X" connector seams and validated against the printed book map.
+export const ORIGINS = {
+  A: [0.0, 0.0],
+  B: [1.1, -44.6],
+  C: [61.9, -44.1],
+  D: [0.4, 54.5],
+  E: [54.0, 25.4],
+  F: [41.0, 74.4],
+};
+
+// Map letter -> native embedded image pixel dimensions (100 px/cell), used to
+// identify map items that carry no metadata (the baseMap-created item).
+export const MAP_PIXELS = {
+  A: [7000, 6400], B: [6500, 5000], C: [6300, 6800],
+  D: [6300, 6200], E: [7300, 5800], F: [7000, 5100],
+};
 
 // Monster base sizes in grid cells (default 1). Large creatures of Level 1.
 export const MONSTER_SIZE = {
@@ -21,6 +41,19 @@ export const MONSTER_SIZE = {
 // Normalize a filename or monster name for matching: lowercase alphanumerics only.
 export function normalizeName(s) {
   return s.toLowerCase().replace(/\.[a-z0-9]+$/i, "").replace(/[^a-z0-9]/g, "");
+}
+
+// Bidirectional substring token matching: "Goblin Token.png" matches "Goblin";
+// "Grick" matches "Grick Alpha" only when no closer candidate exists, so we
+// score matches and let the caller keep the best one per monster.
+export function tokenMatchScore(tokenName, monsterName) {
+  const t = normalizeName(tokenName);
+  const m = normalizeName(monsterName);
+  if (!t || !m) return 0;
+  if (t === m) return 3;
+  if (t.includes(m)) return 2;
+  if (m.includes(t)) return 1;
+  return 0;
 }
 
 // Deterministic ring offsets (in cells) to spread N tokens around a room anchor.

@@ -2,7 +2,7 @@ import OBR, {
   buildWall,
   buildLight,
 } from "https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3/+esm";
-import { PLUGIN, K } from "./common.js";
+import { PLUGIN, K, MAP_PIXELS, ORIGINS } from "./common.js";
 
 // ------------------------------------------------------------------
 // The importer persists fog data (walls + lights from the dd2vtt) as
@@ -11,6 +11,13 @@ import { PLUGIN, K } from "./common.js";
 // OBR, so this background script materializes them for every client
 // whenever an imported scene is open, and keeps them in sync as doors
 // open/close and vision toggles change.
+//
+// RECONCILIATION: upload-time dpi hints are not reliably honored, so
+// on first open this script measures every map image item as actually
+// rendered, rescales/repositions it onto the scene grid (1 map cell =
+// 1 grid cell, origin at its global-frame offset), then snaps every
+// item carrying cell metadata onto cell * sceneDpi. After that pass,
+// cell * sceneDpi is the single source of truth for all geometry.
 // ------------------------------------------------------------------
 
 const state = {
@@ -152,6 +159,91 @@ async function rebuildLocal() {
   if (items.length) await OBR.scene.local.addItems(items);
 }
 
+// ---------- reconciliation ----------
+function identifyMapItem(item) {
+  // Prefer explicit metadata (extra maps in combined scenes).
+  const meta = item.metadata && item.metadata[K.mapImage];
+  if (meta) return meta;
+  // The baseMap-created item carries no metadata: identify by pixel size.
+  const w = item.image?.width, h = item.image?.height;
+  for (const [letter, [pw, ph]] of Object.entries(MAP_PIXELS)) {
+    if (w === pw && h === ph) {
+      return { letter, cells: [pw / 100, ph / 100], origin: ORIGINS[letter] };
+    }
+  }
+  return null;
+}
+
+async function reconcile() {
+  const dpi = state.dpi;
+  const mapItems = await OBR.scene.items.getItems(
+    (it) => it.layer === "MAP" && it.type === "IMAGE"
+  );
+  if (mapItems.length > 0) {
+    await OBR.scene.items.updateItems(
+      mapItems.map((it) => it.id),
+      (drafts) => {
+        for (const item of drafts) {
+          const info = identifyMapItem(item);
+          if (!info) continue;
+          // World size as OBR actually renders this item right now:
+          //   world = imagePx * (sceneDpi / imageGrid.dpi) * scale
+          const gridDpi = item.grid?.dpi || dpi;
+          const worldW = item.image.width * (dpi / gridDpi) * item.scale.x;
+          const targetW = info.cells[0] * dpi;
+          const factor = targetW / worldW;
+          item.scale = { x: item.scale.x * factor, y: item.scale.y * factor };
+          // Position is the anchor (grid.offset, in image px) in world space.
+          // Top-left must land on origin * dpi.
+          const off = item.grid?.offset || { x: 0, y: 0 };
+          // item.scale has already been updated above, so this is the
+          // post-scale world offset of the anchor from the image top-left.
+          const anchorX = off.x * (dpi / gridDpi) * item.scale.x;
+          const anchorY = off.y * (dpi / gridDpi) * item.scale.y;
+          item.position = {
+            x: info.origin[0] * dpi + anchorX,
+            y: info.origin[1] * dpi + anchorY,
+          };
+          item.locked = true;
+        }
+      }
+    );
+  }
+  // Snap every cell-tagged item onto the lattice.
+  const cellItems = await OBR.scene.items.getItems(
+    (it) => it.metadata && it.metadata[K.cell] !== undefined
+  );
+  if (cellItems.length > 0) {
+    await OBR.scene.items.updateItems(
+      cellItems.map((it) => it.id),
+      (drafts) => {
+        for (const item of drafts) {
+          const cell = item.metadata[K.cell];
+          if (!Array.isArray(cell)) continue;
+          item.position = { x: cell[0] * dpi, y: cell[1] * dpi };
+        }
+      }
+    );
+  }
+  // Mark done on the controller so this runs once per scene.
+  const controllers = await OBR.scene.items.getItems(
+    (it) => it.metadata && it.metadata[K.controller] !== undefined
+  );
+  if (controllers.length > 0) {
+    await OBR.scene.items.updateItems(
+      controllers.map((it) => it.id),
+      (drafts) => {
+        for (const item of drafts) {
+          const ctrl = item.metadata[K.controller];
+          ctrl.reconciledDpi = dpi;
+          item.metadata[K.controller] = ctrl;
+        }
+      }
+    );
+  }
+  console.log("[DotMM] reconciled scene geometry at dpi", dpi);
+}
+
 // ---------- scene sync ----------
 async function syncFromScene() {
   const ready = await OBR.scene.isReady().catch(() => false);
@@ -168,6 +260,14 @@ async function syncFromScene() {
   state.fog = state.active ? await readFogData() : null;
   if (state.active) {
     state.dpi = await OBR.scene.grid.getDpi().catch(() => 150);
+    const ctrl = controllers[0].metadata[K.controller];
+    if (ctrl.reconciledDpi !== state.dpi) {
+      try {
+        await reconcile();
+      } catch (err) {
+        console.error("[DotMM] reconcile failed:", err);
+      }
+    }
   }
   state.doorItems = state.active
     ? await OBR.scene.items.getItems((it) => it.metadata && it.metadata[K.door] !== undefined)
