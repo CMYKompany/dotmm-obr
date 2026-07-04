@@ -16,12 +16,12 @@ export const DPI = 100; // dd2vtt pixels_per_grid for all six maps
 // Sub-map origins in the global Level 1 frame (grid cells), derived from the
 // "to map X" connector seams and validated against the printed book map.
 export const ORIGINS = {
-  A: [0.0, 0.0],
-  B: [1.1, -44.6],
-  C: [61.9, -44.1],
-  D: [0.4, 54.5],
-  E: [54.0, 25.4],
-  F: [41.0, 74.4],
+  A: [0, 0],
+  B: [1, -45],
+  C: [62, -44],
+  D: [0, 54],
+  E: [54, 25],
+  F: [41, 74],
 };
 
 // Map letter -> native embedded image pixel dimensions (100 px/cell), used to

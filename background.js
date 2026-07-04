@@ -122,6 +122,11 @@ async function rebuildLocal() {
   await new Promise((r) => setTimeout(r, 30));
   state.rebuildQueued = false;
 
+  // Local-scene APIs reject with MissingDataError when no scene is open;
+  // local items are scoped to the scene anyway, so there is nothing to clean.
+  const ready = await OBR.scene.isReady().catch(() => false);
+  if (!ready) return;
+
   const signature = computeSignature();
   if (signature === state.lastSignature) return;
   state.lastSignature = signature;
@@ -179,35 +184,55 @@ async function reconcile() {
   const mapItems = await OBR.scene.items.getItems(
     (it) => it.layer === "MAP" && it.type === "IMAGE"
   );
-  if (mapItems.length > 0) {
-    await OBR.scene.items.updateItems(
-      mapItems.map((it) => it.id),
-      (drafts) => {
-        for (const item of drafts) {
-          const info = identifyMapItem(item);
-          if (!info) continue;
-          // World size as OBR actually renders this item right now:
-          //   world = imagePx * (sceneDpi / imageGrid.dpi) * scale
-          const gridDpi = item.grid?.dpi || dpi;
-          const worldW = item.image.width * (dpi / gridDpi) * item.scale.x;
-          const targetW = info.cells[0] * dpi;
-          const factor = targetW / worldW;
-          item.scale = { x: item.scale.x * factor, y: item.scale.y * factor };
-          // Position is the anchor (grid.offset, in image px) in world space.
-          // Top-left must land on origin * dpi.
-          const off = item.grid?.offset || { x: 0, y: 0 };
-          // item.scale has already been updated above, so this is the
-          // post-scale world offset of the anchor from the image top-left.
-          const anchorX = off.x * (dpi / gridDpi) * item.scale.x;
-          const anchorY = off.y * (dpi / gridDpi) * item.scale.y;
-          item.position = {
-            x: info.origin[0] * dpi + anchorX,
-            y: info.origin[1] * dpi + anchorY,
-          };
-          item.locked = true;
-        }
+  for (const it of mapItems) {
+    const info = identifyMapItem(it);
+    if (!info) continue;
+    const targetW = info.cells[0] * dpi;
+    const target = { x: info.origin[0] * dpi, y: info.origin[1] * dpi };
+    // Measure the item's world-space footprint as ACTUALLY rendered - no
+    // assumptions about how OBR interprets image dpi on this build.
+    let factor = 1;
+    let delta = { x: 0, y: 0 };
+    let measured = null;
+    try {
+      measured = await OBR.scene.items.getItemBounds([it.id]);
+    } catch (err) {
+      measured = null;
+    }
+    if (measured && measured.width > 0) {
+      factor = targetW / measured.width;
+      // Scaling happens about the item's position anchor.
+      const newMin = {
+        x: it.position.x + (measured.min.x - it.position.x) * factor,
+        y: it.position.y + (measured.min.y - it.position.y) * factor,
+      };
+      delta = { x: target.x - newMin.x, y: target.y - newMin.y };
+    } else {
+      // Fallback (getItemBounds unavailable): observed behavior renders
+      // images at native pixels x scale, anchored at grid.offset.
+      const worldW = it.image.width * it.scale.x;
+      factor = targetW / worldW;
+      const off = it.grid?.offset || { x: 0, y: 0 };
+      const anchor = {
+        x: off.x * it.scale.x * factor,
+        y: off.y * it.scale.y * factor,
+      };
+      delta = {
+        x: target.x + anchor.x - it.position.x,
+        y: target.y + anchor.y - it.position.y,
+      };
+    }
+    await OBR.scene.items.updateItems([it.id], (drafts) => {
+      for (const item of drafts) {
+        item.scale = { x: item.scale.x * factor, y: item.scale.y * factor };
+        item.position = {
+          x: item.position.x + delta.x,
+          y: item.position.y + delta.y,
+        };
+        item.locked = true;
       }
-    );
+    });
+    console.log(`[DotMM] map ${info.letter}: scale x${factor.toFixed(4)}, moved (${delta.x.toFixed(0)}, ${delta.y.toFixed(0)})`);
   }
   // Snap every cell-tagged item onto the lattice.
   const cellItems = await OBR.scene.items.getItems(
@@ -340,27 +365,37 @@ function registerContextMenus() {
 }
 
 // ---------- boot ----------
-OBR.onReady(async () => {
-  registerContextMenus();
-  await syncFromScene();
-  OBR.scene.onReadyChange(() => syncFromScene());
+async function safeSync(label) {
+  try {
+    await syncFromScene();
+  } catch (err) {
+    console.error(`[DotMM] ${label} failed:`, err);
+  }
+}
+
+OBR.onReady(() => {
+  try {
+    registerContextMenus();
+  } catch (err) {
+    console.error("[DotMM] context menu registration failed:", err);
+  }
+  safeSync("initial sync");
+  OBR.scene.onReadyChange(() => safeSync("scene-change sync"));
   OBR.scene.items.onChange(async (items) => {
-    if (!state.active) {
-      // A controller might have just been added (first open after import).
+    try {
       const hasController = items.some(
         (it) => it.metadata && it.metadata[K.controller] !== undefined
       );
-      if (!hasController) return;
+      if (!state.active && !hasController) return;
+      state.doorItems = items.filter((it) => it.metadata && it.metadata[K.door] !== undefined);
+      state.visionItems = items.filter((it) => it.metadata && it.metadata[K.vision] !== undefined);
+      if (hasController && !state.fog) {
+        state.active = true;
+        state.fog = await readFogData();
+      }
+      await rebuildLocal();
+    } catch (err) {
+      console.error("[DotMM] item-change handler failed:", err);
     }
-    state.doorItems = items.filter((it) => it.metadata && it.metadata[K.door] !== undefined);
-    state.visionItems = items.filter((it) => it.metadata && it.metadata[K.vision] !== undefined);
-    const hasController = items.some(
-      (it) => it.metadata && it.metadata[K.controller] !== undefined
-    );
-    if (hasController && !state.fog) {
-      state.active = true;
-      state.fog = await readFogData();
-    }
-    await rebuildLocal();
   });
 });
