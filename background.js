@@ -250,6 +250,23 @@ async function reconcile() {
       }
     );
   }
+  // Verification pass: re-measure every map and log residuals vs target.
+  for (const it of await OBR.scene.items.getItems(
+    (x) => x.layer === "MAP" && x.type === "IMAGE"
+  )) {
+    const info = identifyMapItem(it);
+    if (!info) continue;
+    try {
+      const b = await OBR.scene.items.getItemBounds([it.id]);
+      const rx = b.min.x - info.origin[0] * dpi;
+      const ry = b.min.y - info.origin[1] * dpi;
+      const rw = b.width - info.cells[0] * dpi;
+      console.log(`[DotMM] verify map ${info.letter}: residual pos (${rx.toFixed(1)}, ${ry.toFixed(1)}) px, width ${rw.toFixed(1)} px`);
+    } catch (err) {
+      console.log(`[DotMM] verify map ${info.letter}: bounds unavailable`);
+    }
+  }
+
   // Mark done on the controller so this runs once per scene.
   const controllers = await OBR.scene.items.getItems(
     (it) => it.metadata && it.metadata[K.controller] !== undefined
@@ -392,6 +409,16 @@ OBR.onReady(() => {
       if (hasController && !state.fog) {
         state.active = true;
         state.fog = await readFogData();
+      }
+      // Manual re-align: the importer panel clears reconciledDpi on the
+      // controller; a full sync re-runs calibration.
+      const realignRequested = items.some(
+        (it) => it.metadata?.[K.controller] &&
+                it.metadata[K.controller].reconciledDpi === null
+      );
+      if (realignRequested) {
+        await safeSync("manual re-align");
+        return;
       }
       await rebuildLocal();
     } catch (err) {

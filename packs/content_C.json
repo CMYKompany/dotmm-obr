@@ -1,0 +1,142 @@
+{
+ "schema": "dotmm-obr-pack/1",
+ "level": 1,
+ "map": "C",
+ "grid": {
+  "w": 63,
+  "h": 68,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level1_C_BG_63x68_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "18",
+   "label": "18",
+   "name": "Troll's Den",
+   "grid": [
+    28.07,
+    8.91
+   ],
+   "monsters": [
+    {
+     "name": "Troll",
+     "count": 1,
+     "note": "charmed by Halaster: fetches meat daily from 19a for the manticores in 16"
+    }
+   ],
+   "gm_note": "Putrid stench forewarns. Dispel magic (DC 15) ends the charm, not the temper."
+  },
+  {
+   "id": "16",
+   "label": "16",
+   "name": "Manticore Den",
+   "grid": [
+    9.24,
+    21.18
+   ],
+   "monsters": [
+    {
+     "name": "Manticore",
+     "count": 3,
+     "note": "attack all but Halaster and the charmed troll"
+    }
+   ],
+   "gm_note": "Companion: the manticores speak Common \u2014 have them mock and goad, and remember they fly. Nest treasure includes a 250 gp bloodstone necklace. Scrying eye appears if the party returns later."
+  },
+  {
+   "id": "20",
+   "label": "20",
+   "name": "Beyond the Green Door",
+   "grid": [
+    47.87,
+    40.9
+   ],
+   "monsters": [],
+   "gm_note": "Harmless green door with iron face. Empty room \u2014 or your hook into an expanded dungeon."
+  },
+  {
+   "id": "17a",
+   "label": "17a",
+   "name": "Foyer",
+   "grid": [
+    9.15,
+    41.49
+   ],
+   "monsters": [
+    {
+     "name": "Giant Centipede",
+     "count": 2,
+     "note": "inside the basilisk corpse; emerge if disturbed"
+    }
+   ],
+   "gm_note": "Dead basilisk on its back clutches a driftglobe (pry the claw open)."
+  },
+  {
+   "id": "19a",
+   "label": "19a",
+   "name": "Servants' Feast Hall",
+   "grid": [
+    33.07,
+    42.44
+   ],
+   "monsters": [],
+   "gm_note": "Conjured rotting meat appears on the tables at dawn; the troll from 18 feeds here daily."
+  },
+  {
+   "id": "17b",
+   "label": "17b",
+   "name": "Desecrated Temple",
+   "grid": [
+    9.09,
+    52.01
+   ],
+   "monsters": [
+    {
+     "name": "Black Pudding",
+     "count": 1,
+     "note": "120 hp; in stasis coating the Gond statue until touched or harmed"
+    }
+   ],
+   "gm_note": "Eleven petrified adventurers and monsters clustered at the south end. Copper crown (75 gp) on the carrion crawler\u2019s tentacle."
+  },
+  {
+   "id": "19b",
+   "label": "19b",
+   "name": "Guards' Feast Hall",
+   "grid": [
+    33.07,
+    52.04
+   ],
+   "monsters": [],
+   "gm_note": "Copper tankard (25 gp) under a table."
+  },
+  {
+   "id": "19c",
+   "label": "19c",
+   "name": "Nobles' Feast Hall",
+   "grid": [
+    32.3,
+    61.81
+   ],
+   "monsters": [],
+   "gm_note": "Door blocked by a dead dwarf burglar; her nearly complete burglar\u2019s pack lies on a bench."
+  }
+ ],
+ "secret_doors": [],
+ "connectors": [
+  {
+   "to": "B",
+   "grid": [
+    1.63,
+    16.29
+   ]
+  },
+  {
+   "to": "expanded",
+   "grid": [
+    60.81,
+    39.21
+   ]
+  }
+ ]
+}

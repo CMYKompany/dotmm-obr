@@ -1,0 +1,181 @@
+{
+ "schema": "dotmm-obr-pack/1",
+ "level": 1,
+ "map": "F",
+ "grid": {
+  "w": 70,
+  "h": 51,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level1_F_BG_70x51_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "39d",
+   "label": "39d",
+   "name": "Old Forge",
+   "grid": [
+    50.87,
+    9.05
+   ],
+   "monsters": [
+    {
+     "name": "Ettin",
+     "count": 2,
+     "note": "Krung-Jung and Bokk-Nokkin, Xanathar-branded"
+    }
+   ],
+   "gm_note": "Dead forge hides sacks: 1,400 cp, 350 sp, and 120 iron ingots. Seven-thousand-pound rune-carved hammer hangs over the anvil."
+  },
+  {
+   "id": "37",
+   "label": "37",
+   "name": "Map Room",
+   "grid": [
+    25.9,
+    13.61
+   ],
+   "monsters": [
+    {
+     "name": "Revenant",
+     "count": 1,
+     "note": "Halleth Garke, trapped in the pit; seeks his three murderers (level 2); ally material"
+    }
+   ],
+   "gm_note": "Wall carving of all 23 levels with three voice-buttons (Skullport / Stardock / Halaster\u2019s Tower gate access). Companion: Halleth is a self-expiring ally \u2014 use him. Secret door south to 38."
+  },
+  {
+   "id": "39c",
+   "label": "39c",
+   "name": "Goblin Hall",
+   "grid": [
+    40.19,
+    15.83
+   ],
+   "monsters": [
+    {
+     "name": "Goblin",
+     "count": 19,
+     "note": "starving and bickering"
+    }
+   ],
+   "gm_note": "A twentieth goblin lies dead \u2014 an argument gone badly."
+  },
+  {
+   "id": "40",
+   "label": "40",
+   "name": "Fearful Mimicry",
+   "grid": [
+    46.98,
+    23.65
+   ],
+   "monsters": [
+    {
+     "name": "Mimic",
+     "count": 1,
+     "note": "Large, 75 hp; poses as the south-alcove statue with a fake gold spear"
+    }
+   ],
+   "gm_note": "Two genuine elf-warrior statues north; rubble of the original statue behind the mimic."
+  },
+  {
+   "id": "38",
+   "label": "38",
+   "name": "Secret Tunnel",
+   "grid": [
+    20.41,
+    27.46
+   ],
+   "monsters": [],
+   "gm_note": "Hidden curved corridor linking 37 and 39; heavy foot traffic in the dust."
+  },
+  {
+   "id": "39b",
+   "label": "39b",
+   "name": "Bugbear Den",
+   "grid": [
+    40.16,
+    34.39
+   ],
+   "monsters": [
+    {
+     "name": "Bugbear",
+     "count": 3,
+     "note": "one hosts an intellect devourer; cannot be surprised"
+    }
+   ],
+   "gm_note": "Part of Big Ears watch post (3 bugbears, 19 goblins, 2 ettins; a shrieker warns them)."
+  },
+  {
+   "id": "39a",
+   "label": "39a",
+   "name": "Hall of the Two-Headed King",
+   "grid": [
+    30.73,
+    36.78
+   ],
+   "monsters": [],
+   "gm_note": "Stairs descend 200 ft to level 2. Rotating the statue\u2019s warhammer (DC 15 Perception to notice) reveals a circlet of blasting.",
+   "teleport": {
+    "kind": "stairs",
+    "label": "Stairs down \u2192 Level 2"
+   }
+  },
+  {
+   "id": "41",
+   "label": "41",
+   "name": "Cracked Ceiling",
+   "grid": [
+    62.39,
+    39.38
+   ],
+   "monsters": [
+    {
+     "name": "Stirge",
+     "count": 20,
+     "note": "roost in the ceiling fissure; descend on noise or uplifted light"
+    }
+   ],
+   "gm_note": "Mining tools in wheelbarrows. Bugbears hunt stirges here for food."
+  }
+ ],
+ "secret_doors": [
+  [
+   24.92,
+   18.78
+  ],
+  [
+   21.98,
+   35.28
+  ]
+ ],
+ "connectors": [
+  {
+   "to": "E",
+   "grid": [
+    24.29,
+    7.98
+   ]
+  },
+  {
+   "to": "E",
+   "grid": [
+    32.28,
+    8.2
+   ]
+  },
+  {
+   "to": "level2",
+   "grid": [
+    8.89,
+    39.56
+   ]
+  },
+  {
+   "to": "expanded",
+   "grid": [
+    54.65,
+    45.27
+   ]
+  }
+ ]
+}

@@ -50,9 +50,12 @@ export function tokenMatchScore(tokenName, monsterName) {
   const t = normalizeName(tokenName);
   const m = normalizeName(monsterName);
   if (!t || !m) return 0;
-  if (t === m) return 3;
-  if (t.includes(m)) return 2;
-  if (m.includes(t)) return 1;
+  // Graded score with a length-proximity tiebreak so "Bandits" beats
+  // "Bandit Captain" for the monster "Bandit": closest name wins.
+  const lenDiff = Math.abs(t.length - m.length);
+  if (t === m) return 3000;
+  if (t.includes(m)) return 2000 - lenDiff;
+  if (m.includes(t)) return 1000 - lenDiff;
   return 0;
 }
 

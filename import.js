@@ -569,7 +569,30 @@ async function refreshRooms() {
   $("roomsScene").textContent = `— map ${ctrl.map}`;
   currentRooms = ctrl.rooms || [];
   renderRoomList();
+  $("realign").classList.remove("hidden");
 }
+
+$("realign").addEventListener("click", async () => {
+  try {
+    const controllers = await OBR.scene.items.getItems(
+      (it) => it.metadata && it.metadata[K.controller] !== undefined
+    );
+    if (controllers.length === 0) return;
+    await OBR.scene.items.updateItems(
+      controllers.map((it) => it.id),
+      (drafts) => {
+        for (const item of drafts) {
+          const ctrl = item.metadata[K.controller];
+          ctrl.reconciledDpi = null;
+          item.metadata[K.controller] = ctrl;
+        }
+      }
+    );
+    $("roomsScene").textContent = "— re-aligning… check the console for [DotMM] verify lines";
+  } catch (err) {
+    console.error("[DotMM] re-align request failed:", err);
+  }
+});
 
 function renderRoomList() {
   const q = $("search").value.trim().toLowerCase();

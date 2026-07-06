@@ -1,0 +1,180 @@
+{
+ "schema": "dotmm-obr-pack/1",
+ "level": 1,
+ "map": "D",
+ "grid": {
+  "w": 63,
+  "h": 62,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level1_D_BG_63x62_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "27-demiplane",
+   "label": "27",
+   "name": "Hidden Demiplane (Interior)",
+   "grid": [
+    41.77,
+    8.18
+   ],
+   "monsters": [
+    {
+     "name": "Halaster Simulacrum",
+     "count": 1,
+     "note": "answers three questions: first a lie, then two truths; melts afterward"
+    }
+   ],
+   "gm_note": "Thirty-ft stone room: misty portal back, upside-down Halaster portrait. Companion: steering the party here is the level\u2019s main goal \u2014 Halaster facetime. Tossing the mask back through lets others enter.",
+   "teleport": {
+    "kind": "demiplane",
+    "label": "Misty portal \u2192 Alcove",
+    "pair": "27-alcove"
+   }
+  },
+  {
+   "id": "25a",
+   "label": "25a",
+   "name": "Dead Goblin",
+   "grid": [
+    30.26,
+    8.97
+   ],
+   "monsters": [],
+   "gm_note": "Excavation site. Goblin corpse."
+  },
+  {
+   "id": "24a",
+   "label": "24a",
+   "name": "Old Gate",
+   "grid": [
+    10.07,
+    9.2
+   ],
+   "monsters": [],
+   "gm_note": "West tunnel exits to the expanded dungeon (or uncharted depths)."
+  },
+  {
+   "id": "27-alcove",
+   "label": "27",
+   "name": "Hidden Demiplane (Alcove)",
+   "grid": [
+    52.51,
+    12.21
+   ],
+   "monsters": [],
+   "gm_note": "Bas-relief harpist with inscription. Stepping in while wearing the bronze mask from 21 transports you to the demiplane; anchoring objects are sheared off.",
+   "teleport": {
+    "kind": "demiplane",
+    "label": "Mask-gate \u2192 Demiplane",
+    "pair": "27-demiplane"
+   }
+  },
+  {
+   "id": "24b",
+   "label": "24b",
+   "name": "Dead Mage",
+   "grid": [
+    13.3,
+    15.7
+   ],
+   "monsters": [],
+   "gm_note": "Remains of the tiefling wizard whose withered heart waits in 14b."
+  },
+  {
+   "id": "25b",
+   "label": "25b",
+   "name": "Headless Statue",
+   "grid": [
+    31.92,
+    21.49
+   ],
+   "monsters": [],
+   "gm_note": "Excavation site. Decapitated statue."
+  },
+  {
+   "id": "26b",
+   "label": "26b",
+   "name": "Empty Closet",
+   "grid": [
+    16.85,
+    27.22
+   ],
+   "monsters": [],
+   "gm_note": "Empty 10-ft room."
+  },
+  {
+   "id": "26d",
+   "label": "26d",
+   "name": "Mirror Gate to Level 10",
+   "grid": [
+    60.44,
+    29.1
+   ],
+   "monsters": [],
+   "gm_note": "Gate of the Elder Wand: touch the mirror with a charged magic wand to open for 1 minute; 11th level required; first passage triggers an elder rune. Exits at level 10 area 8.",
+   "teleport": {
+    "kind": "gate",
+    "label": "Mirror Gate \u2192 Level 10, area 8"
+   }
+  },
+  {
+   "id": "26a",
+   "label": "26a",
+   "name": "Hall of Many Candles",
+   "grid": [
+    36.73,
+    30.91
+   ],
+   "monsters": [],
+   "gm_note": "Fifty ever-burning floating candles in 25 niches; conspicuously clean (the cube\u2019s work). Dispel magic breaks them all."
+  },
+  {
+   "id": "26c",
+   "label": "26c",
+   "name": "Ooze Your Janitor?",
+   "grid": [
+    20.33,
+    48.94
+   ],
+   "monsters": [
+    {
+     "name": "Gelatinous Cube",
+     "count": 1,
+     "note": "just around the corner; surprises anyone with passive Perception below 15"
+    }
+   ],
+   "gm_note": "The cube keeps the Clean Tunnels clean."
+  }
+ ],
+ "secret_doors": [],
+ "connectors": [
+  {
+   "to": "A",
+   "grid": [
+    10.12,
+    0.91
+   ]
+  },
+  {
+   "to": "A",
+   "grid": [
+    31.84,
+    1.16
+   ]
+  },
+  {
+   "to": "expanded",
+   "grid": [
+    5.51,
+    11.16
+   ]
+  },
+  {
+   "to": "E",
+   "grid": [
+    54.96,
+    16.18
+   ]
+  }
+ ]
+}
