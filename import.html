@@ -47,6 +47,7 @@
   .card h2 { font-size: 12px; margin: 0 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
 
   .drop {
+    display: block; /* labels are inline by default - a bordered inline box renders as broken line fragments */
     border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 18px 12px;
     text-align: center; color: var(--muted); cursor: pointer;
     transition: border-color 0.18s, background 0.18s, transform 0.12s;
@@ -180,9 +181,9 @@
       <button class="btn ghost" id="uploadMaps">Upload extra map images to my library…</button>
       <button class="btn ghost" id="pickMaps" style="margin-top:6px">Pick uploaded maps…</button>
       <div class="hint">A scene upload carries one map file; the rest are placed from
-        your library. <b>Import handles this automatically</b> — use these buttons only
-        to re-use <code>DotMM-L1-*</code> images already uploaded by an earlier import
-        (Pick) instead of uploading fresh copies.</div>
+        your library. <b>Import handles this automatically</b> (an upload dialog, then a
+        picker). Use these buttons only to point at <code>DotMM-L1-*</code> images from an
+        earlier import (Pick) instead of uploading fresh copies.</div>
     </div>
 
     <div class="card" style="margin-top:10px">

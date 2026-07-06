@@ -161,11 +161,33 @@ connectors between included maps are dropped as noise.
       unlocked, and syncFromScene unlocks pre-1.3.0 locked ones, since
       locked items cannot be selected for a context menu.
 
+13. v1.3.0 field test → v1.3.1, three fixes:
+    - Fresh import left map E displaced by exactly its correction delta
+      (2700, 1250): the reconcile log showed the right move applied, yet
+      verify measured the same offset again — the relative
+      `position += delta` update applied TWICE (OBR replays item updates
+      around the WebSocket reconnect seen at scene open). → reconcile
+      writes absolute scale/position values (idempotent), and a
+      verify→retry loop (≤3 passes, 2 px tolerance) self-heals what the
+      manual Re-align button fixed by hand.
+    - Re-align triggered a storm of concurrent reconciles ("reconcile
+      failed" spam): every item-change event while `reconciledDpi` is
+      null spawned another pass, and reconcile's own updates fire such
+      events. → mutex; second entry is a no-op.
+    - "Uploaded but OBR returned no URLs" on every combined import:
+      `uploadImages` resolves void, so the auto-upload could never learn
+      URLs. The picker is the ONLY URL source → Import chains
+      upload-dialog → picker (pre-searched "DotMM-L1") in one flow.
+    - `.drop` was an inline `<label>` with border/padding → broken line
+      fragments. → `display: block`.
+
 ## 5. Immediate next steps
 
-1. User tests v1.3.0: import without touching 2b (one extra OBR upload
-   dialog mid-import), room browser order, right-click a room badge →
-   Room Details.
+1. User tests v1.3.1: fresh combined import end-to-end (upload dialog +
+   picker inside one Import click), maps aligned on first open WITHOUT
+   Re-align (watch for `reconcile attempt N … retrying` warnings — they
+   mean the self-heal loop caught a lost update), drop zone renders as a
+   proper box.
 2. Check the import console for `[DotMM] secret door … no wall within
    2.5 cells` warnings — each one is a curated anchor that needs a nudge.
 3. Longer term: per-map nudge UI (arrow buttons moving a map ±1 cell and

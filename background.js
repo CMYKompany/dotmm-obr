@@ -2,7 +2,7 @@ import OBR, {
   buildWall,
   buildLight,
 } from "https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3/+esm";
-import { PLUGIN, K, MAP_PIXELS, ORIGINS } from "./common.js";
+import { PLUGIN, K, MAP_PIXELS, ORIGINS, fmtError } from "./common.js";
 
 // ------------------------------------------------------------------
 // The importer persists fog data (walls + lights from the dd2vtt) as
@@ -220,8 +220,13 @@ function identifyMapItem(item) {
   return null;
 }
 
-async function reconcile() {
-  const dpi = state.dpi;
+// One alignment pass: measure every map as rendered and write ABSOLUTE
+// scale/position values. Absolute writes are idempotent - OBR can replay
+// item updates around WebSocket reconnects at scene open (observed in the
+// field: a relative `position += delta` applied twice, displacing a map
+// by exactly its correction delta), and a replayed absolute write is a
+// no-op.
+async function alignMaps(dpi) {
   const mapItems = await OBR.scene.items.getItems(
     (it) => it.layer === "MAP" && it.type === "IMAGE"
   );
@@ -263,19 +268,21 @@ async function reconcile() {
         y: target.y + anchor.y - it.position.y,
       };
     }
+    const newScale = { x: it.scale.x * factor, y: it.scale.y * factor };
+    const newPosition = { x: it.position.x + delta.x, y: it.position.y + delta.y };
     await OBR.scene.items.updateItems([it.id], (drafts) => {
       for (const item of drafts) {
-        item.scale = { x: item.scale.x * factor, y: item.scale.y * factor };
-        item.position = {
-          x: item.position.x + delta.x,
-          y: item.position.y + delta.y,
-        };
+        item.scale = newScale;
+        item.position = newPosition;
         item.locked = true;
       }
     });
     console.log(`[DotMM] map ${info.letter}: scale x${factor.toFixed(4)}, moved (${delta.x.toFixed(0)}, ${delta.y.toFixed(0)})`);
   }
-  // Snap every cell-tagged item onto the lattice.
+}
+
+// Snap every cell-tagged item onto the lattice (already absolute writes).
+async function snapCellItems(dpi) {
   const cellItems = await OBR.scene.items.getItems(
     (it) => it.metadata && it.metadata[K.cell] !== undefined
   );
@@ -291,7 +298,11 @@ async function reconcile() {
       }
     );
   }
-  // Verification pass: re-measure every map and log residuals vs target.
+}
+
+// Re-measure every map, log residuals vs target, return the worst |value|.
+async function verifyMaps(dpi) {
+  let worst = 0;
   for (const it of await OBR.scene.items.getItems(
     (x) => x.layer === "MAP" && x.type === "IMAGE"
   )) {
@@ -302,29 +313,58 @@ async function reconcile() {
       const rx = b.min.x - info.origin[0] * dpi;
       const ry = b.min.y - info.origin[1] * dpi;
       const rw = b.width - info.cells[0] * dpi;
+      worst = Math.max(worst, Math.abs(rx), Math.abs(ry), Math.abs(rw));
       console.log(`[DotMM] verify map ${info.letter}: residual pos (${rx.toFixed(1)}, ${ry.toFixed(1)}) px, width ${rw.toFixed(1)} px`);
     } catch (err) {
       console.log(`[DotMM] verify map ${info.letter}: bounds unavailable`);
     }
   }
+  return worst;
+}
 
-  // Mark done on the controller so this runs once per scene.
-  const controllers = await OBR.scene.items.getItems(
-    (it) => it.metadata && it.metadata[K.controller] !== undefined
-  );
-  if (controllers.length > 0) {
-    await OBR.scene.items.updateItems(
-      controllers.map((it) => it.id),
-      (drafts) => {
-        for (const item of drafts) {
-          const ctrl = item.metadata[K.controller];
-          ctrl.reconciledDpi = dpi;
-          item.metadata[K.controller] = ctrl;
-        }
-      }
+// Serialized + self-verifying reconcile. The mutex matters: a re-align
+// clears reconciledDpi on the controller, and every item-change event
+// until it is set again would otherwise spawn another concurrent
+// reconcile (reconcile's own updates fire such events - observed as
+// dozens of racing passes double-moving maps). The verify/retry loop
+// re-runs the measurement pass when a map ends up off target (e.g. an
+// update lost to scene-open connection churn), which is what the manual
+// Re-align button did by hand.
+let reconcileRunning = false;
+async function reconcile() {
+  if (reconcileRunning) return;
+  reconcileRunning = true;
+  try {
+    const dpi = state.dpi;
+    let residual = Infinity;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      await alignMaps(dpi);
+      await snapCellItems(dpi);
+      residual = await verifyMaps(dpi);
+      if (residual <= 2) break;
+      console.warn(`[DotMM] reconcile attempt ${attempt}: worst residual ${residual.toFixed(1)} px - retrying`);
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    // Mark done on the controller so this runs once per scene.
+    const controllers = await OBR.scene.items.getItems(
+      (it) => it.metadata && it.metadata[K.controller] !== undefined
     );
+    if (controllers.length > 0) {
+      await OBR.scene.items.updateItems(
+        controllers.map((it) => it.id),
+        (drafts) => {
+          for (const item of drafts) {
+            const ctrl = item.metadata[K.controller];
+            ctrl.reconciledDpi = dpi;
+            item.metadata[K.controller] = ctrl;
+          }
+        }
+      );
+    }
+    console.log("[DotMM] reconciled scene geometry at dpi", dpi);
+  } finally {
+    reconcileRunning = false;
   }
-  console.log("[DotMM] reconciled scene geometry at dpi", dpi);
 }
 
 // ---------- scene sync ----------
@@ -348,7 +388,7 @@ async function syncFromScene() {
       try {
         await reconcile();
       } catch (err) {
-        console.error("[DotMM] reconcile failed:", err);
+        console.error("[DotMM] reconcile failed:", fmtError(err), err);
       }
     }
   }

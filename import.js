@@ -168,8 +168,10 @@ $("pickTokens").addEventListener("click", async () => {
 // must reference URLs from the OBR library: step 2b uploads the decoded PNGs,
 // then picks them back to obtain URLs (skipped automatically when
 // uploadImages returns usable asset info).
-// Upload the given letters' embedded PNGs to the user's library and, when
-// OBR's upload result carries usable asset info, record their URLs directly.
+// Upload the given letters' embedded PNGs to the user's library. NOTE:
+// uploadImages resolves with nothing - OBR never hands back asset URLs
+// from an upload. The only way to obtain URLs is the picker
+// (downloadImages), so callers must follow up with pickExtraMapImages().
 async function uploadExtraMapImages(letters) {
   const uploads = [];
   for (const L of letters) {
@@ -177,12 +179,16 @@ async function uploadExtraMapImages(letters) {
     const file = base64ToFile(vtt.image, `DotMM-L1-${L}`);
     uploads.push(buildImageUpload(file).dpi(DPI).name(`DotMM-L1-${L}`).build());
   }
-  const result = await OBR.assets.uploadImages(uploads, "MAP");
-  if (Array.isArray(result)) {
-    for (const asset of result) {
-      const m = /DotMM-L1-([A-F])/.exec(asset?.name ?? "");
-      if (m && asset?.image?.url) state.mapImages.set(m[1], asset.image);
-    }
+  await OBR.assets.uploadImages(uploads, "MAP");
+}
+
+// Open the OBR image picker (pre-searched to the importer's names) and
+// record the URLs of any DotMM-L1-* images the user selects.
+async function pickExtraMapImages() {
+  const downloads = await OBR.assets.downloadImages(true, "DotMM-L1", "MAP");
+  for (const dl of downloads || []) {
+    const m = /DotMM-L1-([A-F])/.exec(dl.name);
+    if (m) state.mapImages.set(m[1], dl.image);
   }
 }
 
@@ -207,11 +213,7 @@ $("uploadMaps").addEventListener("click", async () => {
 
 $("pickMaps").addEventListener("click", async () => {
   try {
-    const downloads = await OBR.assets.downloadImages(true);
-    for (const dl of downloads) {
-      const m = /DotMM-L1-([A-F])/.exec(dl.name);
-      if (m) state.mapImages.set(m[1], dl.image);
-    }
+    await pickExtraMapImages();
     const extras = [...state.loaded.keys()].sort().slice(1);
     const have = extras.filter((L) => state.mapImages.has(L));
     setStatus(
@@ -497,17 +499,22 @@ $("importBtn").addEventListener("click", async () => {
   let stage = "start";
   try {
     // Extra maps must be placed from library URLs (a scene upload carries
-    // exactly one image file). Upload any that are missing automatically —
-    // the manual step 2b remains only for reusing already-uploaded copies.
+    // exactly one image file), and OBR only reveals URLs through the
+    // picker. Chain upload → pick here so the whole thing is two dialogs
+    // inside one Import click; step 2b remains only for reusing
+    // already-uploaded copies ahead of time.
     let missing = extras.filter((L) => !state.mapImages.has(L));
     if (missing.length > 0) {
       stage = "uploading extra maps";
       setStatus(`Uploading maps ${missing.join(", ")} to your library — confirm the dialog…`);
       setProgress(5);
       await uploadExtraMapImages(missing);
+      stage = "picking extra maps";
+      setStatus(`Now select the DotMM-L1-* images for maps ${missing.join(", ")} in the picker…`);
+      await pickExtraMapImages();
       missing = extras.filter((L) => !state.mapImages.has(L));
       if (missing.length > 0) {
-        setStatus(`Maps ${missing.join(", ")} were uploaded but OBR returned no URLs — click “Pick uploaded maps” (step 2b), then Import again.`, "err");
+        setStatus(`Still missing maps ${missing.join(", ")} — select their DotMM-L1-* images via “Pick uploaded maps” (step 2b), then Import again.`, "err");
         setProgress(0);
         return;
       }

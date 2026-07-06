@@ -6,7 +6,7 @@ Level 1 into OBR in one action per scene: map images, dynamic fog
 monster tokens placed per the module, GM notes, secret-door markers,
 teleport/gate markers, and a room browser with jump-to-room.
 
-Current version: **1.3.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+Current version: **1.3.1**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
 
 ## Collaboration preferences (apply to all responses)
 
@@ -90,7 +90,12 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
   measures each map image's rendered bounds via
   `OBR.scene.items.getItemBounds`, rescales/moves it so 1 map cell =
   1 grid cell at `origin × sceneDpi`, then snaps every K.cell item to
-  `cell × sceneDpi`. Never assume a dpi formula — measure.
+  `cell × sceneDpi`. Never assume a dpi formula — measure. Reconcile is
+  MUTEX-SERIALIZED (its own updates fire item-change events which would
+  otherwise spawn concurrent passes during a re-align), writes ABSOLUTE
+  scale/position values (OBR can replay updates around scene-open
+  WebSocket churn; a relative `+= delta` then applies twice), and loops
+  measure→snap→verify up to 3× until worst residual ≤ 2 px.
 
 ## OBR platform quirks (hard-won; do not re-learn)
 
