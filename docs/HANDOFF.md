@@ -90,8 +90,12 @@ Metadata keys (common.js `K`): controller, fogChunk, door, room, vision,
 cell, mapImage, localTag. Plugin id `com.dotmm.importer`.
 
 Combined-scene specifics: baseMap = first map alphabetically; other maps
-must first be pushed to the user's library (panel step 2b: upload → pick
-back). Seam connectors between included maps are dropped as noise.
+must live in the user's library. Since v1.3.0 the Import button uploads
+any missing ones automatically; panel step 2b remains as a manual path to
+re-use `DotMM-L1-*` images from an earlier import (pick instead of
+re-upload). `state.mapImages` persists for the popover session, so
+back-to-back imports re-use the same URLs without dialogs. Seam
+connectors between included maps are dropped as noise.
 
 ## 4. Debugging timeline (why the code looks the way it does)
 
@@ -143,14 +147,25 @@ back). Seam connectors between included maps are dropped as noise.
       serialization mutex.
     - Room labels invisible in practice → replaced free Text with GM-only
       Label badges showing just the room number.
+12. v1.2.0 confirmed working in the field (2026-07-06). v1.3.0 UX pass:
+    - Import auto-uploads missing extra map images; the "needs step 2b"
+      error is gone. 2b's buttons remain to re-use `DotMM-L1-*` images
+      from an earlier import. The "grabbing maps without me selecting"
+      the user noticed was `state.mapImages` persisting for the popover
+      session (in-memory, by design), not a disk cache.
+    - Room browser sorted numerically (1, 2a, 2b, 3, …).
+    - "Room Details" context menu on room label badges → writes
+      `K.showRoom {id}` to player metadata, opens the action panel, which
+      reads + clears it and shows that room (metadata, not broadcast,
+      because the panel may not be open at click time). Labels import
+      unlocked, and syncFromScene unlocks pre-1.3.0 locked ones, since
+      locked items cannot be selected for a context menu.
 
 ## 5. Immediate next steps
 
-1. User re-imports with v1.2.0 (import-time fixes need a fresh scene;
-   the door-blackout fix works on existing scenes) and tests: token grid
-   alignment, secret door 2a→3 and the one north of room 1 (marker on the
-   wall, opens the passage), door toggle without fog blink, room number
-   badges.
+1. User tests v1.3.0: import without touching 2b (one extra OBR upload
+   dialog mid-import), room browser order, right-click a room badge →
+   Room Details.
 2. Check the import console for `[DotMM] secret door … no wall within
    2.5 cells` warnings — each one is a curated anchor that needs a nudge.
 3. Longer term: per-map nudge UI (arrow buttons moving a map ±1 cell and

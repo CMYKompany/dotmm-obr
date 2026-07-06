@@ -6,7 +6,7 @@ Level 1 into OBR in one action per scene: map images, dynamic fog
 monster tokens placed per the module, GM notes, secret-door markers,
 teleport/gate markers, and a room browser with jump-to-room.
 
-Current version: **1.2.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+Current version: **1.3.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
 
 ## Collaboration preferences (apply to all responses)
 
@@ -124,20 +124,19 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
   `packs/anchors_curated.json` and writes `packs/content_*.json`; then
   bundle into `content.js` (see HANDOFF for the exact snippet).
 
-## Open issues (state as of v1.2.0)
+## Open issues (state as of v1.3.0)
 
-1. **RESOLVED (v1.1.2/v1.2.0): misalignment.** User-confirmed 2026-07-06:
-   verify residuals all (0.0, 0.0), placement correct. v1.2.0 then fixed
-   the follow-on reports: token grid snapping (`snapTokenCell`), secret
-   doors snapped onto walls with a cut gap (`alignDoorToWall`), decorative
-   secret-door circles removed (they sat on top of the functional marker
-   and ate the right-click), door-toggle fog blackout removed (group-wise
-   local rebuild, add-before-delete), room labels replaced with GM-only
-   number badges.
-2. **Awaiting test:** the v1.2.0 import-time fixes (token snap, secret
-   doors, labels) only apply to scenes imported at ≥1.2.0 — existing
-   scenes must be re-imported. The door-toggle blackout fix applies to
-   already-imported scenes too.
+1. **RESOLVED (v1.1.2/v1.2.0): misalignment + door correctness.**
+   User-confirmed 2026-07-06: verify residuals all (0.0, 0.0); v1.2.0
+   fixes (token snap, wall-aligned secret doors with cut gaps, single
+   functional door markers, group-wise local rebuild, number badges) all
+   confirmed working in the field.
+2. v1.3.0 UX pass: Import auto-uploads missing extra map images (step 2b
+   is now optional, for re-using earlier uploads); room browser sorted by
+   room number; "Room Details" context menu on room label badges
+   deep-links into the room browser via `K.showRoom` player metadata.
+   Room labels import unlocked (and background unlocks old locked ones)
+   so they can be right-clicked.
 3. Token matching happens at import time only; changing matches requires
    re-import (or manual image swap in-scene).
 4. Seam overlaps: user now imports the TP (transparent) dd2vtt variants;
