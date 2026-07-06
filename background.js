@@ -26,20 +26,35 @@ const state = {
   doorItems: [],      // synced door marker items
   visionItems: [],    // synced character items with vision metadata
   rebuildQueued: false,
-  lastSignature: "",  // cheap change detector: skip rebuilds when inputs are unchanged
+  lastSignatures: {}, // per-group change detectors: skip rebuilds of unchanged groups
   dpi: 150,           // live scene grid dpi; fog metadata is stored in cells
 };
 
-function computeSignature() {
+// Local items are rebuilt per GROUP (the K.localTag value), each with its
+// own signature, so toggling a door only touches the door-wall group -
+// base walls and lights stay put and players never see a fog blackout.
+const GROUPS = ["wall", "door-wall", "light", "vision"];
+
+function computeSignatures() {
+  const on = state.active && state.fog;
+  const base = `${state.dpi}`;
   const doors = state.doorItems
-    .map((it) => `${it.id}:${it.metadata[K.door]?.open ? 1 : 0}`)
+    .map((it) => {
+      const d = it.metadata[K.door];
+      return d ? `${d.a.x},${d.a.y},${d.b.x},${d.b.y},${d.open ? 1 : 0}` : "";
+    })
     .sort()
     .join("|");
   const vision = state.visionItems
     .map((it) => `${it.id}:${it.metadata[K.vision]?.cells ?? 0}`)
     .sort()
     .join("|");
-  return `${state.active ? 1 : 0};${state.fog ? state.fog.w.length : -1};${doors};${vision}`;
+  return {
+    wall: on ? `${base};${state.fog.w.length}` : "off",
+    "door-wall": on ? `${base};${doors}` : "off",
+    light: on ? `${base};${state.fog.l.length}` : "off",
+    vision: on ? `${base};${vision}` : "off",
+  };
 }
 
 // ---------- fog data assembly ----------
@@ -115,53 +130,79 @@ function visionLight(charItem, radiusCells, dpi) {
 }
 
 // ---------- rebuild the local scene ----------
+let rebuildRunning = false;
+let rebuildPending = false;
 async function rebuildLocal() {
   if (state.rebuildQueued) return;
   state.rebuildQueued = true;
   // Coalesce bursts of change events into one rebuild per tick.
   await new Promise((r) => setTimeout(r, 30));
   state.rebuildQueued = false;
+  // Serialize passes: overlapping add-before-delete runs would duplicate items.
+  if (rebuildRunning) {
+    rebuildPending = true;
+    return;
+  }
+  rebuildRunning = true;
+  try {
+    await rebuildPass();
+  } finally {
+    rebuildRunning = false;
+    if (rebuildPending) {
+      rebuildPending = false;
+      rebuildLocal();
+    }
+  }
+}
 
+async function rebuildPass() {
   // Local-scene APIs reject with MissingDataError when no scene is open;
   // local items are scoped to the scene anyway, so there is nothing to clean.
   const ready = await OBR.scene.isReady().catch(() => false);
   if (!ready) return;
 
-  const signature = computeSignature();
-  if (signature === state.lastSignature) return;
-  state.lastSignature = signature;
+  const signatures = computeSignatures();
+  const changed = GROUPS.filter((g) => signatures[g] !== state.lastSignatures[g]);
+  if (changed.length === 0) return;
 
   const existing = await OBR.scene.local.getItems(
-    (it) => it.metadata && it.metadata[K.localTag] !== undefined
+    (it) => it.metadata && changed.includes(it.metadata[K.localTag])
   );
   const removeIds = existing.map((it) => it.id);
 
-  if (!state.active || !state.fog) {
-    if (removeIds.length) await OBR.scene.local.deleteItems(removeIds);
-    return;
-  }
-
   const dpi = state.dpi;
   const items = [];
-  state.fog.w.forEach((flat) => items.push(wallFromFlat(flat, dpi)));
-  state.doorItems.forEach((marker) => {
-    const door = marker.metadata[K.door];
-    if (door && !door.open) {
-      items.push(wallFromDoor(door, dpi));
+  if (state.active && state.fog) {
+    if (changed.includes("wall")) {
+      state.fog.w.forEach((flat) => items.push(wallFromFlat(flat, dpi)));
     }
-  });
-  state.fog.l.forEach((entry) => items.push(lightFromEntry(entry, dpi)));
-  state.visionItems.forEach((ch) => {
-    const v = ch.metadata[K.vision];
-    if (v && v.cells > 0) {
-      items.push(visionLight(ch, v.cells, dpi));
+    if (changed.includes("door-wall")) {
+      state.doorItems.forEach((marker) => {
+        const door = marker.metadata[K.door];
+        if (door && !door.open) {
+          items.push(wallFromDoor(door, dpi));
+        }
+      });
     }
-  });
+    if (changed.includes("light")) {
+      state.fog.l.forEach((entry) => items.push(lightFromEntry(entry, dpi)));
+    }
+    if (changed.includes("vision")) {
+      state.visionItems.forEach((ch) => {
+        const v = ch.metadata[K.vision];
+        if (v && v.cells > 0) {
+          items.push(visionLight(ch, v.cells, dpi));
+        }
+      });
+    }
+  }
 
-  // Replace wholesale: delete ours, add fresh. Simple and correct; item
-  // counts here (hundreds) are well within local-scene budgets.
-  if (removeIds.length) await OBR.scene.local.deleteItems(removeIds);
+  // Add the fresh items BEFORE deleting the stale ones: a brief overlap of
+  // duplicates is invisible, whereas a delete-first gap blacks out every
+  // player's fog for the round trip (the "door toggle blink").
   if (items.length) await OBR.scene.local.addItems(items);
+  if (removeIds.length) await OBR.scene.local.deleteItems(removeIds);
+  for (const g of changed) state.lastSignatures[g] = signatures[g];
 }
 
 // ---------- reconciliation ----------

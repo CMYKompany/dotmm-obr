@@ -6,7 +6,7 @@ Level 1 into OBR in one action per scene: map images, dynamic fog
 monster tokens placed per the module, GM notes, secret-door markers,
 teleport/gate markers, and a room browser with jump-to-room.
 
-Current version: **1.1.2**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+Current version: **1.2.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
 
 ## Collaboration preferences (apply to all responses)
 
@@ -70,6 +70,17 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
 - **Doors** are PROP-layer circle markers with `K.door` metadata
   `{a, b, open, secret}` (cells). Closed doors contribute wall segments.
   Right-click context menu toggles open/closed (green/red, purple=secret).
+  Secret doors come from overlay glyphs, not dd2vtt portals: at import,
+  `alignDoorToWall()` snaps each onto the nearest wall and CUTS a matching
+  gap out of that wall, so the closed-door segment is the gap's only
+  blocker (dd2vtt draws secret doorways as solid wall — without the cut,
+  opening them does nothing). Every door circle carries `K.door`; there
+  are no decorative door markers.
+- **Local fog items rebuild per group** (wall / door-wall / light /
+  vision), each with its own signature, and new items are added BEFORE
+  stale ones are deleted. Toggling a door touches only the door-wall
+  group; a wholesale delete-then-add rebuild blacks out every player's
+  fog for the round trip.
 - **Vision**: context menu on CHARACTER images writes `K.vision {cells: 12}`;
   background attaches a local PRIMARY light. dd2vtt lights are SECONDARY,
   so rooms illuminate only when a sighted token has line of sight.
@@ -113,21 +124,27 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
   `packs/anchors_curated.json` and writes `packs/content_*.json`; then
   bundle into `content.js` (see HANDOFF for the exact snippet).
 
-## Open issues (state as of handoff)
+## Open issues (state as of v1.2.0)
 
-1. **UNRESOLVED: residual misalignment.** After v1.1.1 the reconcile log
-   proved maps were moved onto the 150-px lattice correctly (deltas exactly
-   matched 100→150 lattice transition), yet the user reported "many of the
-   same issues". v1.1.2 added verify logging + the Re-align button.
-   Awaiting: `[DotMM] verify` residuals + a close-up of one misaligned spot
-   with the pairing named (grid vs map / tokens vs map / walls vs map).
-   The three pairings have distinct causes: grid offset, K.cell error,
-   fog-payload error respectively.
-2. Token matching happens at import time only; changing matches requires
+1. **RESOLVED (v1.1.2/v1.2.0): misalignment.** User-confirmed 2026-07-06:
+   verify residuals all (0.0, 0.0), placement correct. v1.2.0 then fixed
+   the follow-on reports: token grid snapping (`snapTokenCell`), secret
+   doors snapped onto walls with a cut gap (`alignDoorToWall`), decorative
+   secret-door circles removed (they sat on top of the functional marker
+   and ate the right-click), door-toggle fog blackout removed (group-wise
+   local rebuild, add-before-delete), room labels replaced with GM-only
+   number badges.
+2. **Awaiting test:** the v1.2.0 import-time fixes (token snap, secret
+   doors, labels) only apply to scenes imported at ≥1.2.0 — existing
+   scenes must be re-imported. The door-toggle blackout fix applies to
+   already-imported scenes too.
+3. Token matching happens at import time only; changing matches requires
    re-import (or manual image swap in-scene).
-3. Room-label text boxes are fixed 180×36 px — slightly off-center at
-   150 dpi. Cosmetic.
 4. Seam overlaps: user now imports the TP (transparent) dd2vtt variants;
    ±1-cell seam errors may still show — maps can be unlocked and nudged.
 5. Only Level 1 is covered. Extending to other levels requires rerunning
    the pipeline against that level's overlays/dd2vtt/text.
+6. If a secret door logs "no wall within 2.5 cells" at import, its overlay
+   anchor is too far from the wall it marks — fix the anchor in
+   `packs/anchors_curated.json` / regenerate, or accept the unaligned
+   fallback (horizontal 1-cell segment at the anchor).

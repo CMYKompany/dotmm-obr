@@ -120,20 +120,40 @@ back). Seam connectors between included maps are dropped as noise.
 9. Token bug: "Bandit" matched the "Bandit Captain" image when no exact
    "Bandit" file existed (substring tie) → length-proximity tiebreak in
    tokenMatchScore (v1.1.2).
+10. v1.1.2 verified in the field (2026-07-06): all maps residual (0.0,
+    0.0), placement correct. The misalignment saga is closed.
+11. New field reports → v1.2.0, all root-caused:
+    - Tokens sat off-grid: room anchors and ring offsets are fractional
+      → `snapTokenCell()` snaps to cell centers (corners for size-2) with
+      an occupancy set that spreads collisions to nearest free cells.
+    - Secret doors "on the wrong side" / never actually opening: overlay
+      glyph anchors sit BESIDE the wall, and dd2vtt draws secret doorways
+      as solid wall (no gap), so the hardcoded horizontal segment at the
+      anchor neither matched the wall nor opened anything
+      → `alignDoorToWall()` snaps the door onto the nearest wall polyline
+      and cuts a door-sized gap out of it (arc-length split), making the
+      closed-door segment the gap's only blocker.
+    - "Circles with no open option": each secret door emitted TWO circles
+      — a decorative dashed one (no metadata) stacked ON TOP of the
+      functional marker, eating the right-click → decorative marker
+      removed; the functional marker is dashed when secret.
+    - Door toggle blacked out fog for ~1 s: rebuildLocal deleted ALL local
+      walls/lights then re-added them → group-wise rebuild (wall /
+      door-wall / light / vision signatures) with add-before-delete and a
+      serialization mutex.
+    - Room labels invisible in practice → replaced free Text with GM-only
+      Label badges showing just the room number.
 
 ## 5. Immediate next steps
 
-1. Get from the user: `[DotMM] verify map …` residual lines after
-   Re-align, plus one close-up naming the misaligned pairing
-   (grid↔map / tokens↔map / walls↔map). Each pairing isolates a distinct
-   subsystem.
-2. If tokens↔map: inspect K.cell values on a misplaced token vs its room's
-   grid in content.js (possible stale scene or metadata stripping).
-3. If walls↔map: dump one wall chunk's cells and compare against the
-   dd2vtt polygon for a known corridor.
-4. If grid↔map: check OBR grid offset/type in scene settings; the grid
-   itself may carry a non-zero offset.
-5. Longer term: per-map nudge UI (arrow buttons moving a map ±1 cell and
+1. User re-imports with v1.2.0 (import-time fixes need a fresh scene;
+   the door-blackout fix works on existing scenes) and tests: token grid
+   alignment, secret door 2a→3 and the one north of room 1 (marker on the
+   wall, opens the passage), door toggle without fog blink, room number
+   badges.
+2. Check the import console for `[DotMM] secret door … no wall within
+   2.5 cells` warnings — each one is a curated anchor that needs a nudge.
+3. Longer term: per-map nudge UI (arrow buttons moving a map ±1 cell and
    its items with it) would absorb the ±1-cell seam uncertainty; Levels
    2+ need the pipeline rerun against their assets.
 

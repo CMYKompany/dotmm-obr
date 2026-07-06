@@ -10,7 +10,7 @@ import { DOTMM_PACKS, TOKEN_MANIFEST } from "./content.js";
 import {
   PLUGIN, K, DPI, ORIGINS, MONSTER_SIZE,
   normalizeName, tokenMatchScore, ringOffsets, chunkString, extractFog,
-  base64ToFile, fmtError,
+  base64ToFile, fmtError, snapTokenCell, alignDoorToWall,
 } from "./common.js";
 
 // ---------- state ----------
@@ -230,48 +230,29 @@ function withCell(item, cellX, cellY, dpi) {
   return item;
 }
 
-function makeBuilders(dpi, origin) {
+function makeBuilders(dpi, origin, occupied) {
   const ox = origin[0], oy = origin[1];
   const gc = (g) => [g[0] + ox, g[1] + oy]; // pack-local cells -> global cells
 
+  // GM-only room number badge, centered on the room anchor. Labels render
+  // as solid badges (unlike free Text items) so they read reliably at any
+  // zoom; the full name lives in the item name and the room browser.
   function roomLabel(room) {
     const [cx, cy] = gc(room.grid);
-    const item = buildText()
-      .plainText(`${room.label} · ${room.name}`)
-      .fontSize(30)
-      .fontWeight(700)
-      .fillColor("#ffd66b")
-      .strokeColor("#1a1408")
-      .strokeWidth(2)
-      .textAlign("CENTER")
+    const item = buildLabel()
+      .plainText(String(room.label))
+      .pointerHeight(0)
+      .backgroundColor("#1a1408")
+      .backgroundOpacity(0.8)
       .layer("TEXT")
       .visible(false)
       .locked(true)
-      .name(`Room ${room.label}`)
+      .name(`Room ${room.label} · ${room.name}`)
       .metadata({ [K.room]: room })
       .build();
-    item.text.width = 180;
-    item.text.height = 36;
-    // The -0.9 / -0.18 cell nudge centers the 180x36 box on the anchor.
-    return withCell(item, cx - 0.9, cy - 0.18, dpi);
-  }
-
-  function secretDoorMarker(grid) {
-    const [cx, cy] = gc(grid);
-    const item = buildShape()
-      .shapeType("CIRCLE")
-      .width(dpi * 0.6)
-      .height(dpi * 0.6)
-      .fillColor("#7c5cff")
-      .fillOpacity(0.25)
-      .strokeColor("#b48cff")
-      .strokeWidth(3)
-      .strokeDash([8, 6])
-      .layer("PROP")
-      .visible(false)
-      .locked(true)
-      .name("Secret door")
-      .build();
+    item.text.style.fillColor = "#ffd66b";
+    item.text.style.fontSize = 26;
+    item.text.style.fontWeight = 700;
     return withCell(item, cx, cy, dpi);
   }
 
@@ -290,7 +271,7 @@ function makeBuilders(dpi, origin) {
       .layer("PROP")
       .visible(false)
       .locked(false)
-      .name(`Door ${index + 1}`)
+      .name(door.secret ? `Secret door ${index + 1}` : `Door ${index + 1}`)
       .metadata({
         [K.door]: {
           a: { x: a[0], y: a[1] },
@@ -300,6 +281,7 @@ function makeBuilders(dpi, origin) {
         },
       })
       .build();
+    if (door.secret) item.style.strokeDash = [8, 6];
     return withCell(item, cx, cy, dpi);
   }
 
@@ -347,8 +329,10 @@ function makeBuilders(dpi, origin) {
     const [bx, by] = gc(room.grid);
     tokens.forEach((mon, i) => {
       const size = MONSTER_SIZE[mon.name] || 1;
-      const cx = bx + offsets[i][0] * 1.2;
-      const cy = by + offsets[i][1] * 1.2;
+      // Snap the ring formation onto the grid lattice; occupancy tracking
+      // spreads colliding tokens to the nearest free cells.
+      const [cx, cy] = snapTokenCell(
+        bx + offsets[i][0] * 1.2, by + offsets[i][1] * 1.2, size, occupied);
       const hit = state.tokenMap.get(normalizeName(mon.name));
       const label = tokens.length > 1 ? `${mon.name} ${i + 1}` : mon.name;
       let item;
@@ -381,7 +365,7 @@ function makeBuilders(dpi, origin) {
     return items;
   }
 
-  return { roomLabel, secretDoorMarker, doorMarker, teleportMarker, connectorMarker, monsterItems };
+  return { roomLabel, doorMarker, teleportMarker, connectorMarker, monsterItems };
 }
 
 function extraMapImageItem(letter, imageContent, pack, dpi) {
@@ -445,25 +429,34 @@ function buildMerged(letters, dpi) {
   const fog = { walls: [], lights: [] };
   const items = [];
   const mergedRooms = [];
+  const occupied = new Set(); // token-occupied cells, shared across all maps
   for (const L of letters) {
     const { vtt, pack } = state.loaded.get(L);
     const origin = ORIGINS[L];
-    const B = makeBuilders(dpi, origin);
+    const B = makeBuilders(dpi, origin, occupied);
     const mapFog = extractFog(vtt);
+    // Secret doors are overlay-glyph anchors, not dd2vtt portals: snap each
+    // onto the nearest wall and cut a door-sized gap out of it (mutates
+    // mapFog.walls, so this must run BEFORE the walls are merged below).
+    // The closed-door segment then becomes the gap's only blocker, so
+    // opening a secret door actually opens the passage.
+    for (const grid of pack.secret_doors) {
+      const hit = alignDoorToWall(mapFog.walls, grid[0], grid[1], 1.0, 2.5);
+      if (!hit) console.warn(`[DotMM] secret door at (${grid[0]}, ${grid[1]}) on map ${L}: no wall within 2.5 cells; placed unaligned`);
+      mapFog.doors.push(hit
+        ? { ...hit, open: false, secret: true }
+        : {
+            a: { x: grid[0] - 0.5, y: grid[1] },
+            b: { x: grid[0] + 0.5, y: grid[1] },
+            open: false, secret: true,
+            center: { x: grid[0], y: grid[1] },
+          });
+    }
     for (const flat of mapFog.walls) {
       fog.walls.push(flat.map((v, idx) => Math.round((v + origin[idx % 2]) * 100) / 100));
     }
     for (const l of mapFog.lights) {
       fog.lights.push({ ...l, x: l.x + origin[0], y: l.y + origin[1] });
-    }
-    for (const grid of pack.secret_doors) {
-      mapFog.doors.push({
-        a: { x: grid[0] - 0.5, y: grid[1] },
-        b: { x: grid[0] + 0.5, y: grid[1] },
-        open: false,
-        secret: true,
-        center: { x: grid[0], y: grid[1] },
-      });
     }
     for (const room of pack.rooms) {
       items.push(B.roomLabel(room));
@@ -480,7 +473,6 @@ function buildMerged(letters, dpi) {
       items.push(B.connectorMarker(conn));
     }
     mapFog.doors.forEach((door, i) => items.push(B.doorMarker(door, i)));
-    for (const grid of pack.secret_doors) items.push(B.secretDoorMarker(grid));
   }
   return { fog, items, mergedRooms };
 }
