@@ -1,0 +1,200 @@
+{
+ "note": "Provide one image per monster name. Accepted filename forms (case-insensitive): exact name with spaces, hyphens, or underscores, e.g. \"Bandit Captain.png\", \"bandit-captain.webp\", \"bandit_captain.jpg\".",
+ "monsters": [
+  {
+   "name": "Air Elemental",
+   "total": 1,
+   "rooms": [
+    "E:30b"
+   ]
+  },
+  {
+   "name": "Bandit",
+   "total": 11,
+   "rooms": [
+    "A:6c",
+    "A:6d",
+    "B:8c"
+   ]
+  },
+  {
+   "name": "Bandit Captain",
+   "total": 2,
+   "rooms": [
+    "A:6c",
+    "B:8b"
+   ]
+  },
+  {
+   "name": "Black Pudding",
+   "total": 1,
+   "rooms": [
+    "C:17b"
+   ]
+  },
+  {
+   "name": "Bugbear",
+   "total": 9,
+   "rooms": [
+    "A:2b",
+    "A:23b",
+    "E:28a",
+    "F:39b"
+   ]
+  },
+  {
+   "name": "Doppelganger",
+   "total": 3,
+   "rooms": [
+    "A:6c",
+    "A:6d",
+    "B:8c"
+   ]
+  },
+  {
+   "name": "Ettin",
+   "total": 2,
+   "rooms": [
+    "F:39d"
+   ]
+  },
+  {
+   "name": "Flesh Golem",
+   "total": 1,
+   "rooms": [
+    "B:8b"
+   ]
+  },
+  {
+   "name": "Gelatinous Cube",
+   "total": 1,
+   "rooms": [
+    "D:26c"
+   ]
+  },
+  {
+   "name": "Giant Centipede",
+   "total": 2,
+   "rooms": [
+    "C:17a"
+   ]
+  },
+  {
+   "name": "Giant Rat",
+   "total": 10,
+   "rooms": [
+    "E:35"
+   ]
+  },
+  {
+   "name": "Goblin",
+   "total": 40,
+   "rooms": [
+    "A:23a",
+    "A:23c",
+    "E:28c",
+    "F:39c"
+   ]
+  },
+  {
+   "name": "Gray Ooze",
+   "total": 1,
+   "rooms": [
+    "A:3"
+   ]
+  },
+  {
+   "name": "Grell",
+   "total": 2,
+   "rooms": [
+    "A:5"
+   ]
+  },
+  {
+   "name": "Grick",
+   "total": 7,
+   "rooms": [
+    "E:36b",
+    "E:36a"
+   ]
+  },
+  {
+   "name": "Grick Alpha",
+   "total": 1,
+   "rooms": [
+    "E:36c"
+   ]
+  },
+  {
+   "name": "Halaster Simulacrum",
+   "total": 1,
+   "rooms": [
+    "D:27-demiplane"
+   ]
+  },
+  {
+   "name": "Manticore",
+   "total": 3,
+   "rooms": [
+    "C:16"
+   ]
+  },
+  {
+   "name": "Mimic",
+   "total": 1,
+   "rooms": [
+    "F:40"
+   ]
+  },
+  {
+   "name": "Revenant",
+   "total": 1,
+   "rooms": [
+    "F:37"
+   ]
+  },
+  {
+   "name": "Sahuagin Baron",
+   "total": 1,
+   "rooms": [
+    "B:14b"
+   ]
+  },
+  {
+   "name": "Shadow",
+   "total": 2,
+   "rooms": [
+    "A:21"
+   ]
+  },
+  {
+   "name": "Spy",
+   "total": 1,
+   "rooms": [
+    "E:36b"
+   ]
+  },
+  {
+   "name": "Stirge",
+   "total": 20,
+   "rooms": [
+    "F:41"
+   ]
+  },
+  {
+   "name": "Troll",
+   "total": 1,
+   "rooms": [
+    "C:18"
+   ]
+  },
+  {
+   "name": "Wererat",
+   "total": 2,
+   "rooms": [
+    "E:35",
+    "E:31"
+   ]
+  }
+ ]
+}

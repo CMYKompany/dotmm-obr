@@ -1,0 +1,291 @@
+{
+ "schema": "dotmm-obr-pack/1",
+ "level": 1,
+ "map": "E",
+ "grid": {
+  "w": 73,
+  "h": 58,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level1_E_BG_73x58_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "32b",
+   "label": "32b",
+   "name": "Bathroom",
+   "grid": [
+    34.99,
+    5.21
+   ],
+   "monsters": [],
+   "gm_note": "The spigot still works: hot, clean water."
+  },
+  {
+   "id": "32a",
+   "label": "32a",
+   "name": "Empty Bedchamber",
+   "grid": [
+    44.77,
+    5.92
+   ],
+   "monsters": [],
+   "gm_note": "Cave-fresco walls; empty."
+  },
+  {
+   "id": "30a",
+   "label": "30a",
+   "name": "Zigzagging Hall",
+   "grid": [
+    46.9,
+    14.97
+   ],
+   "monsters": [],
+   "gm_note": "Anti-archer hall. The berserk air elemental charges any opened door."
+  },
+  {
+   "id": "33",
+   "label": "33",
+   "name": "North Dormitory",
+   "grid": [
+    67.49,
+    14.97
+   ],
+   "monsters": [],
+   "gm_note": "Eleven stone shelf-beds."
+  },
+  {
+   "id": "29",
+   "label": "29",
+   "name": "Eye See You!",
+   "grid": [
+    20.83,
+    16.87
+   ],
+   "monsters": [],
+   "gm_note": "Sixteen heraldic shields. One of Halaster\u2019s scrying eyes studies the party, then vanishes."
+  },
+  {
+   "id": "30b",
+   "label": "30b",
+   "name": "Guard Room",
+   "grid": [
+    55.91,
+    17.76
+   ],
+   "monsters": [
+    {
+     "name": "Air Elemental",
+     "count": 1,
+     "note": "berserk and trapped; howls constantly; rushes any opened door"
+    }
+   ],
+   "gm_note": "Wrecked gear on the floor. Secret door west to a tunnel connecting to 31."
+  },
+  {
+   "id": "35",
+   "label": "35",
+   "name": "Hall of Rats",
+   "grid": [
+    40.03,
+    20.42
+   ],
+   "monsters": [
+    {
+     "name": "Giant Rat",
+     "count": 10
+    },
+    {
+     "name": "Wererat",
+     "count": 1,
+     "note": "Flyndol Greeth, sleeping as an obese giant rat on the throne; surrenders if cornered"
+    }
+   ],
+   "gm_note": "Two dry dwarf-face fountains in the south wall. Flyndol awaits Sylvia (31)."
+  },
+  {
+   "id": "34",
+   "label": "34",
+   "name": "South Dormitory",
+   "grid": [
+    67.52,
+    22.9
+   ],
+   "monsters": [],
+   "gm_note": "Like 33, plus an elf skeleton with serviceable hide armor and quarterstaff."
+  },
+  {
+   "id": "31",
+   "label": "31",
+   "name": "Delvers' Hall",
+   "grid": [
+    56.08,
+    26.93
+   ],
+   "monsters": [
+    {
+     "name": "Wererat",
+     "count": 1,
+     "note": "Sylvia Featherstone in giant rat form; Xanathar spy hunting secret doors; flees to 35"
+    }
+   ],
+   "gm_note": "Dwarf statues in alcoves; one pushed aside reveals the secret tunnel to 30b."
+  },
+  {
+   "id": "28b",
+   "label": "28b",
+   "name": "Obelisk of the Eye",
+   "grid": [
+    21.03,
+    31.13
+   ],
+   "monsters": [],
+   "gm_note": "Goblin bunkroom around a 14-ft obelisk. First bare-handed touch: Halaster\u2019s telepathic riddle pointing to 38/39a and the stairs to level 2."
+  },
+  {
+   "id": "28c",
+   "label": "28c",
+   "name": "East Chamber",
+   "grid": [
+    28.92,
+    32.67
+   ],
+   "monsters": [
+    {
+     "name": "Goblin",
+     "count": 6,
+     "note": "jittery, bows trained on the east tunnel; ordered to kill gricks"
+    }
+   ],
+   "gm_note": "Dead goblins and a dead grick on the floor. Secret door north (defenders unaware)."
+  },
+  {
+   "id": "28a",
+   "label": "28a",
+   "name": "West Chamber",
+   "grid": [
+    11.76,
+    34.03
+   ],
+   "monsters": [
+    {
+     "name": "Bugbear",
+     "count": 2,
+     "note": "standing guard"
+    }
+   ],
+   "gm_note": "Part of Grick Snack watch post (2 bugbears + 6 goblins total)."
+  },
+  {
+   "id": "36b",
+   "label": "36b",
+   "name": "Trapped Fellow",
+   "grid": [
+    61.86,
+    35.57
+   ],
+   "monsters": [
+    {
+     "name": "Grick",
+     "count": 5,
+     "note": "in the diagonal hall south"
+    },
+    {
+     "name": "Spy",
+     "count": 1,
+     "note": "Kelim the Weasel, sealed in the west closet; weeping; treacherous if rescued"
+    }
+   ],
+   "gm_note": "Kelim trades a stolen spellbook (11 spells incl. lightning bolt) for rescue. Companion: he will betray anyone to save himself."
+  },
+  {
+   "id": "36a",
+   "label": "36a",
+   "name": "Cricks!",
+   "grid": [
+    43.88,
+    36.87
+   ],
+   "monsters": [
+    {
+     "name": "Grick",
+     "count": 2,
+     "note": "attack all who enter"
+    }
+   ],
+   "gm_note": "Partially collapsed hall strewn with skull-crushing debris."
+  },
+  {
+   "id": "36c",
+   "label": "36c",
+   "name": "Upside-Down Throne",
+   "grid": [
+    46.51,
+    42.97
+   ],
+   "monsters": [
+    {
+     "name": "Grick Alpha",
+     "count": 1,
+     "note": "gorged and sleeping; ignores anyone staying 10 ft away"
+    }
+   ],
+   "gm_note": "Permanent reverse gravity above 10 ft (dispel DC 18). Mummified minotaur on a ceiling throne has gem eyes (10 gp agate, 50 gp zircon)."
+  },
+  {
+   "id": "28d",
+   "label": "28d",
+   "name": "Concealed Spiked Pit",
+   "grid": [
+    24.29,
+    43.12
+   ],
+   "monsters": [],
+   "gm_note": "Floor lid over a 30-ft spiked pit (3d6 + 2d10; DC 15 Perception to spot). Dead goblin below has a lucky dwarf-thumb charm."
+  }
+ ],
+ "secret_doors": [
+  [
+   52.91,
+   16.99
+  ],
+  [
+   52.91,
+   22.9
+  ],
+  [
+   11.91,
+   27.93
+  ],
+  [
+   30.04,
+   27.93
+  ],
+  [
+   51.97,
+   39.86
+  ]
+ ],
+ "connectors": [
+  {
+   "to": "D",
+   "grid": [
+    1.42,
+    45.25
+   ]
+  },
+  {
+   "to": "F",
+   "grid": [
+    11.23,
+    56.96
+   ]
+  },
+  {
+   "to": "F",
+   "grid": [
+    19.26,
+    57.17
+   ]
+  }
+ ]
+}

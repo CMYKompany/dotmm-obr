@@ -1,0 +1,290 @@
+{
+ "schema": "dotmm-obr-pack/1",
+ "level": 1,
+ "map": "A",
+ "grid": {
+  "w": 70,
+  "h": 64,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level1_A_BG_70x64_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "6c",
+   "label": "6c",
+   "name": "Uktarl's Room",
+   "grid": [
+    37.9,
+    5.02
+   ],
+   "monsters": [
+    {
+     "name": "Bandit Captain",
+     "count": 1,
+     "note": "Uktarl; cowardly, retreats to 7"
+    },
+    {
+     "name": "Bandit",
+     "count": 2
+    },
+    {
+     "name": "Doppelganger",
+     "count": 1
+    }
+   ],
+   "gm_note": "Card game with marked deck. Dwarf-mountain fresco hides a stone key (DC 13 Perception) that opens the box in 14b. Coins on the table."
+  },
+  {
+   "id": "6a",
+   "label": "6a",
+   "name": "Hall of Three Lords",
+   "grid": [
+    46.19,
+    13.98
+   ],
+   "monsters": [],
+   "gm_note": "Rally point: if alerted, all Undertakers (captain, six bandits, two doppelgangers) gather here to extort a toll. Broken white staff wails \"Thief!\" when mended and held."
+  },
+  {
+   "id": "6d",
+   "label": "6d",
+   "name": "Sleeping Quarters",
+   "grid": [
+    32.68,
+    16.36
+   ],
+   "monsters": [
+    {
+     "name": "Bandit",
+     "count": 4,
+     "note": "asleep"
+    },
+    {
+     "name": "Doppelganger",
+     "count": 1,
+     "note": "keeping watch"
+    }
+   ],
+   "gm_note": "Eight bedrolls, two lanterns."
+  },
+  {
+   "id": "5",
+   "label": "5",
+   "name": "Grell Hideout",
+   "grid": [
+    5.67,
+    18.38
+   ],
+   "monsters": [
+    {
+     "name": "Grell",
+     "count": 2,
+     "note": "hidden in north and east alcoves; pursue fleeing prey"
+    }
+   ],
+   "gm_note": "Black bone pillars give the grells cover. No treasure."
+  },
+  {
+   "id": "6b",
+   "label": "6b",
+   "name": "Rigged Secret Door",
+   "grid": [
+    56.65,
+    19.7
+   ],
+   "monsters": [],
+   "gm_note": "Stacked plates crash when the door opens, alerting bandits in 6a, 6c, 6d."
+  },
+  {
+   "id": "4",
+   "label": "4",
+   "name": "With Sword in Hand",
+   "grid": [
+    38.63,
+    29.47
+   ],
+   "monsters": [],
+   "gm_note": "Cursed glowing longsword in a stand (wielder cannot drop it). Ceiling vents carry distorted Waterdeep voices; Tiny creatures could escape through them."
+  },
+  {
+   "id": "1",
+   "label": "1",
+   "name": "Entrywell",
+   "grid": [
+    63.99,
+    30.59
+   ],
+   "monsters": [],
+   "gm_note": "Rope drop from the Yawning Portal. A bandit watches through a secret spy-hole and retreats to warn area 6 when intruders arrive.",
+   "teleport": {
+    "kind": "surface",
+    "label": "Up to the Yawning Portal"
+   }
+  },
+  {
+   "id": "22",
+   "label": "22",
+   "name": "Empty Room",
+   "grid": [
+    22.99,
+    32.63
+   ],
+   "monsters": [],
+   "gm_note": "Torch stubs and empty potion bottles; adventurers rest here."
+  },
+  {
+   "id": "2a",
+   "label": "2a",
+   "name": "Demon Reliefs",
+   "grid": [
+    44.54,
+    36.36
+   ],
+   "monsters": [],
+   "gm_note": "Thirteen demon bas-reliefs. Kenku skeleton points at the nalfeshnee (secret door to 3). Dretch relief hides a second secret door to 4 with spy-hole eyes."
+  },
+  {
+   "id": "2b",
+   "label": "2b",
+   "name": "Pillar Forest",
+   "grid": [
+    31.1,
+    36.48
+   ],
+   "monsters": [
+    {
+     "name": "Bugbear",
+     "count": 2,
+     "note": "each hosts an intellect devourer; cannot be surprised; flee south to warn area 23"
+    }
+   ],
+   "gm_note": "Bugbears hide behind pillars and withdraw to alert Worg\u2019s Eye. Harmless snake skeleton on north pillar; looted secret compartment in south pillar."
+  },
+  {
+   "id": "21",
+   "label": "21",
+   "name": "Hall of Mirrors",
+   "grid": [
+    19.09,
+    37.38
+   ],
+   "monsters": [
+    {
+     "name": "Shadow",
+     "count": 2,
+     "note": "construct duplicates; spawn when someone passes the two westernmost mirrors; vanish after 1 minute"
+    }
+   ],
+   "gm_note": "Sixteen niche mirrors, five magical. Three illusory mirrors hide shelves; one holds the bronze Halaster mask (50 gp) \u2014 the key to area 27."
+  },
+  {
+   "id": "23a",
+   "label": "23a",
+   "name": "Nimraith's Fate",
+   "grid": [
+    16.89,
+    43.4
+   ],
+   "monsters": [
+    {
+     "name": "Goblin",
+     "count": 6,
+     "note": "bored, playing games"
+    }
+   ],
+   "gm_note": "Part of Worg\u2019s Eye watch post (2 bugbears + 15 goblins total; none can be surprised if warned)."
+  },
+  {
+   "id": "23b",
+   "label": "23b",
+   "name": "Shattered Statue",
+   "grid": [
+    24.7,
+    44.63
+   ],
+   "monsters": [
+    {
+     "name": "Bugbear",
+     "count": 2,
+     "note": "each hosts an intellect devourer; cannot be surprised"
+    }
+   ],
+   "gm_note": "Bugbears reassemble a statue of three warriors (17 pieces). Devourers teleport out when a host drops."
+  },
+  {
+   "id": "3",
+   "label": "3",
+   "name": "Slanted Room",
+   "grid": [
+    45.91,
+    50.14
+   ],
+   "monsters": [
+    {
+     "name": "Gray Ooze",
+     "count": 1,
+     "note": "psychic variant; invisible underwater north of the statue"
+    }
+   ],
+   "gm_note": "Flooded, tilted sewer room. Sahuagin statue\u2019s screw-off head hides a wand of secrets clue; ooze psychic-crushes anyone approaching."
+  },
+  {
+   "id": "23c",
+   "label": "23c",
+   "name": "Goblin Den",
+   "grid": [
+    17.38,
+    59.16
+   ],
+   "monsters": [
+    {
+     "name": "Goblin",
+     "count": 9,
+     "note": "asleep unless the post is alerted"
+    }
+   ],
+   "gm_note": "If the bugbears die, these goblins flee to 28 via 24 and 25."
+  }
+ ],
+ "secret_doors": [
+  [
+   55.25,
+   19.7
+  ],
+  [
+   61.01,
+   26.59
+  ],
+  [
+   44.97,
+   34.44
+  ],
+  [
+   41.01,
+   38.47
+  ]
+ ],
+ "connectors": [
+  {
+   "to": "B",
+   "grid": [
+    44.91,
+    0.99
+   ]
+  },
+  {
+   "to": "D",
+   "grid": [
+    10.27,
+    55.49
+   ]
+  },
+  {
+   "to": "D",
+   "grid": [
+    32.41,
+    55.49
+   ]
+  }
+ ]
+}

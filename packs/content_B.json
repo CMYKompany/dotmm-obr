@@ -1,0 +1,246 @@
+{
+ "schema": "dotmm-obr-pack/1",
+ "level": 1,
+ "map": "B",
+ "grid": {
+  "w": 65,
+  "h": 50,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level1_B_BG_65x50_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "14c",
+   "label": "14c",
+   "name": "Secret Room",
+   "grid": [
+    61.11,
+    6.93
+   ],
+   "monsters": [],
+   "gm_note": "Empty 10-ft room."
+  },
+  {
+   "id": "9b",
+   "label": "9b",
+   "name": "Rotted Corpse",
+   "grid": [
+    17.57,
+    8.04
+   ],
+   "monsters": [],
+   "gm_note": "Dead Undertaker (spider venom). Intact scimitar and light crossbow; empty pouch."
+  },
+  {
+   "id": "14a",
+   "label": "14a",
+   "name": "Sloping Tunnel",
+   "grid": [
+    47.31,
+    8.95
+   ],
+   "monsters": [],
+   "gm_note": "Empty; north tunnel slopes 20 ft down to 14b."
+  },
+  {
+   "id": "14b",
+   "label": "14b",
+   "name": "Heart in a Box",
+   "grid": [
+    56.1,
+    10.48
+   ],
+   "monsters": [
+    {
+     "name": "Sahuagin Baron",
+     "count": 1,
+     "note": "petrified statue; animates only if the box is pried from its grasp (DC 20 Athletics)"
+    }
+   ],
+   "gm_note": "Floating acid dome falls (2d10/turn, floods 5 ft) if the box opens without the key from 6c. Lead-lined box holds the withered tiefling heart (swaps with the attuner\u2019s heart \u2014 instant death)."
+  },
+  {
+   "id": "9a",
+   "label": "9a",
+   "name": "Pillared Way",
+   "grid": [
+    14.78,
+    13.89
+   ],
+   "monsters": [],
+   "gm_note": "Gem sockets looted; rusted animated-armor remains in the alcove."
+  },
+  {
+   "id": "12",
+   "label": "12",
+   "name": "Hall of Heroes",
+   "grid": [
+    23.37,
+    15.84
+   ],
+   "monsters": [],
+   "gm_note": "Thirty-eight defaced statues; webbed ceiling; three dead giant spiders. Elder rune trap on the east double doors to 16."
+  },
+  {
+   "id": "8c",
+   "label": "8c",
+   "name": "Masters of Disguise",
+   "grid": [
+    20.69,
+    21.09
+   ],
+   "monsters": [
+    {
+     "name": "Bandit",
+     "count": 5,
+     "note": "disguised as vampires"
+    },
+    {
+     "name": "Doppelganger",
+     "count": 1
+    }
+   ],
+   "gm_note": "Vampire-posing extortionists; flee to 6 when outmatched. Disguise kits and rations on the table."
+  },
+  {
+   "id": "15",
+   "label": "15",
+   "name": "Armory",
+   "grid": [
+    57.62,
+    24.19
+   ],
+   "monsters": [],
+   "gm_note": "Collapsed weapon racks; ordinary handaxe in the south door; seized sharpening wheel in the south room."
+  },
+  {
+   "id": "8a",
+   "label": "8a",
+   "name": "Hall of the Bone Throne",
+   "grid": [
+    28.42,
+    26.34
+   ],
+   "monsters": [],
+   "gm_note": "Wyvern remains and shattered crystal prison. Throne\u2019s serpent armrests animate and bite (poison, DC 13 Con) when someone sits or lifts the seat; hidden compartment is empty."
+  },
+  {
+   "id": "8b",
+   "label": "8b",
+   "name": "Harria's Room",
+   "grid": [
+    19.06,
+    26.84
+   ],
+   "monsters": [
+    {
+     "name": "Bandit Captain",
+     "count": 1,
+     "note": "Harria; sleeps unless disturbed, flees to 7"
+    },
+    {
+     "name": "Flesh Golem",
+     "count": 1,
+     "note": "her guard; she cannot control it if berserk"
+    }
+   ],
+   "gm_note": "Clown-painted trunk holds a disguise kit and costumes."
+  },
+  {
+   "id": "13",
+   "label": "13",
+   "name": "Empty Room",
+   "grid": [
+    36.42,
+    26.97
+   ],
+   "monsters": [],
+   "gm_note": "Empty; a good spot for a regional effect of Halaster\u2019s lair."
+  },
+  {
+   "id": "10",
+   "label": "10",
+   "name": "Cubicle of Skulls",
+   "grid": [
+    14.86,
+    34.9
+   ],
+   "monsters": [],
+   "gm_note": "Thousands of harmless skulls avalanche out when the door opens."
+  },
+  {
+   "id": "7a",
+   "label": "7a",
+   "name": "Hall of Retreat",
+   "grid": [
+    46.35,
+    36.95
+   ],
+   "monsters": [],
+   "gm_note": "Undertakers\u2019 fallback: Uktarl and Harria make a final stand here if routed. Companion: they yield rather than die; will trade dungeon info for their lives."
+  },
+  {
+   "id": "11",
+   "label": "11",
+   "name": "Room of Secrets",
+   "grid": [
+    21.77,
+    38.0
+   ],
+   "monsters": [],
+   "gm_note": "Wear the copper helm while sitting on the copper throne: a wand of secrets drops from the ceiling."
+  },
+  {
+   "id": "7b",
+   "label": "7b",
+   "name": "Crypt",
+   "grid": [
+    51.25,
+    43.86
+   ],
+   "monsters": [],
+   "gm_note": "Old vampire lair, long vacant. Coffin with mist-hole holds only a vial of holy water."
+  }
+ ],
+ "secret_doors": [
+  [
+   58.96,
+   7.12
+  ],
+  [
+   43.23,
+   29.12
+  ],
+  [
+   43.23,
+   36.84
+  ],
+  [
+   20.74,
+   40.07
+  ]
+ ],
+ "connectors": [
+  {
+   "to": "expanded",
+   "grid": [
+    18.37,
+    3.07
+   ]
+  },
+  {
+   "to": "C",
+   "grid": [
+    62.42,
+    16.81
+   ]
+  },
+  {
+   "to": "A",
+   "grid": [
+    43.77,
+    45.64
+   ]
+  }
+ ]
+}
