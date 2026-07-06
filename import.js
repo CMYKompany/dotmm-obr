@@ -31,12 +31,16 @@ const setStatus = (msg, cls = "") => {
 const setProgress = (pct) => { $("bar").style.width = `${pct}%`; };
 
 // ---------- tabs ----------
+function activateTab(name) {
+  document.querySelectorAll(".tab").forEach((t) => {
+    t.classList.toggle("active", t.dataset.tab === name);
+  });
+  $("tab-import").classList.toggle("hidden", name !== "import");
+  $("tab-rooms").classList.toggle("hidden", name !== "rooms");
+}
 for (const tab of document.querySelectorAll(".tab")) {
   tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-    tab.classList.add("active");
-    $("tab-import").classList.toggle("hidden", tab.dataset.tab !== "import");
-    $("tab-rooms").classList.toggle("hidden", tab.dataset.tab !== "rooms");
+    activateTab(tab.dataset.tab);
     if (tab.dataset.tab === "rooms") refreshRooms();
   });
 }
@@ -164,6 +168,24 @@ $("pickTokens").addEventListener("click", async () => {
 // must reference URLs from the OBR library: step 2b uploads the decoded PNGs,
 // then picks them back to obtain URLs (skipped automatically when
 // uploadImages returns usable asset info).
+// Upload the given letters' embedded PNGs to the user's library and, when
+// OBR's upload result carries usable asset info, record their URLs directly.
+async function uploadExtraMapImages(letters) {
+  const uploads = [];
+  for (const L of letters) {
+    const { vtt } = state.loaded.get(L);
+    const file = base64ToFile(vtt.image, `DotMM-L1-${L}`);
+    uploads.push(buildImageUpload(file).dpi(DPI).name(`DotMM-L1-${L}`).build());
+  }
+  const result = await OBR.assets.uploadImages(uploads, "MAP");
+  if (Array.isArray(result)) {
+    for (const asset of result) {
+      const m = /DotMM-L1-([A-F])/.exec(asset?.name ?? "");
+      if (m && asset?.image?.url) state.mapImages.set(m[1], asset.image);
+    }
+  }
+}
+
 $("uploadMaps").addEventListener("click", async () => {
   const extras = [...state.loaded.keys()].sort().slice(1);
   if (extras.length === 0) {
@@ -171,21 +193,8 @@ $("uploadMaps").addEventListener("click", async () => {
     return;
   }
   try {
-    setStatus("Decoding map images…");
-    const uploads = [];
-    for (const L of extras) {
-      const { vtt } = state.loaded.get(L);
-      const file = base64ToFile(vtt.image, `DotMM-L1-${L}`);
-      uploads.push(buildImageUpload(file).dpi(DPI).name(`DotMM-L1-${L}`).build());
-    }
     setStatus("Confirm the upload dialog in Owlbear Rodeo…");
-    const result = await OBR.assets.uploadImages(uploads, "MAP");
-    if (Array.isArray(result)) {
-      for (const asset of result) {
-        const m = /DotMM-L1-([A-F])/.exec(asset?.name ?? "");
-        if (m && asset?.image?.url) state.mapImages.set(m[1], asset.image);
-      }
-    }
+    await uploadExtraMapImages(extras);
     if (extras.every((L) => state.mapImages.has(L))) {
       setStatus(`Map images ready (${extras.join(", ")}). Import when ready.`, "ok");
     } else {
@@ -237,6 +246,7 @@ function makeBuilders(dpi, origin, occupied) {
   // GM-only room number badge, centered on the room anchor. Labels render
   // as solid badges (unlike free Text items) so they read reliably at any
   // zoom; the full name lives in the item name and the room browser.
+  // Unlocked so the GM can right-click one for the Room Details menu.
   function roomLabel(room) {
     const [cx, cy] = gc(room.grid);
     const item = buildLabel()
@@ -246,7 +256,7 @@ function makeBuilders(dpi, origin, occupied) {
       .backgroundOpacity(0.8)
       .layer("TEXT")
       .visible(false)
-      .locked(true)
+      .locked(false)
       .name(`Room ${room.label} · ${room.name}`)
       .metadata({ [K.room]: room })
       .build();
@@ -482,15 +492,27 @@ $("importBtn").addEventListener("click", async () => {
   if (state.importing || state.loaded.size === 0) return;
   const letters = [...state.loaded.keys()].sort();
   const extras = letters.slice(1);
-  const missingMaps = extras.filter((L) => !state.mapImages.has(L));
-  if (missingMaps.length > 0) {
-    setStatus(`Combined scene needs library images for maps ${missingMaps.join(", ")} — use step 2b.`, "err");
-    return;
-  }
   state.importing = true;
   $("importBtn").disabled = true;
   let stage = "start";
   try {
+    // Extra maps must be placed from library URLs (a scene upload carries
+    // exactly one image file). Upload any that are missing automatically —
+    // the manual step 2b remains only for reusing already-uploaded copies.
+    let missing = extras.filter((L) => !state.mapImages.has(L));
+    if (missing.length > 0) {
+      stage = "uploading extra maps";
+      setStatus(`Uploading maps ${missing.join(", ")} to your library — confirm the dialog…`);
+      setProgress(5);
+      await uploadExtraMapImages(missing);
+      missing = extras.filter((L) => !state.mapImages.has(L));
+      if (missing.length > 0) {
+        setStatus(`Maps ${missing.join(", ")} were uploaded but OBR returned no URLs — click “Pick uploaded maps” (step 2b), then Import again.`, "err");
+        setProgress(0);
+        return;
+      }
+    }
+
     stage = "merging maps";
     setStatus("Merging maps into the global frame…");
     setProgress(15);
@@ -540,6 +562,21 @@ $("importBtn").addEventListener("click", async () => {
 // ---------- room browser ----------
 let currentRooms = [];
 
+// Order rooms by number, then letter suffix: 1, 2a, 2b, 3, … Labels that
+// don't parse sort after the numbered ones, alphabetically.
+function roomSortKey(room) {
+  const m = /^(\d+)([a-z]*)$/i.exec(String(room.label).trim());
+  return m
+    ? [Number(m[1]), m[2].toLowerCase()]
+    : [Number.MAX_SAFE_INTEGER, String(room.label).toLowerCase()];
+}
+function sortRooms(rooms) {
+  return rooms.slice().sort((a, b) => {
+    const ka = roomSortKey(a), kb = roomSortKey(b);
+    return ka[0] - kb[0] || (ka[1] < kb[1] ? -1 : ka[1] > kb[1] ? 1 : 0);
+  });
+}
+
 async function refreshRooms() {
   const list = $("roomlist");
   const sceneReady = await OBR.scene.isReady().catch(() => false);
@@ -559,9 +596,26 @@ async function refreshRooms() {
   }
   const ctrl = items[0].metadata[K.controller];
   $("roomsScene").textContent = `— map ${ctrl.map}`;
-  currentRooms = ctrl.rooms || [];
+  currentRooms = sortRooms(ctrl.rooms || []);
   renderRoomList();
   $("realign").classList.remove("hidden");
+}
+
+// Deep link from the scene: the "Room Details" context menu on a room
+// label writes {id} to player metadata and opens this panel; show that
+// room's entry and clear the request.
+async function handleShowRoomRequest(meta) {
+  const req = meta && meta[K.showRoom];
+  if (!req) return;
+  try {
+    await OBR.player.setMetadata({ [K.showRoom]: undefined });
+  } catch (err) {
+    console.error("[DotMM] show-room metadata clear failed:", err);
+  }
+  activateTab("rooms");
+  await refreshRooms();
+  const i = currentRooms.findIndex((r) => r.id === req.id);
+  if (i >= 0) showRoom(i);
 }
 
 $("realign").addEventListener("click", async () => {
@@ -656,4 +710,10 @@ $("search").addEventListener("input", renderRoomList);
 OBR.onReady(() => {
   refreshRooms();
   OBR.scene.onReadyChange(() => refreshRooms());
+  // Pick up a pending Room Details request (set before the panel opened)
+  // and any that arrive while it is open.
+  OBR.player.getMetadata()
+    .then(handleShowRoomRequest)
+    .catch((err) => console.error("[DotMM] show-room boot check failed:", err));
+  OBR.player.onChange((player) => handleShowRoomRequest(player.metadata));
 });

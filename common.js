@@ -9,6 +9,7 @@ export const K = {
   localTag: `${PLUGIN}/local`,          // on local items we own; value: "wall" | "light" | "vision" | "door-wall"
   cell: `${PLUGIN}/cell`,               // on every positioned item; value: [x, y] intended position in grid cells
   mapImage: `${PLUGIN}/map-image`,      // on map image items; value: {letter, cells: [w,h], origin: [x,y]}
+  showRoom: `${PLUGIN}/show-room`,      // on PLAYER metadata; value: {id} - deep link into the room browser
 };
 
 export const DPI = 100; // dd2vtt pixels_per_grid for all six maps

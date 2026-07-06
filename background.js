@@ -352,6 +352,23 @@ async function syncFromScene() {
       }
     }
   }
+  if (state.active) {
+    // Migration: pre-1.3.0 imports created room labels locked, which makes
+    // them unselectable and blocks the Room Details context menu.
+    try {
+      const lockedLabels = await OBR.scene.items.getItems(
+        (it) => it.metadata && it.metadata[K.room] !== undefined && it.locked
+      );
+      if (lockedLabels.length > 0) {
+        await OBR.scene.items.updateItems(
+          lockedLabels.map((it) => it.id),
+          (drafts) => { for (const item of drafts) item.locked = false; }
+        );
+      }
+    } catch (err) {
+      console.error("[DotMM] room label unlock failed:", err);
+    }
+  }
   state.doorItems = state.active
     ? await OBR.scene.items.getItems((it) => it.metadata && it.metadata[K.door] !== undefined)
     : [];
@@ -389,6 +406,30 @@ function registerContextMenus() {
           }
         }
       });
+    },
+  });
+
+  // Room details - on room label badges; deep-links into the importer
+  // panel's room browser via player metadata (the popover may not even be
+  // open yet, so a broadcast would be lost - metadata persists until the
+  // panel reads and clears it).
+  OBR.contextMenu.create({
+    id: `${PLUGIN}/room-details`,
+    icons: [
+      {
+        icon: new URL("icon.svg", import.meta.url).href,
+        label: "Room Details",
+        filter: {
+          every: [{ key: ["metadata", K.room], operator: "!=", value: undefined }],
+        },
+      },
+    ],
+    async onClick(context) {
+      const item = context.items.find((it) => it.metadata && it.metadata[K.room]);
+      if (!item) return;
+      const room = item.metadata[K.room];
+      await OBR.player.setMetadata({ [K.showRoom]: { id: room.id } });
+      await OBR.action.open();
     },
   });
 
