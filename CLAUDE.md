@@ -6,7 +6,7 @@ Level 1 into OBR in one action per scene: map images, dynamic fog
 monster tokens placed per the module, GM notes, secret-door markers,
 teleport/gate markers, and a room browser with jump-to-room.
 
-Current version: **1.3.1**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+Current version: **1.4.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
 
 ## Collaboration preferences (apply to all responses)
 
@@ -144,8 +144,15 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
    so they can be right-clicked.
 3. Token matching happens at import time only; changing matches requires
    re-import (or manual image swap in-scene).
-4. Seam overlaps: user now imports the TP (transparent) dd2vtt variants;
-   ±1-cell seam errors may still show — maps can be unlocked and nudged.
+4. Seam errors (ORIGINS off by 1–3 cells for some maps): fixed IN-SCENE
+   via the Rooms-tab **Map offsets** nudge UI (≥1.4.0 imports only). A
+   nudge writes `ctrl.originOverrides[letter]` (cells) and re-aligns, so
+   the map image, tokens, labels, doors, WALLS and lights move as one
+   unit. NEVER fix seams by dragging a map — content and walls will not
+   follow. Once the user settles on offsets, bake them into `ORIGINS` and
+   drop the overrides. Every per-map item carries `K.map`; fog payload
+   entries carry `m` (letter); pre-1.4.0 scenes lack both, so the nudge
+   UI hides itself there.
 5. Only Level 1 is covered. Extending to other levels requires rerunning
    the pipeline against that level's overlays/dd2vtt/text.
 6. If a secret door logs "no wall within 2.5 cells" at import, its overlay

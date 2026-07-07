@@ -22,13 +22,20 @@ import { PLUGIN, K, MAP_PIXELS, ORIGINS, fmtError } from "./common.js";
 
 const state = {
   active: false,      // current scene is a DotMM import
-  fog: null,          // {w: [[x0,y0,...]...], l: [{x,y,r,c,i}...]}
+  fog: null,          // {w: [{m, p: [x0,y0,...]}...], l: [{m, x,y,r,c,i}...]}
   doorItems: [],      // synced door marker items
   visionItems: [],    // synced character items with vision metadata
   rebuildQueued: false,
   lastSignatures: {}, // per-group change detectors: skip rebuilds of unchanged groups
   dpi: 150,           // live scene grid dpi; fog metadata is stored in cells
+  overrides: {},      // per-map origin nudges in cells, {letter: [dx, dy]} - from controller metadata
 };
+
+// Per-map origin override (cells). Content baked at import time shifts by
+// this so a nudged map carries its tokens, walls, doors and lights along.
+function ovOf(letter) {
+  return (letter && state.overrides[letter]) || [0, 0];
+}
 
 // Local items are rebuilt per GROUP (the K.localTag value), each with its
 // own signature, so toggling a door only touches the door-wall group -
@@ -37,7 +44,7 @@ const GROUPS = ["wall", "door-wall", "light", "vision"];
 
 function computeSignatures() {
   const on = state.active && state.fog;
-  const base = `${state.dpi}`;
+  const base = `${state.dpi};${JSON.stringify(state.overrides)}`;
   const doors = state.doorItems
     .map((it) => {
       const d = it.metadata[K.door];
@@ -69,17 +76,25 @@ async function readFogData() {
   const n = chunks[0].n;
   if (chunks.length !== n) return null; // incomplete
   try {
-    return JSON.parse(chunks.map((c) => c.data).join(""));
+    const raw = JSON.parse(chunks.map((c) => c.data).join(""));
+    // Normalize the pre-1.4.0 payload (plain flat arrays / lights without
+    // a map letter) so consumers see one shape; m: null means "no letter
+    // known" and such entries never shift with per-map nudges.
+    return {
+      w: (raw.w || []).map((e) => (Array.isArray(e) ? { m: null, p: e } : e)),
+      l: (raw.l || []).map((e) => (e.m === undefined ? { ...e, m: null } : e)),
+    };
   } catch {
     return null;
   }
 }
 
 // ---------- local item construction ----------
-function wallFromFlat(flat, dpi) {
+function wallFromEntry(entry, dpi) {
+  const [ox, oy] = ovOf(entry.m);
   const points = [];
-  for (let i = 0; i + 1 < flat.length; i += 2) {
-    points.push({ x: flat[i] * dpi, y: flat[i + 1] * dpi });
+  for (let i = 0; i + 1 < entry.p.length; i += 2) {
+    points.push({ x: (entry.p[i] + ox) * dpi, y: (entry.p[i + 1] + oy) * dpi });
   }
   const item = buildWall()
     .points(points)
@@ -90,11 +105,12 @@ function wallFromFlat(flat, dpi) {
   return item;
 }
 
-function wallFromDoor(door, dpi) {
+function wallFromDoor(marker, door, dpi) {
+  const [ox, oy] = ovOf(marker.metadata[K.map]);
   const item = buildWall()
     .points([
-      { x: door.a.x * dpi, y: door.a.y * dpi },
-      { x: door.b.x * dpi, y: door.b.y * dpi },
+      { x: (door.a.x + ox) * dpi, y: (door.a.y + oy) * dpi },
+      { x: (door.b.x + ox) * dpi, y: (door.b.y + oy) * dpi },
     ])
     .doubleSided(true)
     .blocking(true)
@@ -104,8 +120,9 @@ function wallFromDoor(door, dpi) {
 }
 
 function lightFromEntry(entry, dpi) {
+  const [ox, oy] = ovOf(entry.m);
   const item = buildLight()
-    .position({ x: entry.x * dpi, y: entry.y * dpi })
+    .position({ x: (entry.x + ox) * dpi, y: (entry.y + oy) * dpi })
     .attenuationRadius(entry.r * dpi)
     .sourceRadius(0)
     .falloff(0.35)
@@ -174,13 +191,13 @@ async function rebuildPass() {
   const items = [];
   if (state.active && state.fog) {
     if (changed.includes("wall")) {
-      state.fog.w.forEach((flat) => items.push(wallFromFlat(flat, dpi)));
+      state.fog.w.forEach((entry) => items.push(wallFromEntry(entry, dpi)));
     }
     if (changed.includes("door-wall")) {
       state.doorItems.forEach((marker) => {
         const door = marker.metadata[K.door];
         if (door && !door.open) {
-          items.push(wallFromDoor(door, dpi));
+          items.push(wallFromDoor(marker, door, dpi));
         }
       });
     }
@@ -233,8 +250,9 @@ async function alignMaps(dpi) {
   for (const it of mapItems) {
     const info = identifyMapItem(it);
     if (!info) continue;
+    const [ox, oy] = ovOf(info.letter);
     const targetW = info.cells[0] * dpi;
-    const target = { x: info.origin[0] * dpi, y: info.origin[1] * dpi };
+    const target = { x: (info.origin[0] + ox) * dpi, y: (info.origin[1] + oy) * dpi };
     // Measure the item's world-space footprint as ACTUALLY rendered - no
     // assumptions about how OBR interprets image dpi on this build.
     let factor = 1;
@@ -281,7 +299,8 @@ async function alignMaps(dpi) {
   }
 }
 
-// Snap every cell-tagged item onto the lattice (already absolute writes).
+// Snap every cell-tagged item onto the lattice (already absolute writes),
+// shifted by its map's origin override so content follows nudged maps.
 async function snapCellItems(dpi) {
   const cellItems = await OBR.scene.items.getItems(
     (it) => it.metadata && it.metadata[K.cell] !== undefined
@@ -293,7 +312,8 @@ async function snapCellItems(dpi) {
         for (const item of drafts) {
           const cell = item.metadata[K.cell];
           if (!Array.isArray(cell)) continue;
-          item.position = { x: cell[0] * dpi, y: cell[1] * dpi };
+          const [ox, oy] = ovOf(item.metadata[K.map]);
+          item.position = { x: (cell[0] + ox) * dpi, y: (cell[1] + oy) * dpi };
         }
       }
     );
@@ -309,9 +329,10 @@ async function verifyMaps(dpi) {
     const info = identifyMapItem(it);
     if (!info) continue;
     try {
+      const [ox, oy] = ovOf(info.letter);
       const b = await OBR.scene.items.getItemBounds([it.id]);
-      const rx = b.min.x - info.origin[0] * dpi;
-      const ry = b.min.y - info.origin[1] * dpi;
+      const rx = b.min.x - (info.origin[0] + ox) * dpi;
+      const ry = b.min.y - (info.origin[1] + oy) * dpi;
       const rw = b.width - info.cells[0] * dpi;
       worst = Math.max(worst, Math.abs(rx), Math.abs(ry), Math.abs(rw));
       console.log(`[DotMM] verify map ${info.letter}: residual pos (${rx.toFixed(1)}, ${ry.toFixed(1)}) px, width ${rw.toFixed(1)} px`);
@@ -384,6 +405,7 @@ async function syncFromScene() {
   if (state.active) {
     state.dpi = await OBR.scene.grid.getDpi().catch(() => 150);
     const ctrl = controllers[0].metadata[K.controller];
+    state.overrides = ctrl.originOverrides || {};
     if (ctrl.reconciledDpi !== state.dpi) {
       try {
         await reconcile();
