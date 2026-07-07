@@ -9,6 +9,7 @@ export const K = {
   localTag: `${PLUGIN}/local`,          // on local items we own; value: "wall" | "light" | "vision" | "door-wall"
   cell: `${PLUGIN}/cell`,               // on every positioned item; value: [x, y] intended position in grid cells
   mapImage: `${PLUGIN}/map-image`,      // on map image items; value: {letter, cells: [w,h], origin: [x,y]}
+  map: `${PLUGIN}/map-letter`,          // on every per-map content item; value: "A".."F" - which sub-map it belongs to
   showRoom: `${PLUGIN}/show-room`,      // on PLAYER metadata; value: {id} - deep link into the room browser
 };
 

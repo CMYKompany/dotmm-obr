@@ -181,13 +181,30 @@ connectors between included maps are dropped as noise.
     - `.drop` was an inline `<label>` with border/padding → broken line
       fragments. → `display: block`.
 
+14. v1.3.1 field test: reconcile finally clean on first open (all six
+    maps corrected in one pass, residuals 0.0). Remaining reports were
+    all ONE root cause: some ORIGINS are off by 1–3 cells (user saw
+    content 3 cells left of rooms 16/17a; duplicate-looking doors at the
+    A/C seam; "walls completely broken"), and the user fixed seams by
+    MANUALLY DRAGGING maps — which moves only the map image while
+    tokens, labels, doors, walls and lights stay at origin-derived
+    positions. → v1.4.0 per-map nudge system:
+    - `ctrl.originOverrides = {letter: [dx, dy]}` (cells) on the
+      controller; effective origin = ORIGINS + override everywhere
+      (map targets, K.cell snap, walls, lights, door-walls, jump).
+    - every per-map item gets `K.map` letter; fog payload entries carry
+      `m` (letter); legacy payloads normalized to m: null (never shift).
+    - Rooms-tab "Map offsets" UI: ◀▲▼▶ per map, 1-cell steps; writes the
+      override, clears reconciledDpi, background re-aligns everything.
+      Hidden on pre-1.4.0 scenes (no K.map tags → nudge would desync).
+    - seam-duplicate doors deduped at import (centers within 0.75 cells).
+
 ## 5. Immediate next steps
 
-1. User tests v1.3.1: fresh combined import end-to-end (upload dialog +
-   picker inside one Import click), maps aligned on first open WITHOUT
-   Re-align (watch for `reconcile attempt N … retrying` warnings — they
-   mean the self-heal loop caught a lost update), drop zone renders as a
-   proper box.
+1. User re-imports with v1.4.0 and fixes seams ONLY via the Map offsets
+   nudge UI (Rooms tab), confirming tokens/labels/doors/walls all move
+   with the map. Then report the final per-map offsets so they can be
+   baked into ORIGINS as the new defaults.
 2. Check the import console for `[DotMM] secret door … no wall within
    2.5 cells` warnings — each one is a curated anchor that needs a nudge.
 3. Longer term: per-map nudge UI (arrow buttons moving a map ±1 cell and

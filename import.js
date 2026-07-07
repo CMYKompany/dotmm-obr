@@ -412,6 +412,7 @@ function controllerItems(letters, mergedRooms, fog, dpi) {
         level: 1,
         chunks: chunks.length,
         rooms: mergedRooms,
+        originOverrides: {},
       },
     })
     .build();
@@ -442,11 +443,13 @@ function buildMerged(letters, dpi) {
   const items = [];
   const mergedRooms = [];
   const occupied = new Set(); // token-occupied cells, shared across all maps
+  const doorCenters = [];     // global-frame door centers, for seam dedupe
   for (const L of letters) {
     const { vtt, pack } = state.loaded.get(L);
     const origin = ORIGINS[L];
     const B = makeBuilders(dpi, origin, occupied);
     const mapFog = extractFog(vtt);
+    const itemsBefore = items.length;
     // Secret doors are overlay-glyph anchors, not dd2vtt portals: snap each
     // onto the nearest wall and cut a door-sized gap out of it (mutates
     // mapFog.walls, so this must run BEFORE the walls are merged below).
@@ -464,11 +467,16 @@ function buildMerged(letters, dpi) {
             center: { x: grid[0], y: grid[1] },
           });
     }
+    // Walls and lights carry their map letter (m) so per-map origin nudges
+    // can shift them together with the map image at materialization time.
     for (const flat of mapFog.walls) {
-      fog.walls.push(flat.map((v, idx) => Math.round((v + origin[idx % 2]) * 100) / 100));
+      fog.walls.push({
+        m: L,
+        p: flat.map((v, idx) => Math.round((v + origin[idx % 2]) * 100) / 100),
+      });
     }
     for (const l of mapFog.lights) {
-      fog.lights.push({ ...l, x: l.x + origin[0], y: l.y + origin[1] });
+      fog.lights.push({ ...l, m: L, x: l.x + origin[0], y: l.y + origin[1] });
     }
     for (const room of pack.rooms) {
       items.push(B.roomLabel(room));
@@ -484,7 +492,19 @@ function buildMerged(letters, dpi) {
       if (letters.includes(conn.to)) continue; // seams between present maps are noise
       items.push(B.connectorMarker(conn));
     }
-    mapFog.doors.forEach((door, i) => items.push(B.doorMarker(door, i)));
+    mapFog.doors.forEach((door, i) => {
+      // Seam overlap regions exist in BOTH maps' dd2vtt files, each with
+      // its own copy of the connecting door - keep only the first.
+      const c = { x: door.center.x + origin[0], y: door.center.y + origin[1] };
+      if (doorCenters.some((p) => Math.hypot(p.x - c.x, p.y - c.y) < 0.75)) return;
+      doorCenters.push(c);
+      items.push(B.doorMarker(door, i));
+    });
+    // Tag everything this map contributed with its letter so per-map
+    // origin nudges can move the map and its content as one unit.
+    for (let i = itemsBefore; i < items.length; i++) {
+      items[i].metadata[K.map] = L;
+    }
   }
   return { fog, items, mergedRooms };
 }
@@ -568,6 +588,72 @@ $("importBtn").addEventListener("click", async () => {
 
 // ---------- room browser ----------
 let currentRooms = [];
+let currentOverrides = {};
+let nudgeCapable = false; // scene items carry K.map tags (imported ≥1.4.0)
+
+// Per-map origin nudge: adjusts ctrl.originOverrides (cells) and clears
+// reconciledDpi, so the background re-align moves the map image AND all
+// its content - tokens, labels, doors, walls, lights - as one unit.
+async function nudgeMap(L, dx, dy) {
+  try {
+    const controllers = await OBR.scene.items.getItems(
+      (it) => it.metadata && it.metadata[K.controller] !== undefined
+    );
+    if (controllers.length === 0) return;
+    const ctrl0 = controllers[0].metadata[K.controller];
+    const overrides = { ...(ctrl0.originOverrides || {}) };
+    const cur = overrides[L] || [0, 0];
+    overrides[L] = [cur[0] + dx, cur[1] + dy];
+    // Absolute values in the draft: OBR can replay update callbacks, and
+    // a relative "+= dx" inside one would then apply twice.
+    await OBR.scene.items.updateItems(
+      controllers.map((it) => it.id),
+      (drafts) => {
+        for (const item of drafts) {
+          const ctrl = item.metadata[K.controller];
+          ctrl.originOverrides = overrides;
+          ctrl.reconciledDpi = null;
+          item.metadata[K.controller] = ctrl;
+        }
+      }
+    );
+    currentOverrides = overrides;
+    renderMapNudge();
+  } catch (err) {
+    console.error("[DotMM] nudge failed:", err);
+  }
+}
+
+function renderMapNudge() {
+  const host = $("mapnudge");
+  const letters = Object.keys(DOTMM_PACKS).filter((L) =>
+    currentRooms.some((r) => r.map === L));
+  // Pre-1.4.0 scenes lack K.map tags on items and letters in the fog
+  // payload - a nudge there would move only the map image, recreating the
+  // exact desync this feature exists to prevent.
+  if (!nudgeCapable || letters.length < 2) { host.innerHTML = ""; return; }
+  host.innerHTML = letters
+    .map((L) => {
+      const [ox, oy] = currentOverrides[L] || [0, 0];
+      const off = ox || oy ? `(${ox > 0 ? "+" : ""}${ox}, ${oy > 0 ? "+" : ""}${oy})` : "±0";
+      return `<div class="nudgerow" data-l="${L}">
+        <span class="nudgemap">Map ${L}</span>
+        <span class="nudgeoff">${off}</span>
+        <button class="nudgebtn" data-d="-1,0" title="1 cell left">◀</button>
+        <button class="nudgebtn" data-d="0,-1" title="1 cell up">▲</button>
+        <button class="nudgebtn" data-d="0,1" title="1 cell down">▼</button>
+        <button class="nudgebtn" data-d="1,0" title="1 cell right">▶</button>
+      </div>`;
+    })
+    .join("");
+  for (const btn of host.querySelectorAll(".nudgebtn")) {
+    btn.addEventListener("click", () => {
+      const L = btn.closest(".nudgerow").dataset.l;
+      const [dx, dy] = btn.dataset.d.split(",").map(Number);
+      nudgeMap(L, dx, dy);
+    });
+  }
+}
 
 // Order rooms by number, then letter suffix: 1, 2a, 2b, 3, … Labels that
 // don't parse sort after the numbered ones, alphabetically.
@@ -604,7 +690,10 @@ async function refreshRooms() {
   const ctrl = items[0].metadata[K.controller];
   $("roomsScene").textContent = `— map ${ctrl.map}`;
   currentRooms = sortRooms(ctrl.rooms || []);
+  currentOverrides = ctrl.originOverrides || {};
+  nudgeCapable = ctrl.originOverrides !== undefined;
   renderRoomList();
+  renderMapNudge();
   $("realign").classList.remove("hidden");
 }
 
@@ -692,8 +781,9 @@ async function showRoom(i) {
     const js = det.querySelector("#jumpStatus");
     try {
       const dpi = await OBR.scene.grid.getDpi();
-      const cx = room.grid[0] * dpi;
-      const cy = room.grid[1] * dpi;
+      const [ox, oy] = currentOverrides[room.map] || [0, 0];
+      const cx = (room.grid[0] + ox) * dpi;
+      const cy = (room.grid[1] + oy) * dpi;
       const span = 14 * dpi;
       await OBR.viewport.animateToBounds({
         min: { x: cx - span / 2, y: cy - span / 2 },

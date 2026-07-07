@@ -132,6 +132,26 @@
     cursor: pointer; font-size: 12px; transition: background 0.15s;
   }
   .roomdetail .jump:hover { background: rgba(124, 92, 255, 0.3); }
+  .nudgerow {
+    display: flex; align-items: center; gap: 6px; padding: 3px 2px;
+    font-size: 12px;
+  }
+  .nudgerow .nudgemap { min-width: 48px; font-weight: 600; }
+  .nudgerow .nudgeoff { min-width: 56px; color: var(--muted); font-size: 11px; }
+  .nudgebtn {
+    appearance: none; border: 1px solid var(--line); background: var(--panel-2);
+    color: var(--text); border-radius: 6px; width: 26px; height: 24px;
+    font: inherit; font-size: 11px; cursor: pointer; padding: 0;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .nudgebtn:hover { border-color: var(--accent); background: rgba(180, 140, 255, 0.08); }
+  .nudgebtn:active { background: rgba(180, 140, 255, 0.18); }
+  #mapnudge { margin-bottom: 8px; }
+  #mapnudge:not(:empty)::before {
+    content: "Map offsets (moves map + tokens + walls together)";
+    display: block; font-size: 10px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin: 2px 0 4px;
+  }
   .search {
     width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line);
     background: var(--panel-2); color: var(--text); font: inherit; margin-bottom: 8px;
@@ -199,6 +219,7 @@
     <div class="card">
       <h2>Room browser <span style="text-transform:none;letter-spacing:0" id="roomsScene"></span></h2>
       <button class="btn ghost hidden" id="realign" style="margin-bottom:8px">Re-align scene (maps, tokens, walls)</button>
+      <div id="mapnudge"></div>
       <input class="search" id="search" placeholder="Filter rooms, names, monsters…" />
       <div class="roomlist" id="roomlist"></div>
       <div id="roomdetail"></div>
