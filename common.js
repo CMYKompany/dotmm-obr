@@ -13,12 +13,13 @@ export const K = {
   showRoom: `${PLUGIN}/show-room`,      // on PLAYER metadata; value: {id} - deep link into the room browser
 };
 
-export const DPI = 100; // dd2vtt pixels_per_grid for all six maps
+export const DPI = 100; // default dd2vtt pixels_per_grid; read per file where possible
 
-// Sub-map origins in the global Level 1 frame (grid cells), derived from the
-// "to map X" connector seams and validated against the printed book map.
-// B and C carry field-confirmed corrections (user nudge session 2026-07-07:
-// B (-1, +2), C (+3, +1) from the label-derived estimates).
+// LEGACY (pre-1.6.0 scenes only). Scenes imported at ≥1.6.0 are
+// self-describing: per-level origins live in content.js (DOTMM_LEVELS)
+// and each scene's controller carries mapsInfo. These Level 1 tables
+// remain solely so background.js can reconcile old scenes that lack
+// mapsInfo. Do not extend them for new levels.
 export const ORIGINS = {
   A: [0, 0],
   B: [0, -43],
@@ -27,9 +28,6 @@ export const ORIGINS = {
   E: [54, 25],
   F: [41, 74],
 };
-
-// Map letter -> native embedded image pixel dimensions (100 px/cell), used to
-// identify map items that carry no metadata (the baseMap-created item).
 export const MAP_PIXELS = {
   A: [7000, 6400], B: [6500, 5000], C: [6300, 6800],
   D: [6300, 6200], E: [7300, 5800], F: [7000, 5100],
