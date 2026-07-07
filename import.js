@@ -35,13 +35,14 @@ function activateTab(name) {
   document.querySelectorAll(".tab").forEach((t) => {
     t.classList.toggle("active", t.dataset.tab === name);
   });
-  $("tab-import").classList.toggle("hidden", name !== "import");
-  $("tab-rooms").classList.toggle("hidden", name !== "rooms");
+  for (const s of ["import", "rooms", "align"]) {
+    $(`tab-${s}`).classList.toggle("hidden", name !== s);
+  }
 }
 for (const tab of document.querySelectorAll(".tab")) {
   tab.addEventListener("click", () => {
     activateTab(tab.dataset.tab);
-    if (tab.dataset.tab === "rooms") refreshRooms();
+    if (tab.dataset.tab !== "import") refreshRooms();
   });
 }
 

@@ -6,7 +6,7 @@ Level 1 into OBR in one action per scene: map images, dynamic fog
 monster tokens placed per the module, GM notes, secret-door markers,
 teleport/gate markers, and a room browser with jump-to-room.
 
-Current version: **1.4.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+Current version: **1.5.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
 
 ## Collaboration preferences (apply to all responses)
 
@@ -144,17 +144,20 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
    so they can be right-clicked.
 3. Token matching happens at import time only; changing matches requires
    re-import (or manual image swap in-scene).
-4. Seam errors (ORIGINS off by 1–3 cells for some maps): fixed IN-SCENE
-   via the Rooms-tab **Map offsets** nudge UI (≥1.4.0 imports only). A
-   nudge writes `ctrl.originOverrides[letter]` (cells) and re-aligns, so
-   the map image, tokens, labels, doors, WALLS and lights move as one
-   unit. NEVER fix seams by dragging a map — content and walls will not
-   follow. Once the user settles on offsets, bake them into `ORIGINS` and
-   drop the overrides. Every per-map item carries `K.map`; fog payload
-   entries carry `m` (letter); pre-1.4.0 scenes lack both, so the nudge
-   UI hides itself there.
-5. Only Level 1 is covered. Extending to other levels requires rerunning
-   the pipeline against that level's overlays/dd2vtt/text.
+4. Seam errors: RESOLVED for L1 — field-confirmed offsets B (-1, +2),
+   C (+3, +1) baked into `ORIGINS` (v1.5.0). Residual fine-tuning stays
+   available via the **Align-tab Map offsets** nudge UI (≥1.4.0 imports
+   only): a nudge writes `ctrl.originOverrides[letter]` (cells) and
+   re-aligns, so the map image, tokens, labels, doors, WALLS and lights
+   move as one unit. NEVER fix seams by dragging a map — content and
+   walls will not follow. Every per-map item carries `K.map`; fog
+   payload entries carry `m` (letter); pre-1.4.0 scenes lack both, so
+   the nudge UI hides itself there. Door dedupe is import-time only: a
+   pre-bake scene keeps duplicate seam doors even after nudging.
+5. Only Level 1 is covered. Extending to Levels 2–23 (+ Yawning Portal,
+   Skullport): the full hardcoded-assumption audit lives in
+   HANDOFF §6; the per-level pipeline rerun (anchors, origins, rosters,
+   notes) is the dominant cost.
 6. If a secret door logs "no wall within 2.5 cells" at import, its overlay
    anchor is too far from the wall it marks — fix the anchor in
    `packs/anchors_curated.json` / regenerate, or accept the unaligned

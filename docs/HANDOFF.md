@@ -199,19 +199,91 @@ connectors between included maps are dropped as noise.
       Hidden on pre-1.4.0 scenes (no K.map tags → nudge would desync).
     - seam-duplicate doors deduped at import (centers within 0.75 cells).
 
+15. v1.4.0 field test: nudge system confirmed working (map + content +
+    walls move together). Final offsets B (-1, +2), C (+3, +1), others 0
+    → BAKED into ORIGINS (v1.5.0: B [0,-43], C [65,-43]). Known quirk:
+    door dedupe is import-time, so a pre-bake scene keeps both B–C seam
+    doors even after nudging them into coincidence — resolved by
+    re-importing with the baked origins (or deleting one marker).
+    Alignment tools moved to their own "Align" tab per user request.
+    Light "no limit" report investigated: map lights from the dd2vtt are
+    SECONDARY and become visible when any sighted token has line of
+    sight — a lit corridor is visible from any distance, which is
+    correct lighting-model behavior, not a leak; the 60 ft vision radius
+    only bounds sight in DARKNESS. If it feels too generous, options are
+    scaling down dd2vtt light ranges at import or dropping selected
+    lights - not done.
+
 ## 5. Immediate next steps
 
-1. User re-imports with v1.4.0 and fixes seams ONLY via the Map offsets
-   nudge UI (Rooms tab), confirming tokens/labels/doors/walls all move
-   with the map. Then report the final per-map offsets so they can be
-   baked into ORIGINS as the new defaults.
+1. User re-imports with v1.5.0 baked origins (seams should be right with
+   zero nudges; B–C seam doors dedupe at import) and confirms.
+2. Multi-level support: see §6 audit for the hardcoded-assumption list
+   and the per-level data pipeline cost.
 2. Check the import console for `[DotMM] secret door … no wall within
    2.5 cells` warnings — each one is a curated anchor that needs a nudge.
 3. Longer term: per-map nudge UI (arrow buttons moving a map ±1 cell and
    its items with it) would absorb the ±1-cell seam uncertainty; Levels
    2+ need the pipeline rerun against their assets.
 
-## 6. Environment notes for Claude Code
+## 6. Multi-level readiness audit (Levels 2–23 + Yawning Portal, Skullport)
+
+Everything below assumes ONE LEVEL PER SCENE stays (it should). Audited
+2026-07-07; line references as of v1.5.0.
+
+**Hardcoded Level-1 values (code):**
+- `common.js ORIGINS` — one 6-letter table. Needs a per-level dimension:
+  `ORIGINS[level][letter]`. Level 3 has maps A–H (8 segments); letter
+  count varies per level.
+- `common.js MAP_PIXELS` — L1 pixel-size table, used to identify the
+  baseMap image item (it carries no metadata). Per-level tables, and
+  identification must be scoped to the scene's level (from controller
+  metadata) to avoid cross-level collisions.
+- `common.js DPI = 100` — "dd2vtt pixels_per_grid for all six maps".
+  Other levels' exports may differ; read `vtt.resolution.pixels_per_grid`
+  per file instead of a constant.
+- `common.js MONSTER_SIZE` — hand-list of L1 large monsters. Move
+  creature size into the per-level pack/token manifest data.
+- `import.js detectPack` — regex `/Level1?_([A-F])_/` (level AND letter
+  range); the size fallback scans only L1 packs.
+- `import.js` asset names — `DotMM-L1-<letter>` in five places (upload,
+  picker search, pick regex, item names). Parameterize level.
+- `import.js` scene name `DotMM L1 · …`; controller `level: 1`.
+- `import.js controllerItems` — controller/chunk items parked at cells
+  (-3, -48), safe for L1's frame only. Compute a spot outside the
+  level's actual bounding box.
+- `import.js renderChips`/`neededMonsters`/`renderMapNudge` — iterate
+  `DOTMM_PACKS` / `TOKEN_MANIFEST` as if global; both become per-level.
+- `background.js identifyMapItem` — falls back to the global
+  MAP_PIXELS/ORIGINS tables. Better: at import, write the letters →
+  {pixel size, cells, origin} table INTO controller metadata so every
+  scene is self-describing and background needs no level tables at all
+  (this also future-proofs old scenes against later ORIGINS edits).
+- `content.js` — single `DOTMM_PACKS`/`TOKEN_MANIFEST` export. At 23
+  levels the embedded-module approach gets heavy; consider per-level
+  JSON files served from the same GitHub Pages origin and fetched on
+  demand (Pages sends `Access-Control-Allow-Origin: *`).
+- `manifest.json` name "DotMM Level 1 Importer" and panel copy
+  ("DotMM · Level 1", drop-zone hint).
+
+**Per-level data work (the real cost; pipeline rerun per level):**
+- GM overlay PNGs → cluster/OCR → hand-curated anchors (the L1 curation
+  took several passes; budget for ambiguity resolution per level).
+- Origins from connector labels + printed map fit; expect the same
+  ±1–3 cell uncertainty — the nudge UI is the field-correction tool,
+  and confirmed offsets get baked back (done for L1 B/C 2026-07-07).
+- Monster rosters + paraphrased GM notes hand-condensed per level.
+- Secret-door glyphs per level.
+- Yawning Portal / Skullport: no numbered overlays; likely a simpler
+  "map + walls + lights only" import path (skip rooms/monsters), which
+  the code mostly supports already (empty pack).
+
+**UI:** level selector on the Import tab (drives pack set, name prefix,
+detection regex); Rooms/Align tabs already read everything from the
+scene controller, so they are level-agnostic once import writes the
+right data.
+
+## 7. Environment notes for Claude Code
 
 - Static site, no build step, no package.json. Syntax check:
   `cp X.js /tmp/X.mjs && node --check /tmp/X.mjs` (extension files are at

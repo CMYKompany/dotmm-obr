@@ -173,6 +173,7 @@
   <nav class="tabs">
     <button class="tab active" data-tab="import">Import</button>
     <button class="tab" data-tab="rooms">Rooms</button>
+    <button class="tab" data-tab="align">Align</button>
   </nav>
 
   <!-- ============ IMPORT TAB ============ -->
@@ -218,11 +219,22 @@
   <section id="tab-rooms" class="hidden">
     <div class="card">
       <h2>Room browser <span style="text-transform:none;letter-spacing:0" id="roomsScene"></span></h2>
-      <button class="btn ghost hidden" id="realign" style="margin-bottom:8px">Re-align scene (maps, tokens, walls)</button>
-      <div id="mapnudge"></div>
       <input class="search" id="search" placeholder="Filter rooms, names, monsters…" />
       <div class="roomlist" id="roomlist"></div>
       <div id="roomdetail"></div>
+    </div>
+  </section>
+
+  <!-- ============ ALIGN TAB ============ -->
+  <section id="tab-align" class="hidden">
+    <div class="card">
+      <h2>Alignment</h2>
+      <button class="btn ghost hidden" id="realign" style="margin-bottom:8px">Re-align scene (maps, tokens, walls)</button>
+      <div id="mapnudge"></div>
+      <div class="hint">Nudges move a map together with its tokens, labels, doors,
+        walls and lights, and persist in the scene. Never fix a seam by dragging
+        a map — the walls and content will not follow. Each nudge re-runs the
+        full alignment, so give it a couple of seconds.</div>
     </div>
   </section>
 </div>
