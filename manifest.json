@@ -1,6 +1,6 @@
 {
-  "name": "DotMM Level 1 Importer",
-  "version": "1.5.0",
+  "name": "DotMM Importer",
+  "version": "1.6.0",
   "manifest_version": 1,
   "description": "All-in-one DOTMM Level Importer",
   "author": "DotMM Pipeline",

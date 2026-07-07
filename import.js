@@ -6,20 +6,26 @@ import OBR, {
   buildImage,
   buildShape,
 } from "https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3/+esm";
-import { DOTMM_PACKS, TOKEN_MANIFEST } from "./content.js";
+import { DOTMM_LEVELS, TOKEN_MANIFEST } from "./content.js";
 import {
-  PLUGIN, K, DPI, ORIGINS, MONSTER_SIZE,
+  PLUGIN, K, DPI, MONSTER_SIZE,
   normalizeName, tokenMatchScore, ringOffsets, chunkString, extractFog,
   base64ToFile, fmtError, snapTokenCell, alignDoorToWall,
 } from "./common.js";
 
 // ---------- state ----------
 const state = {
+  level: null,         // "1".."23" - set by the first recognized file; one level per scene
   loaded: new Map(),   // letter -> {vtt, pack, file}
   tokenMap: new Map(), // normalized monster name -> {dl, score}
   mapImages: new Map(),// letter -> ImageContent picked from the library (combined mode)
   importing: false,
 };
+
+const levelData = () => DOTMM_LEVELS[state.level] || null;
+const assetName = (L) => `DotMM-L${state.level}-${L}`;
+// dd2vtt image dpi (px per cell) - read per file, not assumed
+const vttDpi = (vtt) => vtt?.resolution?.pixels_per_grid || DPI;
 
 // ---------- tiny DOM helpers ----------
 const $ = (id) => document.getElementById(id);
@@ -48,7 +54,9 @@ for (const tab of document.querySelectorAll(".tab")) {
 
 // ---------- map chips ----------
 function renderChips() {
-  $("mapchips").innerHTML = Object.keys(DOTMM_PACKS)
+  const lvl = levelData();
+  if (!lvl) { $("mapchips").innerHTML = ""; return; }
+  $("mapchips").innerHTML = Object.keys(lvl.packs)
     .map((L) => {
       const ok = state.loaded.has(L);
       return `<span class="mapchip ${ok ? "ok" : ""}"><span class="dot"></span>Map ${L}</span>`;
@@ -70,13 +78,20 @@ $("file").addEventListener("change", (e) => {
   if (e.target.files) loadVttFiles([...e.target.files]);
 });
 
+// Identify level + sub-map from the filename (Level2_A_..., Level02_A_...);
+// fall back to matching the grid size against every known pack.
 function detectPack(filename, vtt) {
-  const m = /Level1?_([A-F])_/i.exec(filename);
-  if (m) return DOTMM_PACKS[m[1].toUpperCase()] || null;
+  const m = /Level\s*0*(\d+)[_ -]([A-Z])_/i.exec(filename);
+  if (m && DOTMM_LEVELS[m[1]]) {
+    const pack = DOTMM_LEVELS[m[1]].packs[m[2].toUpperCase()];
+    if (pack) return { level: m[1], pack };
+  }
   const sz = vtt?.resolution?.map_size;
   if (sz) {
-    for (const pack of Object.values(DOTMM_PACKS)) {
-      if (pack.grid.w === sz.x && pack.grid.h === sz.y) return pack;
+    for (const [level, data] of Object.entries(DOTMM_LEVELS)) {
+      for (const pack of Object.values(data.packs)) {
+        if (pack.grid.w === sz.x && pack.grid.h === sz.y) return { level, pack };
+      }
     }
   }
   return null;
@@ -84,31 +99,39 @@ function detectPack(filename, vtt) {
 
 async function loadVttFiles(files) {
   let added = 0;
+  let rejectedLevel = null;
   for (const file of files) {
     try {
       const vtt = JSON.parse(await file.text());
       if (!vtt.resolution || !vtt.image) continue;
-      const pack = detectPack(file.name, vtt);
-      if (pack) {
-        state.loaded.set(pack.map, { vtt, pack, file });
-        added += 1;
+      const hit = detectPack(file.name, vtt);
+      if (!hit) continue;
+      // One level per scene: the first recognized file decides.
+      if (state.level && hit.level !== state.level) {
+        rejectedLevel = hit.level;
+        continue;
       }
+      state.level = hit.level;
+      state.loaded.set(hit.pack.map, { vtt, pack: hit.pack, file });
+      added += 1;
     } catch (err) {
       console.error("[DotMM] file parse failed:", file.name, err);
     }
   }
   const letters = [...state.loaded.keys()].sort();
   if (letters.length === 0) {
-    $("dropTitle").textContent = "No Level 1 sub-maps recognized";
-    $("dropSub").textContent = "Drop Level1_<A-F>_*.dd2vtt files (multiple allowed).";
+    $("dropTitle").textContent = "No Undermountain sub-maps recognized";
+    $("dropSub").textContent = "Drop Level<N>_<letter>_*.dd2vtt files (multiple allowed).";
     $("importBtn").disabled = true;
   } else {
-    $("dropTitle").textContent = `Loaded: ${letters.map((l) => `Map ${l}`).join(", ")}`;
+    const lvl = levelData();
+    $("dropTitle").textContent = `Level ${state.level} · ${lvl.name} — ${letters.map((l) => `Map ${l}`).join(", ")}`;
     $("dropSub").textContent = letters.length === 1
       ? "One sub-map — imports as a single scene. Drop more files to build a combined scene."
-      : `${letters.length} sub-maps — imports as ONE combined scene in the global Level 1 frame.`;
+      : `${letters.length} sub-maps — imports as ONE combined scene in the global Level ${state.level} frame.`;
     $("importBtn").disabled = false;
-    if (added === 0) setStatus("No new maps in that drop.", "err");
+    if (rejectedLevel) setStatus(`Ignored Level ${rejectedLevel} files — one level per scene (loaded: Level ${state.level}).`, "err");
+    else if (added === 0) setStatus("No new maps in that drop.", "err");
     else setStatus("");
   }
   renderChips();
@@ -177,18 +200,19 @@ async function uploadExtraMapImages(letters) {
   const uploads = [];
   for (const L of letters) {
     const { vtt } = state.loaded.get(L);
-    const file = base64ToFile(vtt.image, `DotMM-L1-${L}`);
-    uploads.push(buildImageUpload(file).dpi(DPI).name(`DotMM-L1-${L}`).build());
+    const file = base64ToFile(vtt.image, assetName(L));
+    uploads.push(buildImageUpload(file).dpi(vttDpi(vtt)).name(assetName(L)).build());
   }
   await OBR.assets.uploadImages(uploads, "MAP");
 }
 
 // Open the OBR image picker (pre-searched to the importer's names) and
-// record the URLs of any DotMM-L1-* images the user selects.
+// record the URLs of any DotMM-L<n>-* images the user selects.
 async function pickExtraMapImages() {
-  const downloads = await OBR.assets.downloadImages(true, "DotMM-L1", "MAP");
+  const downloads = await OBR.assets.downloadImages(true, `DotMM-L${state.level}`, "MAP");
+  const rx = new RegExp(`DotMM-L${state.level}-([A-Z])`);
   for (const dl of downloads || []) {
-    const m = /DotMM-L1-([A-F])/.exec(dl.name);
+    const m = rx.exec(dl.name);
     if (m) state.mapImages.set(m[1], dl.image);
   }
 }
@@ -205,7 +229,7 @@ $("uploadMaps").addEventListener("click", async () => {
     if (extras.every((L) => state.mapImages.has(L))) {
       setStatus(`Map images ready (${extras.join(", ")}). Import when ready.`, "ok");
     } else {
-      setStatus("Uploaded. Now click “Pick uploaded maps” and select the DotMM-L1-* images.", "ok");
+      setStatus(`Uploaded. Now click “Pick uploaded maps” and select the DotMM-L${state.level}-* images.`, "ok");
     }
   } catch (err) {
     setStatus(`Map upload failed: ${fmtError(err)}`, "err");
@@ -315,8 +339,9 @@ function makeBuilders(dpi, origin, occupied) {
 
   function connectorMarker(conn) {
     const [cx, cy] = gc(conn.grid);
+    const lvl = /^level(\d+)$/.exec(conn.to);
     const target = conn.to === "expanded" ? "Expanded dungeon"
-      : conn.to === "level2" ? "Stairs to Level 2"
+      : lvl ? `Stairs to Level ${lvl[1]}`
       : `To map ${conn.to}`;
     const item = buildLabel()
       .plainText(`→ ${target}`)
@@ -327,6 +352,25 @@ function makeBuilders(dpi, origin, occupied) {
       .visible(false)
       .locked(true)
       .name(`Connector ${target}`)
+      .build();
+    return withCell(item, cx, cy, dpi);
+  }
+
+  // GM-only trap marker (the overlay 'T' glyphs; Level 2+).
+  function trapMarker(grid, index) {
+    const [cx, cy] = gc(grid);
+    const item = buildShape()
+      .shapeType("TRIANGLE")
+      .width(dpi * 0.6)
+      .height(dpi * 0.6)
+      .fillColor("#f0b35f")
+      .fillOpacity(0.4)
+      .strokeColor("#f0b35f")
+      .strokeWidth(3)
+      .layer("PROP")
+      .visible(false)
+      .locked(true)
+      .name(`Trap ${index + 1}`)
       .build();
     return withCell(item, cx, cy, dpi);
   }
@@ -378,15 +422,15 @@ function makeBuilders(dpi, origin, occupied) {
     return items;
   }
 
-  return { roomLabel, doorMarker, teleportMarker, connectorMarker, monsterItems };
+  return { roomLabel, doorMarker, teleportMarker, connectorMarker, trapMarker, monsterItems };
 }
 
 function extraMapImageItem(letter, imageContent, pack, dpi) {
-  const [ox, oy] = ORIGINS[letter];
-  const item = buildImage(imageContent, { dpi: DPI, offset: { x: 0, y: 0 } })
+  const [ox, oy] = levelData().origins[letter];
+  const item = buildImage(imageContent, { dpi: pack.grid.pixels_per_grid || DPI, offset: { x: 0, y: 0 } })
     .layer("MAP")
     .locked(true)
-    .name(`DotMM-L1-${letter}`)
+    .name(assetName(letter))
     .metadata({
       [K.mapImage]: { letter, cells: [pack.grid.w, pack.grid.h], origin: [ox, oy] },
     })
@@ -395,31 +439,39 @@ function extraMapImageItem(letter, imageContent, pack, dpi) {
   return item;
 }
 
-function controllerItems(letters, mergedRooms, fog, dpi) {
+function controllerItems(letters, mergedRooms, fog, mapsInfo, dpi) {
   const payload = JSON.stringify({ w: fog.walls, l: fog.lights });
   const chunks = chunkString(payload, 8000);
   const items = [];
+  // Park the hidden data items just outside the level's bounding box -
+  // every level has a different global frame.
+  const minX = Math.min(...letters.map((L) => levelData().origins[L][0]));
+  const minY = Math.min(...letters.map((L) => levelData().origins[L][1]));
+  const parkX = minX - 3, parkY = minY - 3;
   const controller = buildText()
-    .plainText(`DotMM controller · maps ${letters.join("")} — do not delete`)
+    .plainText(`DotMM controller · L${state.level} maps ${letters.join("")} — do not delete`)
     .fontSize(14)
     .fillColor("#665f80")
     .layer("TEXT")
     .visible(false)
     .locked(true)
-    .name(`DotMM controller ${letters.join("")}`)
+    .name(`DotMM controller L${state.level} ${letters.join("")}`)
     .metadata({
       [K.controller]: {
         map: letters.join("+"),
-        level: 1,
+        level: Number(state.level),
         chunks: chunks.length,
         rooms: mergedRooms,
         originOverrides: {},
+        // Self-describing scene: the background runtime identifies and
+        // places map images from this, with no level tables of its own.
+        mapsInfo,
       },
     })
     .build();
   controller.text.width = 400;
   controller.text.height = 24;
-  items.push(withCell(controller, -3, -48, dpi));
+  items.push(withCell(controller, parkX, parkY, dpi));
   chunks.forEach((data, i) => {
     const chunkItem = buildText()
       .plainText(`DotMM fog data ${i + 1}/${chunks.length}`)
@@ -433,7 +485,7 @@ function controllerItems(letters, mergedRooms, fog, dpi) {
       .build();
     chunkItem.text.width = 300;
     chunkItem.text.height = 18;
-    items.push(withCell(chunkItem, -3, -48 - 0.4 * (i + 1), dpi));
+    items.push(withCell(chunkItem, parkX, parkY - 0.4 * (i + 1), dpi));
   });
   return items;
 }
@@ -445,12 +497,18 @@ function buildMerged(letters, dpi) {
   const mergedRooms = [];
   const occupied = new Set(); // token-occupied cells, shared across all maps
   const doorCenters = [];     // global-frame door centers, for seam dedupe
+  const mapsInfo = {};
   for (const L of letters) {
     const { vtt, pack } = state.loaded.get(L);
-    const origin = ORIGINS[L];
+    const origin = levelData().origins[L];
     const B = makeBuilders(dpi, origin, occupied);
     const mapFog = extractFog(vtt);
     const itemsBefore = items.length;
+    mapsInfo[L] = {
+      cells: [pack.grid.w, pack.grid.h],
+      origin,
+      px: [pack.grid.w * vttDpi(vtt), pack.grid.h * vttDpi(vtt)],
+    };
     // Secret doors are overlay-glyph anchors, not dd2vtt portals: snap each
     // onto the nearest wall and cut a door-sized gap out of it (mutates
     // mapFog.walls, so this must run BEFORE the walls are merged below).
@@ -493,6 +551,7 @@ function buildMerged(letters, dpi) {
       if (letters.includes(conn.to)) continue; // seams between present maps are noise
       items.push(B.connectorMarker(conn));
     }
+    (pack.traps || []).forEach((grid, i) => items.push(B.trapMarker(grid, i)));
     mapFog.doors.forEach((door, i) => {
       // Seam overlap regions exist in BOTH maps' dd2vtt files, each with
       // its own copy of the connecting door - keep only the first.
@@ -507,7 +566,7 @@ function buildMerged(letters, dpi) {
       items[i].metadata[K.map] = L;
     }
   }
-  return { fog, items, mergedRooms };
+  return { fog, items, mergedRooms, mapsInfo };
 }
 
 // ---------- import ----------
@@ -531,11 +590,11 @@ $("importBtn").addEventListener("click", async () => {
       setProgress(5);
       await uploadExtraMapImages(missing);
       stage = "picking extra maps";
-      setStatus(`Now select the DotMM-L1-* images for maps ${missing.join(", ")} in the picker…`);
+      setStatus(`Now select the DotMM-L${state.level}-* images for maps ${missing.join(", ")} in the picker…`);
       await pickExtraMapImages();
       missing = extras.filter((L) => !state.mapImages.has(L));
       if (missing.length > 0) {
-        setStatus(`Still missing maps ${missing.join(", ")} — select their DotMM-L1-* images via “Pick uploaded maps” (step 2b), then Import again.`, "err");
+        setStatus(`Still missing maps ${missing.join(", ")} — select their DotMM-L${state.level}-* images via “Pick uploaded maps” (step 2b), then Import again.`, "err");
         setProgress(0);
         return;
       }
@@ -544,16 +603,17 @@ $("importBtn").addEventListener("click", async () => {
     stage = "merging maps";
     setStatus("Merging maps into the global frame…");
     setProgress(15);
-    const { fog, items, mergedRooms } = buildMerged(letters, DPI);
+    const { fog, items, mergedRooms, mapsInfo } = buildMerged(letters, DPI);
 
     stage = "decoding base map";
     setStatus("Decoding base map image…");
     setProgress(35);
     const baseLetter = letters[0];
-    const baseFile = base64ToFile(state.loaded.get(baseLetter).vtt.image, `DotMM-L1-${baseLetter}`);
+    const baseVtt = state.loaded.get(baseLetter).vtt;
+    const baseFile = base64ToFile(baseVtt.image, assetName(baseLetter));
     const baseMap = buildImageUpload(baseFile)
-      .dpi(DPI)
-      .name(`DotMM-L1-${baseLetter}`)
+      .dpi(vttDpi(baseVtt))
+      .name(assetName(baseLetter))
       .build();
 
     stage = "building scene items";
@@ -561,13 +621,13 @@ $("importBtn").addEventListener("click", async () => {
     for (const L of extras) {
       items.push(extraMapImageItem(L, state.mapImages.get(L), state.loaded.get(L).pack, DPI));
     }
-    items.push(...controllerItems(letters, mergedRooms, fog, DPI));
+    items.push(...controllerItems(letters, mergedRooms, fog, mapsInfo, DPI));
 
     stage = "uploading scene";
     setStatus("Uploading scene to your library…");
     setProgress(75);
     const scene = buildSceneUpload()
-      .name(letters.length > 1 ? `DotMM L1 · Combined ${letters.join("")}` : `DotMM L1 · Map ${baseLetter}`)
+      .name(letters.length > 1 ? `DotMM L${state.level} · Combined ${letters.join("")}` : `DotMM L${state.level} · Map ${baseLetter}`)
       .baseMap(baseMap)
       .items(items)
       .build();
@@ -627,8 +687,7 @@ async function nudgeMap(L, dx, dy) {
 
 function renderMapNudge() {
   const host = $("mapnudge");
-  const letters = Object.keys(DOTMM_PACKS).filter((L) =>
-    currentRooms.some((r) => r.map === L));
+  const letters = [...new Set(currentRooms.map((r) => r.map).filter(Boolean))].sort();
   // Pre-1.4.0 scenes lack K.map tags on items and letters in the fog
   // payload - a nudge there would move only the map image, recreating the
   // exact desync this feature exists to prevent.

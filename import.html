@@ -166,7 +166,7 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>DotMM · Level 1</h1>
+    <h1>DotMM · Undermountain</h1>
     <span class="sub">all-in-one importer</span>
   </header>
 
@@ -181,8 +181,8 @@
     <div class="card">
       <h2>1 · Map file</h2>
       <label class="drop" id="drop">
-        <div class="big" id="dropTitle">Drop Level1_*.dd2vtt files here</div>
-        <div id="dropSub">one file = single scene · several files = one combined scene</div>
+        <div class="big" id="dropTitle">Drop Level&lt;N&gt;_*.dd2vtt files here</div>
+        <div id="dropSub">one file = single scene · several files = one combined scene (one level per scene)</div>
         <input type="file" id="file" multiple accept=".dd2vtt,.uvtt,application/json" />
       </label>
       <div style="margin-top:8px" id="mapchips"></div>
@@ -203,7 +203,7 @@
       <button class="btn ghost" id="pickMaps" style="margin-top:6px">Pick uploaded maps…</button>
       <div class="hint">A scene upload carries one map file; the rest are placed from
         your library. <b>Import handles this automatically</b> (an upload dialog, then a
-        picker). Use these buttons only to point at <code>DotMM-L1-*</code> images from an
+        picker). Use these buttons only to point at <code>DotMM-L&lt;N&gt;-*</code> images from an
         earlier import (Pick) instead of uploading fresh copies.</div>
     </div>
 

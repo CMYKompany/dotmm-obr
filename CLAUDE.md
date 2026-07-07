@@ -6,7 +6,7 @@ Level 1 into OBR in one action per scene: map images, dynamic fog
 monster tokens placed per the module, GM notes, secret-door markers,
 teleport/gate markers, and a room browser with jump-to-room.
 
-Current version: **1.5.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+Current version: **1.6.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
 
 ## Collaboration preferences (apply to all responses)
 
@@ -126,8 +126,11 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
   notes are condensed from the module text. Do not embed verbatim book
   text in the repo.
 - Regenerating content: `pipeline/build_content.py` reads
-  `packs/anchors_curated.json` and writes `packs/content_*.json`; then
-  bundle into `content.js` (see HANDOFF for the exact snippet).
+  `packs/anchors_curated.json` and writes `packs/content_*.json` (L1);
+  Level 2 packs came from `pipeline/l2_ocr_overlays.py` + contact-sheet
+  transcription + `pipeline/l2_register_mapkey.py`. Then
+  `python3 pipeline/build_content_js.py` bundles ALL levels into
+  `content.js` (DOTMM_LEVELS structure, per-level origins baked there).
 
 ## Open issues (state as of v1.3.0)
 
@@ -154,10 +157,13 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
    payload entries carry `m` (letter); pre-1.4.0 scenes lack both, so
    the nudge UI hides itself there. Door dedupe is import-time only: a
    pre-bake scene keeps duplicate seam doors even after nudging.
-5. Only Level 1 is covered. Extending to Levels 2–23 (+ Yawning Portal,
-   Skullport): the full hardcoded-assumption audit lives in
-   HANDOFF §6; the per-level pipeline rerun (anchors, origins, rosters,
-   notes) is the dominant cost.
+5. Multi-level since 1.6.0: the importer is level-agnostic (level parsed
+   from filenames, one level per scene, scenes self-describing via
+   `ctrl.mapsInfo`). Level 1 fully populated; Level 2 has anchors/
+   origins/secret doors/traps but EMPTY room names, monster rosters and
+   GM notes — pending module text. Levels 3+ need the per-level pipeline
+   rerun (HANDOFF §6 audit; §2 for the L2 procedure which now serves as
+   the template).
 6. If a secret door logs "no wall within 2.5 cells" at import, its overlay
    anchor is too far from the wall it marks — fix the anchor in
    `packs/anchors_curated.json` / regenerate, or accept the unaligned

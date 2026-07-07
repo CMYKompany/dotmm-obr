@@ -29,6 +29,7 @@ const state = {
   lastSignatures: {}, // per-group change detectors: skip rebuilds of unchanged groups
   dpi: 150,           // live scene grid dpi; fog metadata is stored in cells
   overrides: {},      // per-map origin nudges in cells, {letter: [dx, dy]} - from controller metadata
+  mapsInfo: null,     // {letter: {cells, origin, px}} from controller metadata (scenes ≥1.6.0)
 };
 
 // Per-map origin override (cells). Content baked at import time shifts by
@@ -227,8 +228,18 @@ function identifyMapItem(item) {
   // Prefer explicit metadata (extra maps in combined scenes).
   const meta = item.metadata && item.metadata[K.mapImage];
   if (meta) return meta;
-  // The baseMap-created item carries no metadata: identify by pixel size.
+  // The baseMap-created item carries no metadata: identify by pixel size,
+  // against the scene's own mapsInfo (controller metadata, ≥1.6.0).
   const w = item.image?.width, h = item.image?.height;
+  if (state.mapsInfo) {
+    for (const [letter, info] of Object.entries(state.mapsInfo)) {
+      if (w === info.px[0] && h === info.px[1]) {
+        return { letter, cells: info.cells, origin: info.origin };
+      }
+    }
+    return null;
+  }
+  // Legacy fallback (pre-1.6.0 Level 1 scenes without mapsInfo).
   for (const [letter, [pw, ph]] of Object.entries(MAP_PIXELS)) {
     if (w === pw && h === ph) {
       return { letter, cells: [pw / 100, ph / 100], origin: ORIGINS[letter] };
@@ -406,6 +417,7 @@ async function syncFromScene() {
     state.dpi = await OBR.scene.grid.getDpi().catch(() => 150);
     const ctrl = controllers[0].metadata[K.controller];
     state.overrides = ctrl.originOverrides || {};
+    state.mapsInfo = ctrl.mapsInfo || null;
     if (ctrl.reconciledDpi !== state.dpi) {
       try {
         await reconcile();
