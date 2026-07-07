@@ -1,0 +1,350 @@
+{
+ "schema": 2,
+ "level": 2,
+ "map": "E",
+ "grid": {
+  "w": 64,
+  "h": 69,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level2_E_*_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "20a",
+   "label": "20a",
+   "name": "",
+   "grid": [
+    41.41,
+    11.84
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "20b",
+   "label": "20b",
+   "name": "",
+   "grid": [
+    33.2,
+    12.97
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "20c",
+   "label": "20c",
+   "name": "",
+   "grid": [
+    28.0,
+    8.01
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "20d",
+   "label": "20d",
+   "name": "",
+   "grid": [
+    18.53,
+    17.0
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "21",
+   "label": "21",
+   "name": "",
+   "grid": [
+    21.23,
+    22.89
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "23a",
+   "label": "23a",
+   "name": "",
+   "grid": [
+    22.09,
+    39.08
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25a",
+   "label": "25a",
+   "name": "",
+   "grid": [
+    11.0,
+    50.1
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25b",
+   "label": "25b",
+   "name": "",
+   "grid": [
+    22.11,
+    43.82
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25c",
+   "label": "25c",
+   "name": "",
+   "grid": [
+    27.98,
+    43.82
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25d",
+   "label": "25d",
+   "name": "",
+   "grid": [
+    33.99,
+    43.82
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25e",
+   "label": "25e",
+   "name": "",
+   "grid": [
+    39.93,
+    43.82
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25f",
+   "label": "25f",
+   "name": "",
+   "grid": [
+    47.06,
+    43.82
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25g",
+   "label": "25g",
+   "name": "",
+   "grid": [
+    55.01,
+    43.82
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25h",
+   "label": "25h",
+   "name": "",
+   "grid": [
+    61.02,
+    43.82
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25i",
+   "label": "25i",
+   "name": "",
+   "grid": [
+    23.03,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25j",
+   "label": "25j",
+   "name": "",
+   "grid": [
+    27.0,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25k",
+   "label": "25k",
+   "name": "",
+   "grid": [
+    31.04,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25l",
+   "label": "25l",
+   "name": "",
+   "grid": [
+    35.03,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25m",
+   "label": "25m",
+   "name": "",
+   "grid": [
+    38.94,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25n",
+   "label": "25n",
+   "name": "",
+   "grid": [
+    43.15,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25o",
+   "label": "25o",
+   "name": "",
+   "grid": [
+    47.05,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25p",
+   "label": "25p",
+   "name": "",
+   "grid": [
+    51.01,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25q",
+   "label": "25q",
+   "name": "",
+   "grid": [
+    54.92,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "25r",
+   "label": "25r",
+   "name": "",
+   "grid": [
+    59.0,
+    55.49
+   ],
+   "monsters": [],
+   "gm_note": ""
+  }
+ ],
+ "secret_doors": [
+  [
+   29.98,
+   12.05
+  ],
+  [
+   26.86,
+   14.94
+  ],
+  [
+   60.9,
+   49.02
+  ]
+ ],
+ "connectors": [
+  {
+   "to": "C",
+   "grid": [
+    44.15,
+    0.78
+   ]
+  },
+  {
+   "to": "C",
+   "grid": [
+    48.19,
+    0.78
+   ]
+  },
+  {
+   "to": "D",
+   "grid": [
+    1.41,
+    6.29
+   ]
+  },
+  {
+   "to": "D",
+   "grid": [
+    1.44,
+    23.32
+   ]
+  },
+  {
+   "to": "level3",
+   "grid": [
+    58.52,
+    35.91
+   ]
+  },
+  {
+   "to": "F",
+   "grid": [
+    1.58,
+    39.2
+   ]
+  },
+  {
+   "to": "F",
+   "grid": [
+    1.42,
+    50.4
+   ]
+  },
+  {
+   "to": "expanded",
+   "grid": [
+    40.71,
+    58.11
+   ]
+  }
+ ],
+ "traps": []
+}

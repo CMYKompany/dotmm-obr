@@ -1,0 +1,120 @@
+{
+ "schema": 2,
+ "level": 2,
+ "map": "F",
+ "grid": {
+  "w": 57,
+  "h": 38,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level2_F_*_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "23b",
+   "label": "23b",
+   "name": "",
+   "grid": [
+    36.69,
+    7.7
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "24",
+   "label": "24",
+   "name": "",
+   "grid": [
+    8.24,
+    12.03
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "26a",
+   "label": "26a",
+   "name": "",
+   "grid": [
+    50.52,
+    26.95
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "26b",
+   "label": "26b",
+   "name": "",
+   "grid": [
+    47.4,
+    15.9
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "26c",
+   "label": "26c",
+   "name": "",
+   "grid": [
+    37.55,
+    27.71
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "26d",
+   "label": "26d",
+   "name": "",
+   "grid": [
+    22.09,
+    19.75
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "26e",
+   "label": "26e",
+   "name": "",
+   "grid": [
+    8.35,
+    18.8
+   ],
+   "monsters": [],
+   "gm_note": ""
+  }
+ ],
+ "secret_doors": [
+  [
+   49.17,
+   17.98
+  ]
+ ],
+ "connectors": [
+  {
+   "to": "E",
+   "grid": [
+    55.6,
+    8.54
+   ]
+  },
+  {
+   "to": "E",
+   "grid": [
+    55.62,
+    19.88
+   ]
+  },
+  {
+   "to": "expanded",
+   "grid": [
+    3.98,
+    21.32
+   ]
+  }
+ ],
+ "traps": []
+}

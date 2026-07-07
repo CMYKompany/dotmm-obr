@@ -1,0 +1,252 @@
+{
+ "schema": 2,
+ "level": 2,
+ "map": "A",
+ "grid": {
+  "w": 65,
+  "h": 75,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level2_A_*_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "1a",
+   "label": "1a",
+   "name": "",
+   "grid": [
+    33.27,
+    39.05
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "1b",
+   "label": "1b",
+   "name": "",
+   "grid": [
+    35.55,
+    13.43
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "1c",
+   "label": "1c",
+   "name": "",
+   "grid": [
+    36.77,
+    19.61
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "1d",
+   "label": "1d",
+   "name": "",
+   "grid": [
+    47.02,
+    26.25
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "1e",
+   "label": "1e",
+   "name": "",
+   "grid": [
+    61.16,
+    34.81
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "1f",
+   "label": "1f",
+   "name": "",
+   "grid": [
+    60.3,
+    15.53
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "2a",
+   "label": "2a",
+   "name": "",
+   "grid": [
+    20.96,
+    46.58
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "2b",
+   "label": "2b",
+   "name": "",
+   "grid": [
+    13.12,
+    51.52
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "2c",
+   "label": "2c",
+   "name": "",
+   "grid": [
+    4.83,
+    55.87
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "2d",
+   "label": "2d",
+   "name": "",
+   "grid": [
+    3.27,
+    49.95
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "3",
+   "label": "3",
+   "name": "",
+   "grid": [
+    8.11,
+    38.07
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "4",
+   "label": "4",
+   "name": "",
+   "grid": [
+    6.07,
+    23.88
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "5",
+   "label": "5",
+   "name": "",
+   "grid": [
+    8.02,
+    10.39
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "6",
+   "label": "6",
+   "name": "",
+   "grid": [
+    21.56,
+    37.02
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "7a",
+   "label": "7a",
+   "name": "",
+   "grid": [
+    30.12,
+    53.66
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "7b",
+   "label": "7b",
+   "name": "",
+   "grid": [
+    40.92,
+    50.97
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "7c",
+   "label": "7c",
+   "name": "",
+   "grid": [
+    50.6,
+    55.16
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "7d",
+   "label": "7d",
+   "name": "",
+   "grid": [
+    39.82,
+    67.77
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "7e",
+   "label": "7e",
+   "name": "",
+   "grid": [
+    51.91,
+    68.53
+   ],
+   "monsters": [],
+   "gm_note": ""
+  }
+ ],
+ "secret_doors": [
+  [
+   11.99,
+   15.96
+  ]
+ ],
+ "connectors": [
+  {
+   "to": "expanded",
+   "grid": [
+    4.88,
+    2.21
+   ]
+  },
+  {
+   "to": "B",
+   "grid": [
+    63.52,
+    47.3
+   ]
+  },
+  {
+   "to": "C",
+   "grid": [
+    56.38,
+    62.33
+   ]
+  }
+ ],
+ "traps": []
+}

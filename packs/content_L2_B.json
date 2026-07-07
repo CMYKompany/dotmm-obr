@@ -1,0 +1,214 @@
+{
+ "schema": 2,
+ "level": 2,
+ "map": "B",
+ "grid": {
+  "w": 53,
+  "h": 61,
+  "pixels_per_grid": 100
+ },
+ "dd2vtt_file": "Level2_B_*_FVTT.dd2vtt",
+ "rooms": [
+  {
+   "id": "8",
+   "label": "8",
+   "name": "",
+   "grid": [
+    2.02,
+    45.52
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "9a",
+   "label": "9a",
+   "name": "",
+   "grid": [
+    7.26,
+    7.84
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "9a-2",
+   "label": "9a",
+   "name": "",
+   "grid": [
+    25.2,
+    7.98
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "9b",
+   "label": "9b",
+   "name": "",
+   "grid": [
+    23.23,
+    15.0
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "9c",
+   "label": "9c",
+   "name": "",
+   "grid": [
+    7.93,
+    16.53
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "9d",
+   "label": "9d",
+   "name": "",
+   "grid": [
+    8.0,
+    27.31
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "10a",
+   "label": "10a",
+   "name": "",
+   "grid": [
+    25.39,
+    31.14
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "10b",
+   "label": "10b",
+   "name": "",
+   "grid": [
+    16.04,
+    27.77
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "10c",
+   "label": "10c",
+   "name": "",
+   "grid": [
+    16.07,
+    37.36
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "10d",
+   "label": "10d",
+   "name": "",
+   "grid": [
+    23.84,
+    39.71
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "11a",
+   "label": "11a",
+   "name": "",
+   "grid": [
+    37.05,
+    46.87
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "11b",
+   "label": "11b",
+   "name": "",
+   "grid": [
+    49.13,
+    38.54
+   ],
+   "monsters": [],
+   "gm_note": ""
+  },
+  {
+   "id": "12",
+   "label": "12",
+   "name": "",
+   "grid": [
+    13.92,
+    50.78
+   ],
+   "monsters": [],
+   "gm_note": ""
+  }
+ ],
+ "secret_doors": [
+  [
+   46.06,
+   9.53
+  ]
+ ],
+ "connectors": [
+  {
+   "to": "expanded",
+   "grid": [
+    3.68,
+    4.33
+   ]
+  },
+  {
+   "to": "expanded",
+   "grid": [
+    51.04,
+    27.39
+   ]
+  },
+  {
+   "to": "A",
+   "grid": [
+    1.33,
+    47.45
+   ]
+  },
+  {
+   "to": "C",
+   "grid": [
+    49.45,
+    60.2
+   ]
+  }
+ ],
+ "traps": [
+  [
+   4.01,
+   8.04
+  ],
+  [
+   9.99,
+   8.04
+  ],
+  [
+   15.99,
+   8.04
+  ],
+  [
+   22.04,
+   8.04
+  ],
+  [
+   28.04,
+   8.04
+  ]
+ ]
+}
