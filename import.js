@@ -19,6 +19,7 @@ const state = {
   loaded: new Map(),   // letter -> {vtt, pack, file}
   tokenMap: new Map(), // normalized monster name -> {dl, score}
   mapImages: new Map(),// letter -> ImageContent picked from the library (combined mode)
+  uploadedLetters: new Set(), // letters already sent through uploadImages this session - don't re-upload on retry
   importing: false,
 };
 
@@ -218,18 +219,29 @@ $("pickTokens").addEventListener("click", async () => {
 // uploadImages resolves with nothing - OBR never hands back asset URLs
 // from an upload. The only way to obtain URLs is the picker
 // (downloadImages), so callers must follow up with pickExtraMapImages().
+// Letters already uploaded this session are skipped: re-calling uploadImages
+// on a retry (e.g. Import failing because the picker didn't find them yet)
+// would otherwise create duplicate library copies each attempt.
 async function uploadExtraMapImages(letters) {
+  const fresh = letters.filter((L) => !state.uploadedLetters.has(L));
+  if (fresh.length === 0) return;
   const uploads = [];
-  for (const L of letters) {
+  for (const L of fresh) {
     const { vtt } = state.loaded.get(L);
     const file = base64ToFile(vtt.image, assetName(L));
     uploads.push(buildImageUpload(file).dpi(vttDpi(vtt)).name(assetName(L)).build());
   }
   await OBR.assets.uploadImages(uploads, "MAP");
+  fresh.forEach((L) => state.uploadedLetters.add(L));
 }
 
 // Open the OBR image picker (pre-searched to the importer's names) and
-// record the URLs of any DotMM-L<n>-* images the user selects.
+// record the URLs of any DotMM-L<n>-* images the user selects. Uploads can
+// take a while to become searchable in OBR's library after uploadImages
+// resolves, so a picker opened right after upload may not show them yet -
+// rather than silently reopening the dialog (surprising, and the picker's
+// own search can return stale/irrelevant results while indexing catches
+// up), this surfaces the gap and leaves re-opening the picker to the user.
 async function pickExtraMapImages() {
   const downloads = await OBR.assets.downloadImages(true, `DotMM-L${state.level}`, "MAP");
   const rx = new RegExp(`DotMM-L${state.level}-([A-Z])`);
@@ -237,28 +249,6 @@ async function pickExtraMapImages() {
     const m = rx.exec(dl.name);
     if (m) state.mapImages.set(m[1], dl.image);
   }
-}
-
-// uploadImages resolves once the upload is confirmed, but OBR's library
-// search index doesn't always catch up instantly - a picker opened right
-// after upload can come back empty even though the upload succeeded (the
-// observed symptom: Import fails once, then an immediate retry works).
-// Wait a beat before the first picker open, then retry it automatically
-// (re-prompting) instead of surfacing a failure the user has to notice
-// and manually redo.
-async function pickExtraMapImagesUntilFound(needed, onStatus) {
-  await new Promise((r) => setTimeout(r, 1200));
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    if (attempt > 1) {
-      onStatus(`Maps ${needed.filter((L) => !state.mapImages.has(L)).join(", ")} weren't in your library yet — retrying the picker…`);
-      await new Promise((r) => setTimeout(r, 1500 * attempt));
-    } else {
-      onStatus(`Now select the DotMM-L${state.level}-* images for maps ${needed.join(", ")} in the picker…`);
-    }
-    await pickExtraMapImages();
-    if (needed.every((L) => state.mapImages.has(L))) return true;
-  }
-  return false;
 }
 
 $("uploadMaps").addEventListener("click", async () => {
@@ -270,18 +260,7 @@ $("uploadMaps").addEventListener("click", async () => {
   try {
     setStatus("Confirm the upload dialog in Owlbear Rodeo…");
     await uploadExtraMapImages(extras);
-    const missing = extras.filter((L) => !state.mapImages.has(L));
-    if (missing.length === 0) {
-      setStatus(`Map images ready (${extras.join(", ")}). Import when ready.`, "ok");
-      return;
-    }
-    const found = await pickExtraMapImagesUntilFound(missing, (msg) => setStatus(msg));
-    setStatus(
-      found
-        ? `Map images ready (${extras.join(", ")}). Import when ready.`
-        : `Still missing maps ${extras.filter((L) => !state.mapImages.has(L)).join(", ")} — click “Pick uploaded maps” once they've finished uploading.`,
-      found ? "ok" : "err"
-    );
+    setStatus(`Uploaded. If they don't show up yet in "Pick uploaded maps", your library may still be indexing them — wait a moment and click Pick again.`, "ok");
   } catch (err) {
     setStatus(`Map upload failed: ${fmtError(err)}`, "err");
   }
@@ -642,10 +621,11 @@ $("importBtn").addEventListener("click", async () => {
       await uploadExtraMapImages(missing);
       stage = "picking extra maps";
       setProgress(10);
-      const found = await pickExtraMapImagesUntilFound(missing, (msg) => setStatus(msg));
+      setStatus(`Now select the DotMM-L${state.level}-* images for maps ${missing.join(", ")} in the picker…`);
+      await pickExtraMapImages();
       missing = extras.filter((L) => !state.mapImages.has(L));
-      if (!found) {
-        setStatus(`Still missing maps ${missing.join(", ")} — select their DotMM-L${state.level}-* images via “Pick uploaded maps” (step 2b), then Import again.`, "err");
+      if (missing.length > 0) {
+        setStatus(`Maps ${missing.join(", ")} aren't showing up in the picker yet — your library may still be indexing the upload. Click “Pick uploaded maps” (step 2b) once they appear, then Import again.`, "err");
         setProgress(0);
         return;
       }
