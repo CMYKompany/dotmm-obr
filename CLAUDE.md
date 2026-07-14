@@ -12,6 +12,29 @@ manual level picker. New levels only need a `packs/level<N>.json`.
 
 Current version: **1.6.1**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
 
+## Session start: sync before changing anything
+
+The user often runs multiple Claude Code sessions against this repo (different
+conversations/branches, sometimes concurrently). A session's local checkout
+does NOT auto-update when another session pushes/merges elsewhere — git only
+reflects the remote once you fetch. Before making any code change (not
+needed for read-only questions), run:
+
+```
+git fetch origin main
+git log --oneline HEAD..origin/main   # commits on main you don't have
+git log --oneline origin/main..HEAD   # commits on your branch main doesn't have
+```
+
+If `main` has moved since your branch's base, read what changed (`git show`,
+`git diff`) before assuming your branch's state of the code is current —
+another session may have already built, fixed, or conflicted with what
+you're about to do. This is exactly how a 2026-07-14 session independently
+rebuilt multi-level support that a different session had already merged;
+rebuilding on the stale base wasted a full refactor pass. If your branch
+conflicts with a moved `main`, treat `main` as ground truth and rebase/redo
+your work on top of it rather than pushing a competing design.
+
 ## Collaboration preferences (apply to all responses)
 
 - No emotional expressions, praise, or thanks.
