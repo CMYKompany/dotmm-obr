@@ -1,0 +1,1724 @@
+{
+ "name": "Arcane Chambers",
+ "origins": {
+  "A": [
+   0,
+   0
+  ],
+  "B": [
+   65,
+   0
+  ],
+  "C": [
+   20,
+   50
+  ],
+  "D": [
+   0,
+   63
+  ],
+  "E": [
+   54,
+   96
+  ],
+  "F": [
+   1,
+   127
+  ]
+ },
+ "packs": {
+  "A": {
+   "schema": 2,
+   "level": 2,
+   "map": "A",
+   "grid": {
+    "w": 65,
+    "h": 75,
+    "pixels_per_grid": 100
+   },
+   "dd2vtt_file": "Level2_A_*_FVTT.dd2vtt",
+   "rooms": [
+    {
+     "id": "1a",
+     "label": "1a",
+     "name": "Bazaar Side Entrance",
+     "grid": [
+      33.27,
+      39.05
+     ],
+     "monsters": [],
+     "gm_note": "Junction into the goblin bazaar; banging construction noise carries from 1b."
+    },
+    {
+     "id": "1b",
+     "label": "1b",
+     "name": "Auction Hall",
+     "grid": [
+      35.55,
+      13.43
+     ],
+     "monsters": [
+      {
+       "name": "Goblin",
+       "count": 7,
+       "note": "building an auction stage; retreat to 1d if attacked"
+      }
+     ],
+     "gm_note": "Stage under construction for slave/goods auctions."
+    },
+    {
+     "id": "1c",
+     "label": "1c",
+     "name": "Gibbets and Gravy",
+     "grid": [
+      36.77,
+      19.61
+     ],
+     "monsters": [
+      {
+       "name": "Goblin",
+       "count": 1,
+       "note": "Glom, caged; informant, betrays freely"
+      }
+     ],
+     "gm_note": "Glom knows this level's layout, the Xanathar outposts, and the stairs to Level 3."
+    },
+    {
+     "id": "1d",
+     "label": "1d",
+     "name": "Market Hall",
+     "grid": [
+      47.02,
+      26.25
+     ],
+     "monsters": [
+      {
+       "name": "Goblin",
+       "count": 16,
+       "note": "vendors"
+      },
+      {
+       "name": "Goblin",
+       "count": 6,
+       "note": "guards, knock troublemakers out rather than kill"
+      }
+     ],
+     "gm_note": "Goblin market: buys at half price, sells at 3x; DC 12 Cha to haggle."
+    },
+    {
+     "id": "1e",
+     "label": "1e",
+     "name": "Yek the Tall",
+     "grid": [
+      61.16,
+      34.81
+     ],
+     "monsters": [
+      {
+       "name": "Goblin Boss",
+       "count": 1,
+       "note": "Yek the Tall, wears circlet of human perfection"
+      },
+      {
+       "name": "Bugbear",
+       "count": 4
+      },
+      {
+       "name": "Goblin",
+       "count": 10,
+       "note": "Yek's toadies"
+      }
+     ],
+     "gm_note": "Copper Stormforge (Fine Fellows) chained here; can be ransomed or freed."
+    },
+    {
+     "id": "1f",
+     "label": "1f",
+     "name": "Yek's Treasure",
+     "grid": [
+      60.3,
+      15.53
+     ],
+     "monsters": [],
+     "gm_note": "Diorama (15 costume jewelry, 1gp ea), ivory chessboard (25gp), chest of 2,000 sp."
+    },
+    {
+     "id": "2a",
+     "label": "2a",
+     "name": "Water Pump",
+     "grid": [
+      20.96,
+      46.58
+     ],
+     "monsters": [],
+     "gm_note": "Dead goblin messenger; smell of cooking lures toward 2c."
+    },
+    {
+     "id": "2b",
+     "label": "2b",
+     "name": "Abandoned Laboratory",
+     "grid": [
+      13.12,
+      51.52
+     ],
+     "monsters": [],
+     "gm_note": "Noisy search finds 3 potions of healing and a philter of love; alerts the specter in 2c."
+    },
+    {
+     "id": "2c",
+     "label": "2c",
+     "name": "Wizard's Kitchen",
+     "grid": [
+      4.83,
+      55.87
+     ],
+     "monsters": [
+      {
+       "name": "Specter",
+       "count": 1,
+       "note": "hides in the cook pot, animates 4 pots/pans as flying swords"
+      }
+     ],
+     "gm_note": "Illusion of a clean kitchen; DC 16 Investigation sees through it."
+    },
+    {
+     "id": "2d",
+     "label": "2d",
+     "name": "Kalabash's Bedroom",
+     "grid": [
+      3.27,
+      49.95
+     ],
+     "monsters": [
+      {
+       "name": "Allip",
+       "count": 1,
+       "note": "Kalabash"
+      }
+     ],
+     "gm_note": "Trapped chest (DC 15 Dex or 10 lightning); locked, cursed lore inside a cipher-written tome."
+    },
+    {
+     "id": "3",
+     "label": "3",
+     "name": "Halaster Puppet",
+     "grid": [
+      8.11,
+      38.07
+     ],
+     "monsters": [
+      {
+       "name": "Animated Armor",
+       "count": 1,
+       "note": "Halaster puppet construct, AC10 HP8, hidden alchemist's fire"
+      }
+     ],
+     "gm_note": "Threatens intruders in Halaster's voice; optional 'Delver Dance' game show encounter."
+    },
+    {
+     "id": "4",
+     "label": "4",
+     "name": "Abandoned Camp",
+     "grid": [
+      6.07,
+      23.88
+     ],
+     "monsters": [],
+     "gm_note": "Xanathar Guild's abandoned camp; corpses carry the outpost pass-phrase, 'As many as there are stars in the sky.'"
+    },
+    {
+     "id": "5",
+     "label": "5",
+     "name": "Arch Gate to Level 4",
+     "grid": [
+      8.02,
+      10.39
+     ],
+     "monsters": [],
+     "gm_note": "Feed a gold coin to open 1 minute; 8th level+ only.",
+     "teleport": {
+      "kind": "gate",
+      "label": "Arch Gate to Level 4 (8th level+, feed a gold coin)"
+     }
+    },
+    {
+     "id": "6",
+     "label": "6",
+     "name": "Music of the Dead",
+     "grid": [
+      21.56,
+      37.02
+     ],
+     "monsters": [],
+     "gm_note": "Bone harpsichord; playing its tune (DC 20 Performance if unskilled) reveals a scroll of raise dead, or 4d10 necrotic on failure."
+    },
+    {
+     "id": "7a",
+     "label": "7a",
+     "name": "Trenzia's Workroom",
+     "grid": [
+      30.12,
+      53.66
+     ],
+     "monsters": [],
+     "gm_note": "Trenzia's electricity-research notes; log entry (Day 1)."
+    },
+    {
+     "id": "7b",
+     "label": "7b",
+     "name": "Ghoul Barrels",
+     "grid": [
+      40.92,
+      50.97
+     ],
+     "monsters": [
+      {
+       "name": "Ghoul",
+       "count": 6,
+       "note": "hidden inside barrels, burst out if disturbed"
+      }
+     ],
+     "gm_note": "Copper-plated door to 7c shocks (3d6 lightning) unless 7c's creatures are dead."
+    },
+    {
+     "id": "7c",
+     "label": "7c",
+     "name": "Trenzia's Laboratory",
+     "grid": [
+      50.6,
+      55.16
+     ],
+     "monsters": [
+      {
+       "name": "Flameskull",
+       "count": 1,
+       "note": "Trenzia; lightning bolt + Lightning Ray instead of fire"
+      },
+      {
+       "name": "Flesh Golem",
+       "count": 1,
+       "note": "heals on electrified floor instead of taking damage"
+      }
+     ],
+     "gm_note": "Copper floor electrifies each round for 3d6 lightning; chute down to 13a."
+    },
+    {
+     "id": "7d",
+     "label": "7d",
+     "name": "Mining Woes",
+     "grid": [
+      39.82,
+      67.77
+     ],
+     "monsters": [
+      {
+       "name": "Ghast",
+       "count": 3,
+       "note": "wait behind the door"
+      }
+     ],
+     "gm_note": "Trenzia's gnawed remains; her skull is notably missing."
+    },
+    {
+     "id": "7e",
+     "label": "7e",
+     "name": "Copper Vein",
+     "grid": [
+      51.91,
+      68.53
+     ],
+     "monsters": [],
+     "gm_note": "Trenzia's log (Day 10); 1d4+1 potions of healing + 2 potions of lightning resistance in 7c's wreckage."
+    }
+   ],
+   "secret_doors": [
+    [
+     11.99,
+     15.96
+    ]
+   ],
+   "connectors": [
+    {
+     "to": "expanded",
+     "grid": [
+      4.88,
+      2.21
+     ]
+    },
+    {
+     "to": "B",
+     "grid": [
+      63.52,
+      47.3
+     ]
+    },
+    {
+     "to": "C",
+     "grid": [
+      56.38,
+      62.33
+     ]
+    }
+   ],
+   "traps": []
+  },
+  "B": {
+   "schema": 2,
+   "level": 2,
+   "map": "B",
+   "grid": {
+    "w": 53,
+    "h": 61,
+    "pixels_per_grid": 100
+   },
+   "dd2vtt_file": "Level2_B_*_FVTT.dd2vtt",
+   "rooms": [
+    {
+     "id": "8",
+     "label": "8",
+     "name": "Fresco Cross Hall",
+     "grid": [
+      2.02,
+      45.52
+     ],
+     "monsters": [],
+     "gm_note": "Animated (harmless) dwarf frescoes at a four-way intersection."
+    },
+    {
+     "id": "9a",
+     "label": "9a",
+     "name": "Trapped Hall",
+     "grid": [
+      7.26,
+      7.84
+     ],
+     "monsters": [
+      {
+       "name": "Bugbear",
+       "count": 2,
+       "note": "guard the east narrows; disarm traps for known Xanathar members"
+      }
+     ],
+     "gm_note": "5 poison dart traps in the north wall; pass-phrase 'As many as there are stars in the sky.'"
+    },
+    {
+     "id": "9a-2",
+     "label": "9a",
+     "name": "Trapped Hall (west)",
+     "grid": [
+      25.2,
+      7.98
+     ],
+     "monsters": [],
+     "gm_note": "Western stretch of the same trapped hallway."
+    },
+    {
+     "id": "9b",
+     "label": "9b",
+     "name": "Shunn's Gang",
+     "grid": [
+      23.23,
+      15
+     ],
+     "monsters": [
+      {
+       "name": "Xanathar Guild Thug",
+       "count": 7
+      },
+      {
+       "name": "Drow Elite Warrior",
+       "count": 1,
+       "note": "Shunn Shurreth, spider-cursed, prefers diplomacy"
+      },
+      {
+       "name": "Intellect Devourer",
+       "count": 2,
+       "note": "riding in two guild members' skulls"
+      }
+     ],
+     "gm_note": "Shunn offers 50gp for the wererats' stone key if approached peacefully."
+    },
+    {
+     "id": "9c",
+     "label": "9c",
+     "name": "Gang's Treasure",
+     "grid": [
+      7.93,
+      16.53
+     ],
+     "monsters": [],
+     "gm_note": "Silver-bound chest (Shunn's key or DC 15 thieves' tools) holds 100gp."
+    },
+    {
+     "id": "9d",
+     "label": "9d",
+     "name": "Bugbear Barracks",
+     "grid": [
+      8,
+      27.31
+     ],
+     "monsters": [
+      {
+       "name": "Bugbear",
+       "count": 10,
+       "note": "investigate commotion from 9b"
+      }
+     ],
+     "gm_note": "Sleeping barracks."
+    },
+    {
+     "id": "10a",
+     "label": "10a",
+     "name": "Skull in the Cube",
+     "grid": [
+      25.39,
+      31.14
+     ],
+     "monsters": [
+      {
+       "name": "Gelatinous Cube",
+       "count": 1,
+       "note": "enlarged to Gargantuan by the dwarf skull inside"
+      }
+     ],
+     "gm_note": "Removing the skull shrinks the cube back to normal size."
+    },
+    {
+     "id": "10b",
+     "label": "10b",
+     "name": "Flooded Room",
+     "grid": [
+      16.04,
+      27.77
+     ],
+     "monsters": [],
+     "gm_note": "24,000 cu ft salt water floods out when opened (DC 12 Str or prone+1d10); Salamanth's corpse; glass wand worth 25gp."
+    },
+    {
+     "id": "10c",
+     "label": "10c",
+     "name": "Altar to Juiblex",
+     "grid": [
+      16.07,
+      37.36
+     ],
+     "monsters": [
+      {
+       "name": "Ochre Jelly",
+       "count": 1,
+       "note": "disguised as a gold offering in magical stasis"
+      }
+     ],
+     "gm_note": "Stasis breaks on touch or dispel magic (DC 17)."
+    },
+    {
+     "id": "10d",
+     "label": "10d",
+     "name": "Caved-In Room",
+     "grid": [
+      23.84,
+      39.71
+     ],
+     "monsters": [],
+     "gm_note": "Partial cave-in with bored tunnels south and east."
+    },
+    {
+     "id": "11a",
+     "label": "11a",
+     "name": "Hall of Degeneration",
+     "grid": [
+      37.05,
+      46.87
+     ],
+     "monsters": [],
+     "gm_note": "Wall paintings depict wizards mutating into nothics and a gibbering mouther."
+    },
+    {
+     "id": "11b",
+     "label": "11b",
+     "name": "Master of the Unseen",
+     "grid": [
+      49.13,
+      38.54
+     ],
+     "monsters": [
+      {
+       "name": "Priest",
+       "count": 1,
+       "note": "Midna Tauberth, NE, worships Shar; prefers to wait out or ingratiate"
+      },
+      {
+       "name": "Unseen Servant",
+       "count": 9
+      }
+     ],
+     "gm_note": "Banquet table magically replenished daily; holy symbols of Shar and Waukeen worth 25gp each."
+    },
+    {
+     "id": "12",
+     "label": "12",
+     "name": "Dwarven Tools",
+     "grid": [
+      13.92,
+      50.78
+     ],
+     "monsters": [],
+     "gm_note": "Dwarven tool storage.",
+     "teleport": {
+      "kind": "gate",
+      "label": "Arch Gate to Level 5 (8th level+, touch a dead twig/branch)"
+     }
+    }
+   ],
+   "secret_doors": [
+    [
+     46.06,
+     9.53
+    ]
+   ],
+   "connectors": [
+    {
+     "to": "expanded",
+     "grid": [
+      3.68,
+      4.33
+     ]
+    },
+    {
+     "to": "expanded",
+     "grid": [
+      51.04,
+      27.39
+     ]
+    },
+    {
+     "to": "A",
+     "grid": [
+      1.33,
+      47.45
+     ]
+    },
+    {
+     "to": "C",
+     "grid": [
+      49.45,
+      60.2
+     ]
+    }
+   ],
+   "traps": [
+    [
+     4.01,
+     8.04
+    ],
+    [
+     9.99,
+     8.04
+    ],
+    [
+     15.99,
+     8.04
+    ],
+    [
+     22.04,
+     8.04
+    ],
+    [
+     28.04,
+     8.04
+    ]
+   ]
+  },
+  "C": {
+   "schema": 2,
+   "level": 2,
+   "map": "C",
+   "grid": {
+    "w": 98,
+    "h": 51,
+    "pixels_per_grid": 100
+   },
+   "dd2vtt_file": "Level2_C_*_FVTT.dd2vtt",
+   "rooms": [
+    {
+     "id": "13a",
+     "label": "13a",
+     "name": "Dumathoin's Altar",
+     "grid": [
+      41.17,
+      12.36
+     ],
+     "monsters": [
+      {
+       "name": "Gibbering Mouther",
+       "count": 1,
+       "note": "wanders the eastern hall"
+      }
+     ],
+     "gm_note": "Cleaning the altar grants 24h secret-door detection; 4 mithral ore chunks (25gp ea) under a mine cart."
+    },
+    {
+     "id": "13b",
+     "label": "13b",
+     "name": "Wall of Rust and Bones",
+     "grid": [
+      37.77,
+      38.35
+     ],
+     "monsters": [],
+     "gm_note": "8-ft skeleton/armor wall (DC 12 Athletics to climb); breaking it summons the nothics from 13e."
+    },
+    {
+     "id": "13c",
+     "label": "13c",
+     "name": "Vacant Washroom",
+     "grid": [
+      30.18,
+      35.97
+     ],
+     "monsters": [],
+     "gm_note": "Rusted, inoperable dwarven washroom."
+    },
+    {
+     "id": "13d",
+     "label": "13d",
+     "name": "Vacant Washroom",
+     "grid": [
+      30.18,
+      47.7
+     ],
+     "monsters": [],
+     "gm_note": "Rusted, inoperable dwarven washroom."
+    },
+    {
+     "id": "13e",
+     "label": "13e",
+     "name": "\"Nothic to See Here!\"",
+     "grid": [
+      22.18,
+      42.51
+     ],
+     "monsters": [
+      {
+       "name": "Nothic",
+       "count": 4,
+       "note": "insane, cowed by displays of magic"
+      }
+     ],
+     "gm_note": "Arcane-locked door (Rizzeryl passes freely, else DC 25 Str); dwarven boots/helmets/goggles stored here."
+    },
+    {
+     "id": "13f",
+     "label": "13f",
+     "name": "Gibbering Mine",
+     "grid": [
+      85.29,
+      20.73
+     ],
+     "monsters": [
+      {
+       "name": "Gibbering Mouther",
+       "count": 3,
+       "note": "fight until killed"
+      }
+     ],
+     "gm_note": "Partially collapsed copper-vein mine section."
+    },
+    {
+     "id": "13g",
+     "label": "13g",
+     "name": "Strike It Rich",
+     "grid": [
+      57.69,
+      34.12
+     ],
+     "monsters": [
+      {
+       "name": "Mezzoloth",
+       "count": 1,
+       "note": "bound here by Halaster; commands the nothics by telepathy"
+      },
+      {
+       "name": "Nothic",
+       "count": 2
+      }
+     ],
+     "gm_note": "Rex the Hammer (Fine Fellows founder, ally if rescued) is pinned here; mine carts hold 1,000+ gp of copper ore."
+    },
+    {
+     "id": "14a",
+     "label": "14a",
+     "name": "Rizzeryl's Hideout",
+     "grid": [
+      7.42,
+      39.12
+     ],
+     "monsters": [
+      {
+       "name": "Drow Mage",
+       "count": 1,
+       "note": "Rizzeryl; casts greater invisibility on sight, summons a quasit if attacked"
+      }
+     ],
+     "gm_note": "Arcane-locked door; stone-map table; secret compartment (DC 15 Perception) holds his spellbook, a stone key, and a wand."
+    },
+    {
+     "id": "14b",
+     "label": "14b",
+     "name": "Wererat Barracks",
+     "grid": [
+      9.08,
+      46.54
+     ],
+     "monsters": [
+      {
+       "name": "Wererat",
+       "count": 8,
+       "note": "human form; loyal to the Zhentarim, led by Zilitsa Ilvarren"
+      }
+     ],
+     "gm_note": "Chest: 30gp, copper tankard, silver scepter (25gp), worthless chap-books."
+    },
+    {
+     "id": "15",
+     "label": "15",
+     "name": "Dusty Throne",
+     "grid": [
+      9.18,
+      30.68
+     ],
+     "monsters": [],
+     "gm_note": "Already looted by the wererats; nothing of value remains."
+    },
+    {
+     "id": "16",
+     "label": "16",
+     "name": "Partially Collapsed Room",
+     "grid": [
+      19.96,
+      30.8
+     ],
+     "monsters": [],
+     "gm_note": "Collapsed, empty, undisturbed."
+    }
+   ],
+   "secret_doors": [
+    [
+     9.46,
+     22.65
+    ]
+   ],
+   "connectors": [
+    {
+     "to": "A",
+     "grid": [
+      37.27,
+      11.87
+     ]
+    },
+    {
+     "to": "B",
+     "grid": [
+      94.47,
+      12.06
+     ]
+    },
+    {
+     "to": "E",
+     "grid": [
+      78.2,
+      45.26
+     ]
+    },
+    {
+     "to": "E",
+     "grid": [
+      82.31,
+      45.27
+     ]
+    },
+    {
+     "to": "expanded",
+     "grid": [
+      96.2,
+      45.38
+     ]
+    },
+    {
+     "to": "D",
+     "grid": [
+      16.5,
+      50.28
+     ]
+    }
+   ],
+   "traps": []
+  },
+  "D": {
+   "schema": 2,
+   "level": 2,
+   "map": "D",
+   "grid": {
+    "w": 57,
+    "h": 64,
+    "pixels_per_grid": 100
+   },
+   "dd2vtt_file": "Level2_D_*_FVTT.dd2vtt",
+   "rooms": [
+    {
+     "id": "17",
+     "label": "17",
+     "name": "Hungry Rust Monsters",
+     "grid": [
+      25.39,
+      40.92
+     ],
+     "monsters": [
+      {
+       "name": "Rust Monster",
+       "count": 2,
+       "note": "fighting over a rusted helm; torch brackets can distract them 1d6 min"
+      }
+     ],
+     "gm_note": "Old festival hall, 30ft ceiling."
+    },
+    {
+     "id": "18",
+     "label": "18",
+     "name": "Cold Storage",
+     "grid": [
+      12.12,
+      11.92
+     ],
+     "monsters": [],
+     "gm_note": "0°F room; any spell cast here triggers 8d8 cold damage to all present (1/hour)."
+    },
+    {
+     "id": "19a",
+     "label": "19a",
+     "name": "Arachnid Down",
+     "grid": [
+      6.04,
+      44.7
+     ],
+     "monsters": [],
+     "gm_note": "Dead giant spider under a fallen chandelier."
+    },
+    {
+     "id": "19b",
+     "label": "19b",
+     "name": "Old Bedchamber",
+     "grid": [
+      5.65,
+      54.08
+     ],
+     "monsters": [],
+     "gm_note": "Dead giant spider; armoire holds a halfling skeleton with a ring of swimming."
+    },
+    {
+     "id": "19c",
+     "label": "19c",
+     "name": "Sticky Webs",
+     "grid": [
+      7.25,
+      36.1
+     ],
+     "monsters": [],
+     "gm_note": "Disturbing the webs alerts the spiders in 19d."
+    },
+    {
+     "id": "19d",
+     "label": "19d",
+     "name": "Spider Warren",
+     "grid": [
+      4.1,
+      12.46
+     ],
+     "monsters": [
+      {
+       "name": "Giant Spider",
+       "count": 5,
+       "note": "attack all intruders"
+      }
+     ],
+     "gm_note": "Spider lair."
+    },
+    {
+     "id": "19e",
+     "label": "19e",
+     "name": "Spider Larder",
+     "grid": [
+      4.96,
+      24.1
+     ],
+     "monsters": [
+      {
+       "name": "Swarm of Spiders",
+       "count": 1,
+       "note": "inside the sixth cocoon"
+      }
+     ],
+     "gm_note": "5 cocoons hold desiccated goblin/nothic corpses (20cp, 18sp, 5gp, silvered dagger)."
+    },
+    {
+     "id": "22a",
+     "label": "22a",
+     "name": "Ale Dispenser",
+     "grid": [
+      52.79,
+      53.37
+     ],
+     "monsters": [
+      {
+       "name": "Skeleton",
+       "count": 9,
+       "note": "dwarf skeletons, brew ale endlessly; passive unless attacked or robbed"
+      }
+     ],
+     "gm_note": "6th spigot releases green slime (1d10 acid/round until scraped/destroyed)."
+    },
+    {
+     "id": "22b",
+     "label": "22b",
+     "name": "\"Brewers Only!\"",
+     "grid": [
+      49.12,
+      52.79
+     ],
+     "monsters": [],
+     "gm_note": "Halaster's voice trap triggers on entry."
+    },
+    {
+     "id": "22c",
+     "label": "22c",
+     "name": "Ale Vats",
+     "grid": [
+      40.38,
+      52.93
+     ],
+     "monsters": [
+      {
+       "name": "Beholder Zombie",
+       "count": 1,
+       "note": "rises from the southwest vat if disturbed"
+      }
+     ],
+     "gm_note": "30 empty zurkhwood barrels can be used to cross 22d's pit traps safely."
+    },
+    {
+     "id": "22d",
+     "label": "22d",
+     "name": "Barrel Run",
+     "grid": [
+      26.98,
+      52.91
+     ],
+     "monsters": [],
+     "gm_note": "3 hidden 20-ft pits (DC 15 Perception, 2d6 bludgeoning); rolling in a barrel avoids them."
+    },
+    {
+     "id": "22e",
+     "label": "22e",
+     "name": "North Ale Storage",
+     "grid": [
+      14.25,
+      48.02
+     ],
+     "monsters": [],
+     "gm_note": "140 barrels of preserved dwarven ale, 40gp each in Waterdeep."
+    },
+    {
+     "id": "22f",
+     "label": "22f",
+     "name": "South Ale Storage",
+     "grid": [
+      14.09,
+      58.14
+     ],
+     "monsters": [
+      {
+       "name": "Mimic",
+       "count": 3,
+       "note": "disguised as 3 of the 59 intact barrels"
+      }
+     ],
+     "gm_note": "Collapsed barrel pyramid; mimics hide within 10ft of each other."
+    }
+   ],
+   "secret_doors": [
+    [
+     17.02,
+     51.98
+    ],
+    [
+     17.02,
+     53.91
+    ]
+   ],
+   "connectors": [
+    {
+     "to": "expanded",
+     "grid": [
+      1.86,
+      19.29
+     ]
+    },
+    {
+     "to": "C",
+     "grid": [
+      34.31,
+      36.7
+     ]
+    },
+    {
+     "to": "E",
+     "grid": [
+      52.7,
+      39.28
+     ]
+    },
+    {
+     "to": "E",
+     "grid": [
+      55.63,
+      56.66
+     ]
+    }
+   ],
+   "traps": [
+    [
+     20.98,
+     53.03
+    ],
+    [
+     25,
+     53.03
+    ],
+    [
+     29.01,
+     53.03
+    ]
+   ]
+  },
+  "E": {
+   "schema": 2,
+   "level": 2,
+   "map": "E",
+   "grid": {
+    "w": 64,
+    "h": 69,
+    "pixels_per_grid": 100
+   },
+   "dd2vtt_file": "Level2_E_*_FVTT.dd2vtt",
+   "rooms": [
+    {
+     "id": "20a",
+     "label": "20a",
+     "name": "Beholder Zombie",
+     "grid": [
+      41.41,
+      11.84
+     ],
+     "monsters": [
+      {
+       "name": "Beholder Zombie",
+       "count": 1,
+       "note": "attacks anyone not showing Xanathar's symbol"
+      }
+     ],
+     "gm_note": "Combat here draws reinforcements from 20b."
+    },
+    {
+     "id": "20b",
+     "label": "20b",
+     "name": "Watch Post Barracks",
+     "grid": [
+      33.2,
+      12.97
+     ],
+     "monsters": [
+      {
+       "name": "Berserker",
+       "count": 1,
+       "note": "Nadia the Unbent"
+      },
+      {
+       "name": "Human Thug",
+       "count": 5
+      },
+      {
+       "name": "Bugbear",
+       "count": 5
+      }
+     ],
+     "gm_note": "Secret door west to 20c; Nadia eagerly leads any fight."
+    },
+    {
+     "id": "20c",
+     "label": "20c",
+     "name": "Arch Gate to Level 6",
+     "grid": [
+      28,
+      8.01
+     ],
+     "monsters": [],
+     "gm_note": "Secret doors to 20b/20d nearby.",
+     "teleport": {
+      "kind": "gate",
+      "label": "Arch Gate to Level 6 (9th level+, touch ferrous metal)"
+     }
+    },
+    {
+     "id": "20d",
+     "label": "20d",
+     "name": "Secret Armory",
+     "grid": [
+      18.53,
+      17
+     ],
+     "monsters": [
+      {
+       "name": "Bugbear",
+       "count": 3,
+       "note": "searching for treasure"
+      }
+     ],
+     "gm_note": "Mostly ruined dwarven arms and armor."
+    },
+    {
+     "id": "21",
+     "label": "21",
+     "name": "Animated Ballistae",
+     "grid": [
+      21.23,
+      22.89
+     ],
+     "monsters": [
+      {
+       "name": "Animated Object",
+       "count": 2,
+       "note": "animated ballistae, AC15 HP50, 3d10 fire bolt, blindsight 120ft"
+      }
+     ],
+     "gm_note": "Ignore creatures in the easternmost 60ft of the hall."
+    },
+    {
+     "id": "23a",
+     "label": "23a",
+     "name": "Defaced Dwarves",
+     "grid": [
+      22.09,
+      39.08
+     ],
+     "monsters": [],
+     "gm_note": "Harmless writhing stone tentacles replace the original dwarf carvings."
+    },
+    {
+     "id": "25a",
+     "label": "25a",
+     "name": "Caryatids of Restoration",
+     "grid": [
+      11,
+      50.1
+     ],
+     "monsters": [
+      {
+       "name": "Modron",
+       "count": 1,
+       "note": "Halastron, a rogue quadrone; friendly, defends the caryatids"
+      }
+     ],
+     "gm_note": "Command phrase 'Elf magic!' cures blind/deaf/petrified/poisoned/stunned in the area, 4 charges/dawn."
+    },
+    {
+     "id": "25b",
+     "label": "25b",
+     "name": "Lifelike Statues",
+     "grid": [
+      22.11,
+      43.82
+     ],
+     "monsters": [
+      {
+       "name": "Bullywug",
+       "count": 4,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25c",
+     "label": "25c",
+     "name": "Lifelike Statues",
+     "grid": [
+      27.98,
+      43.82
+     ],
+     "monsters": [
+      {
+       "name": "Grick",
+       "count": 3,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25d",
+     "label": "25d",
+     "name": "Lifelike Statues",
+     "grid": [
+      33.99,
+      43.82
+     ],
+     "monsters": [
+      {
+       "name": "Drow",
+       "count": 2,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25e",
+     "label": "25e",
+     "name": "Lifelike Statues",
+     "grid": [
+      39.93,
+      43.82
+     ],
+     "monsters": [
+      {
+       "name": "Rust Monster",
+       "count": 4,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25f",
+     "label": "25f",
+     "name": "Lifelike Statues",
+     "grid": [
+      47.06,
+      43.82
+     ],
+     "monsters": [
+      {
+       "name": "Troglodyte",
+       "count": 5,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25g",
+     "label": "25g",
+     "name": "Lifelike Statues",
+     "grid": [
+      55.01,
+      43.82
+     ],
+     "monsters": [
+      {
+       "name": "Goat",
+       "count": 6,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25h",
+     "label": "25h",
+     "name": "Halaster's Statue",
+     "grid": [
+      61.02,
+      43.82
+     ],
+     "monsters": [
+      {
+       "name": "Halaster Blackcloak",
+       "count": 1,
+       "note": "petrified; hidden behind a secret door"
+      }
+     ],
+     "gm_note": "Restoring it triggers a magic mouth: \"Fools!\""
+    },
+    {
+     "id": "25i",
+     "label": "25i",
+     "name": "Lifelike Statues",
+     "grid": [
+      23.03,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Boar",
+       "count": 1,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25j",
+     "label": "25j",
+     "name": "Lifelike Statues",
+     "grid": [
+      27,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Constrictor Snake",
+       "count": 1,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25k",
+     "label": "25k",
+     "name": "Lifelike Statues",
+     "grid": [
+      31.04,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Kenku",
+       "count": 1,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25l",
+     "label": "25l",
+     "name": "Lifelike Statues",
+     "grid": [
+      35.03,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Lizardfolk",
+       "count": 1,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25m",
+     "label": "25m",
+     "name": "Lifelike Statues",
+     "grid": [
+      38.94,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Mind Flayer",
+       "count": 1,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "An illusory (intangible) wall behind it conceals a tunnel."
+    },
+    {
+     "id": "25n",
+     "label": "25n",
+     "name": "Lifelike Statues",
+     "grid": [
+      43.15,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Nothic",
+       "count": 1,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25o",
+     "label": "25o",
+     "name": "Lifelike Statues",
+     "grid": [
+      47.05,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Orc War Chief",
+       "count": 1,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25p",
+     "label": "25p",
+     "name": "Lifelike Statues",
+     "grid": [
+      51.01,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Badger",
+       "count": 1,
+       "note": "petrified, giant"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25q",
+     "label": "25q",
+     "name": "Lifelike Statues",
+     "grid": [
+      54.92,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Quaggoth",
+       "count": 1,
+       "note": "petrified"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    },
+    {
+     "id": "25r",
+     "label": "25r",
+     "name": "Lifelike Statues",
+     "grid": [
+      59,
+      55.49
+     ],
+     "monsters": [
+      {
+       "name": "Human Wererat",
+       "count": 1,
+       "note": "petrified; Zarn Kassifax, tries to join Rizzeryl's gang if freed"
+      }
+     ],
+     "gm_note": "Restorable with greater restoration or the caryatids."
+    }
+   ],
+   "secret_doors": [
+    [
+     29.98,
+     12.05
+    ],
+    [
+     26.86,
+     14.94
+    ],
+    [
+     60.9,
+     49.02
+    ]
+   ],
+   "connectors": [
+    {
+     "to": "C",
+     "grid": [
+      44.15,
+      0.78
+     ]
+    },
+    {
+     "to": "C",
+     "grid": [
+      48.19,
+      0.78
+     ]
+    },
+    {
+     "to": "D",
+     "grid": [
+      1.41,
+      6.29
+     ]
+    },
+    {
+     "to": "D",
+     "grid": [
+      1.44,
+      23.32
+     ]
+    },
+    {
+     "to": "level3",
+     "grid": [
+      58.52,
+      35.91
+     ]
+    },
+    {
+     "to": "F",
+     "grid": [
+      1.58,
+      39.2
+     ]
+    },
+    {
+     "to": "F",
+     "grid": [
+      1.42,
+      50.4
+     ]
+    },
+    {
+     "to": "expanded",
+     "grid": [
+      40.71,
+      58.11
+     ]
+    }
+   ],
+   "traps": []
+  },
+  "F": {
+   "schema": 2,
+   "level": 2,
+   "map": "F",
+   "grid": {
+    "w": 57,
+    "h": 38,
+    "pixels_per_grid": 100
+   },
+   "dd2vtt_file": "Level2_F_*_FVTT.dd2vtt",
+   "rooms": [
+    {
+     "id": "23b",
+     "label": "23b",
+     "name": "Hall of Dead Dragons",
+     "grid": [
+      36.69,
+      7.7
+     ],
+     "monsters": [],
+     "gm_note": "5 harmless posed dragon skeletons (brass, bronze, copper, gold, silver)."
+    },
+    {
+     "id": "24",
+     "label": "24",
+     "name": "Dead Adventurer",
+     "grid": [
+      8.24,
+      12.03
+     ],
+     "monsters": [],
+     "gm_note": "Tiefling monk skeleton (Savir, killed by a cloaker); speak with dead reveals a nearby elven tomb's secret door."
+    },
+    {
+     "id": "26a",
+     "label": "26a",
+     "name": "Do Not Feed the Owlbears!",
+     "grid": [
+      50.52,
+      26.95
+     ],
+     "monsters": [
+      {
+       "name": "Owlbear",
+       "count": 2,
+       "note": "attack anything that enters"
+      }
+     ],
+     "gm_note": "Secret door north to 26b; a pot of awakening is close to hatching an awakened shrub."
+    },
+    {
+     "id": "26b",
+     "label": "26b",
+     "name": "Secret Tomb",
+     "grid": [
+      47.4,
+      15.9
+     ],
+     "monsters": [],
+     "gm_note": "False sarcophagus (DC 17 Perception) - a solid alabaster block, not openable."
+    },
+    {
+     "id": "26c",
+     "label": "26c",
+     "name": "Halaster's Crushing Eye",
+     "grid": [
+      37.55,
+      27.71
+     ],
+     "monsters": [],
+     "gm_note": "Rolling-sphere trap (10d10 bludgeoning, DC 15 Dex) down the sloped hall to 26d."
+    },
+    {
+     "id": "26d",
+     "label": "26d",
+     "name": "Bloodletting Chamber",
+     "grid": [
+      22.09,
+      19.75
+     ],
+     "monsters": [],
+     "gm_note": "6 shackled ritual bloodletting tables."
+    },
+    {
+     "id": "26e",
+     "label": "26e",
+     "name": "Abandoned Study",
+     "grid": [
+      8.35,
+      18.8
+     ],
+     "monsters": [],
+     "gm_note": "Dust of disappearance in an urn; a burned spellbook among mundane tomes."
+    }
+   ],
+   "secret_doors": [
+    [
+     49.17,
+     17.98
+    ]
+   ],
+   "connectors": [
+    {
+     "to": "E",
+     "grid": [
+      55.6,
+      8.54
+     ]
+    },
+    {
+     "to": "E",
+     "grid": [
+      55.62,
+      19.88
+     ]
+    },
+    {
+     "to": "expanded",
+     "grid": [
+      3.98,
+      21.32
+     ]
+    }
+   ],
+   "traps": []
+  }
+ }
+}

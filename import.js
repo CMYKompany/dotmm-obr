@@ -6,7 +6,7 @@ import OBR, {
   buildImage,
   buildShape,
 } from "https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3/+esm";
-import { DOTMM_LEVELS, TOKEN_MANIFEST } from "./content.js";
+import { TOKEN_MANIFEST } from "./content.js";
 import {
   PLUGIN, K, DPI, MONSTER_SIZE,
   normalizeName, tokenMatchScore, ringOffsets, chunkString, extractFog,
@@ -22,7 +22,25 @@ const state = {
   importing: false,
 };
 
-const levelData = () => DOTMM_LEVELS[state.level] || null;
+// Per-level content ({name, origins, packs}) is fetched from packs/level<N>.json
+// on demand as files are recognized, instead of one bundle covering every
+// level - keeps the payload proportional to how many levels you've actually
+// played, not how many the module has (23 + Yawning Portal/Skullport).
+const levelCache = {}; // level string -> {name, origins, packs}
+const levelData = () => levelCache[state.level] || null;
+async function fetchLevel(n) {
+  if (levelCache[n]) return levelCache[n];
+  try {
+    const res = await fetch(new URL(`packs/level${n}.json`, import.meta.url));
+    if (!res.ok) return null;
+    const json = await res.json();
+    levelCache[n] = json;
+    return json;
+  } catch (err) {
+    console.error("[DotMM] level pack fetch failed:", n, err);
+    return null;
+  }
+}
 const assetName = (L) => `DotMM-L${state.level}-${L}`;
 // dd2vtt image dpi (px per cell) - read per file, not assumed
 const vttDpi = (vtt) => vtt?.resolution?.pixels_per_grid || DPI;
@@ -78,17 +96,21 @@ $("file").addEventListener("change", (e) => {
   if (e.target.files) loadVttFiles([...e.target.files]);
 });
 
-// Identify level + sub-map from the filename (Level2_A_..., Level02_A_...);
-// fall back to matching the grid size against every known pack.
-function detectPack(filename, vtt) {
+// Identify level + sub-map from the filename (Level2_A_..., Level02_A_...),
+// fetching that level's pack on demand; fall back to matching the grid size
+// against every already-fetched level's packs.
+async function detectPack(filename, vtt) {
   const m = /Level\s*0*(\d+)[_ -]([A-Z])_/i.exec(filename);
-  if (m && DOTMM_LEVELS[m[1]]) {
-    const pack = DOTMM_LEVELS[m[1]].packs[m[2].toUpperCase()];
-    if (pack) return { level: m[1], pack };
+  if (m) {
+    const data = await fetchLevel(m[1]);
+    if (data) {
+      const pack = data.packs[m[2].toUpperCase()];
+      if (pack) return { level: m[1], pack };
+    }
   }
   const sz = vtt?.resolution?.map_size;
   if (sz) {
-    for (const [level, data] of Object.entries(DOTMM_LEVELS)) {
+    for (const [level, data] of Object.entries(levelCache)) {
       for (const pack of Object.values(data.packs)) {
         if (pack.grid.w === sz.x && pack.grid.h === sz.y) return { level, pack };
       }
@@ -104,7 +126,7 @@ async function loadVttFiles(files) {
     try {
       const vtt = JSON.parse(await file.text());
       if (!vtt.resolution || !vtt.image) continue;
-      const hit = detectPack(file.name, vtt);
+      const hit = await detectPack(file.name, vtt);
       if (!hit) continue;
       // One level per scene: the first recognized file decides.
       if (state.level && hit.level !== state.level) {

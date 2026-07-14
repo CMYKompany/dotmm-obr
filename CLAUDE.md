@@ -1,12 +1,39 @@
-# DotMM Level 1 → Owlbear Rodeo Importer
+# DotMM → Owlbear Rodeo Importer
 
 Custom Owlbear Rodeo (OBR) extension that imports Dungeon of the Mad Mage
-Level 1 into OBR in one action per scene: map images, dynamic fog
+levels into OBR in one action per scene: map images, dynamic fog
 (walls/doors/lights from dd2vtt files), GM-only room labels with names,
 monster tokens placed per the module, GM notes, secret-door markers,
-teleport/gate markers, and a room browser with jump-to-room.
+teleport/gate markers, and a room browser with jump-to-room. Personal
+multi-level tool (not a generic public one): Levels 1–2 have full room
+content (names, monster rosters, GM notes, teleports/gates); level
+detection is automatic from dropped filenames (`Level<N>_<letter>_...`), no
+manual level picker. New levels only need a `packs/level<N>.json`.
 
-Current version: **1.6.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+Current version: **1.6.1**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+
+## Session start: sync before changing anything
+
+The user often runs multiple Claude Code sessions against this repo (different
+conversations/branches, sometimes concurrently). A session's local checkout
+does NOT auto-update when another session pushes/merges elsewhere — git only
+reflects the remote once you fetch. Before making any code change (not
+needed for read-only questions), run:
+
+```
+git fetch origin main
+git log --oneline HEAD..origin/main   # commits on main you don't have
+git log --oneline origin/main..HEAD   # commits on your branch main doesn't have
+```
+
+If `main` has moved since your branch's base, read what changed (`git show`,
+`git diff`) before assuming your branch's state of the code is current —
+another session may have already built, fixed, or conflicted with what
+you're about to do. This is exactly how a 2026-07-14 session independently
+rebuilt multi-level support that a different session had already merged;
+rebuilding on the stale base wasted a full refactor pass. If your branch
+conflicts with a moved `main`, treat `main` as ground truth and rebase/redo
+your work on top of it rather than pushing a competing design.
 
 ## Collaboration preferences (apply to all responses)
 
@@ -31,11 +58,18 @@ import.js         Import flow: dd2vtt parse, token matching, scene build+upload,
                   room browser, re-align button
 background.js     Runtime: reconciliation (self-calibration), local Wall/Light
                   materialization, door toggle + vision context menus
-common.js         Shared constants (PLUGIN id, metadata keys K, ORIGINS,
-                  MAP_PIXELS, MONSTER_SIZE), fog extraction, token scoring
-content.js        GENERATED — embedded content packs + token manifest.
-                  Regenerate via pipeline; do not hand-edit.
-packs/            Pipeline outputs (content_A..F.json, anchors, token manifest)
+common.js         Shared constants (PLUGIN id, metadata keys K, MONSTER_SIZE)
+                  and LEGACY-ONLY fallback tables (ORIGINS, MAP_PIXELS —
+                  pre-1.6.0 Level 1 scenes without mapsInfo only), fog
+                  extraction, token scoring
+content.js        GENERATED — the one thing still bundled: TOKEN_MANIFEST
+                  (all levels' monster names/counts/room-refs, for token
+                  matching). Regenerate via pipeline; do not hand-edit.
+packs/level<N>.json  GENERATED per level — fetched at runtime by import.js
+                  as files for that level are recognized. {name, origins,
+                  packs: {letter: pack}}. Regenerate via pipeline.
+packs/            Also holds pipeline intermediates (content_A..F.json,
+                  anchors, per-level curation files)
 pipeline/         Python scripts that produced the data (reference; they read
                   source maps/overlays not included in this repo)
 docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
@@ -128,9 +162,16 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
 - Regenerating content: `pipeline/build_content.py` reads
   `packs/anchors_curated.json` and writes `packs/content_*.json` (L1);
   Level 2 packs came from `pipeline/l2_ocr_overlays.py` + contact-sheet
-  transcription + `pipeline/l2_register_mapkey.py`. Then
-  `python3 pipeline/build_content_js.py` bundles ALL levels into
-  `content.js` (DOTMM_LEVELS structure, per-level origins baked there).
+  transcription + `pipeline/l2_register_mapkey.py` for anchors/origins,
+  room names/monster rosters/GM notes/teleports authored from
+  `level2_merged.md` (module + Companion text, merged and room-numbered).
+  Bundle each level's `{name, origins, packs}` into `packs/level<N>.json`
+  (fetched at runtime — do not add it back into `content.js`, which now
+  holds only the cross-level `TOKEN_MANIFEST`).
+- Level 2 origins were placeholder estimates at first import; field-tested
+  and corrected (2026-07-14): B (+4,-2), C (+4,+2), D (0,+1), E (+4,+1),
+  F (+5,+3) relative to the original anchor-derived values, baked into
+  `packs/level2.json`.
 
 ## Open issues (state as of v1.3.0)
 

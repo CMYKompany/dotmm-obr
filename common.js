@@ -16,10 +16,10 @@ export const K = {
 export const DPI = 100; // default dd2vtt pixels_per_grid; read per file where possible
 
 // LEGACY (pre-1.6.0 scenes only). Scenes imported at ≥1.6.0 are
-// self-describing: per-level origins live in content.js (DOTMM_LEVELS)
-// and each scene's controller carries mapsInfo. These Level 1 tables
-// remain solely so background.js can reconcile old scenes that lack
-// mapsInfo. Do not extend them for new levels.
+// self-describing: per-level origins live in packs/level<N>.json (fetched
+// at import time) and each scene's controller carries mapsInfo. These
+// Level 1 tables remain solely so background.js can reconcile old scenes
+// that lack mapsInfo. Do not extend them for new levels.
 export const ORIGINS = {
   A: [0, 0],
   B: [0, -43],
@@ -33,11 +33,14 @@ export const MAP_PIXELS = {
   D: [6300, 6200], E: [7300, 5800], F: [7000, 5100],
 };
 
-// Monster base sizes in grid cells (default 1). Large creatures of Level 1.
+// Monster base sizes in grid cells (default 1). Large+ creatures across levels.
 export const MONSTER_SIZE = {
   "Manticore": 2, "Troll": 2, "Ettin": 2, "Gelatinous Cube": 2,
   "Black Pudding": 2, "Air Elemental": 2, "Grick Alpha": 2,
   "Sahuagin Baron": 2, "Mimic": 2,
+  // Level 2
+  "Owlbear": 2, "Beholder Zombie": 2, "Flesh Golem": 2,
+  "Animated Object": 2, "Giant Spider": 2,
 };
 
 // Normalize a filename or monster name for matching: lowercase alphanumerics only.
