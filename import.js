@@ -239,6 +239,28 @@ async function pickExtraMapImages() {
   }
 }
 
+// uploadImages resolves once the upload is confirmed, but OBR's library
+// search index doesn't always catch up instantly - a picker opened right
+// after upload can come back empty even though the upload succeeded (the
+// observed symptom: Import fails once, then an immediate retry works).
+// Wait a beat before the first picker open, then retry it automatically
+// (re-prompting) instead of surfacing a failure the user has to notice
+// and manually redo.
+async function pickExtraMapImagesUntilFound(needed, onStatus) {
+  await new Promise((r) => setTimeout(r, 1200));
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    if (attempt > 1) {
+      onStatus(`Maps ${needed.filter((L) => !state.mapImages.has(L)).join(", ")} weren't in your library yet — retrying the picker…`);
+      await new Promise((r) => setTimeout(r, 1500 * attempt));
+    } else {
+      onStatus(`Now select the DotMM-L${state.level}-* images for maps ${needed.join(", ")} in the picker…`);
+    }
+    await pickExtraMapImages();
+    if (needed.every((L) => state.mapImages.has(L))) return true;
+  }
+  return false;
+}
+
 $("uploadMaps").addEventListener("click", async () => {
   const extras = [...state.loaded.keys()].sort().slice(1);
   if (extras.length === 0) {
@@ -248,11 +270,18 @@ $("uploadMaps").addEventListener("click", async () => {
   try {
     setStatus("Confirm the upload dialog in Owlbear Rodeo…");
     await uploadExtraMapImages(extras);
-    if (extras.every((L) => state.mapImages.has(L))) {
+    const missing = extras.filter((L) => !state.mapImages.has(L));
+    if (missing.length === 0) {
       setStatus(`Map images ready (${extras.join(", ")}). Import when ready.`, "ok");
-    } else {
-      setStatus(`Uploaded. Now click “Pick uploaded maps” and select the DotMM-L${state.level}-* images.`, "ok");
+      return;
     }
+    const found = await pickExtraMapImagesUntilFound(missing, (msg) => setStatus(msg));
+    setStatus(
+      found
+        ? `Map images ready (${extras.join(", ")}). Import when ready.`
+        : `Still missing maps ${extras.filter((L) => !state.mapImages.has(L)).join(", ")} — click “Pick uploaded maps” once they've finished uploading.`,
+      found ? "ok" : "err"
+    );
   } catch (err) {
     setStatus(`Map upload failed: ${fmtError(err)}`, "err");
   }
@@ -612,10 +641,10 @@ $("importBtn").addEventListener("click", async () => {
       setProgress(5);
       await uploadExtraMapImages(missing);
       stage = "picking extra maps";
-      setStatus(`Now select the DotMM-L${state.level}-* images for maps ${missing.join(", ")} in the picker…`);
-      await pickExtraMapImages();
+      setProgress(10);
+      const found = await pickExtraMapImagesUntilFound(missing, (msg) => setStatus(msg));
       missing = extras.filter((L) => !state.mapImages.has(L));
-      if (missing.length > 0) {
+      if (!found) {
         setStatus(`Still missing maps ${missing.join(", ")} — select their DotMM-L${state.level}-* images via “Pick uploaded maps” (step 2b), then Import again.`, "err");
         setProgress(0);
         return;
