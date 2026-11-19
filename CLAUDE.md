@@ -1,16 +1,22 @@
 # DotMM → Owlbear Rodeo Importer
 
-Custom Owlbear Rodeo (OBR) extension that imports Dungeon of the Mad Mage
-levels into OBR in one action per scene: map images, dynamic fog
-(walls/doors/lights from dd2vtt files), GM-only room labels with names,
-monster tokens placed per the module, GM notes, secret-door markers,
-teleport/gate markers, and a room browser with jump-to-room. Personal
-multi-level tool (not a generic public one): Levels 1–2 have full room
-content (names, monster rosters, GM notes, teleports/gates); level
-detection is automatic from dropped filenames (`Level<N>_<letter>_...`), no
-manual level picker. New levels only need a `packs/level<N>.json`.
+Custom Owlbear Rodeo (OBR) extension that imports dd2vtt maps into OBR in one
+action per scene: map images, dynamic fog (walls/doors/lights), GM-only room
+labels with names, monster tokens, GM notes, secret-door markers,
+teleport/gate markers, and a room browser with jump-to-room and
+click-to-place. Two sources:
+- **DotMM levels**: `Level<N>_<letter>_...` files are recognized by name and
+  bring bundled rooms/origins/secret doors from `packs/level<N>.json`
+  (Levels 1–2 fully populated).
+- **Any other maps** (since 1.7.0): rooms/monsters/notes/positions come from a
+  user-supplied *room file* — Markdown or JSON, written by hand or by an LLM
+  (`docs/CONTENT_FORMAT.md`, `docs/LLM_PROMPT.md`). A room file can also
+  override a DotMM level's rooms and origins. Positions are optional; rooms
+  without one are placed later by clicking the map.
 
-Current version: **1.6.3**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
+Still a personal tool first; generalize where DotMM work needs it.
+
+Current version: **1.7.0**. Live at `https://cmykompany.github.io/dotmm-obr/manifest.json`.
 
 ## Session start: sync before changing anything
 
@@ -54,10 +60,16 @@ subfolder.
 manifest.json     OBR manifest — ABSOLUTE URLs required (see quirks); version
                   bump forces OBR to refresh; SHORT description required
 import.html       Importer panel UI (popover action)
-import.js         Import flow: dd2vtt parse, token matching, scene build+upload,
-                  room browser, re-align button
+import.js         Import flow: file loading (maps + room file), scene plan,
+                  token matching, scene build+upload, room browser,
+                  click-to-place queueing, room-file export, re-align button
+contentfile.js    Room-file parser/exporter (Markdown + JSON -> one "doc"
+                  shape). Pure, no SDK: shared by import.js and the tests.
+builders.js       Scene item builders (room label, tokens, doors, markers),
+                  shared by import.js and background.js (click-to-place)
 background.js     Runtime: reconciliation (self-calibration), local Wall/Light
-                  materialization, door toggle + vision context menus
+                  materialization, door toggle + vision context menus,
+                  click-to-place tool (places queued unplaced rooms)
 common.js         Shared constants (PLUGIN id, metadata keys K, MONSTER_SIZE)
                   and LEGACY-ONLY fallback tables (ORIGINS, MAP_PIXELS —
                   pre-1.6.0 Level 1 scenes without mapsInfo only), fog
@@ -79,6 +91,11 @@ pipeline/         Python scripts that produced the data (reference; most read
                   build_packs.py is the one to rerun after editing packs.
 docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
                   open issues, data provenance
+docs/CONTENT_FORMAT.md  User guide to the room-file format (rendered by
+                  docs/guide.html, which the panel links to; Pages serves
+                  .md raw). docs/LLM_PROMPT.md, docs/content.schema.json.
+tests/            `node tests/content.test.mjs` - room-file round trip of
+                  Levels 1-2, parser behavior, docs examples parse cleanly
 ```
 
 ## Deploy / test loop
@@ -89,7 +106,11 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
 3. Test in an OBR room. All diagnostics log to the browser console with a
    `[DotMM]` prefix. The Rooms tab has a **Re-align scene** button that
    re-runs calibration and emits `[DotMM] verify map X: residual …` lines.
-4. No automated tests exist; OBR cannot be driven headlessly here.
+4. OBR cannot be driven headlessly. `node tests/content.test.mjs` covers the
+   room-file parser/exporter (run it after touching contentfile.js or the
+   docs). For importer changes, the 1.7.0 work verified behavior by running
+   old vs new import.js side by side in Node with a stubbed SDK and diffing
+   the scene items — worth repeating for any refactor of the import path.
 
 ## Architecture (key decisions)
 
@@ -97,8 +118,25 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
   dd2vtt files dropped together → ONE combined scene with all sub-maps
   placed at the level's global-frame origins (grid cells; `origins` in
   `packs/level<N>.json`, set in `pipeline/build_packs.py` LEVELS).
+- **One source per scene, decided by the first map file.** DotMM (level N)
+  or custom; mixing is refused. Custom maps get letters A, B, … in arrival
+  order (name order within one drop); room files refer to them by file name
+  (stable) or letter. A DotMM-named file whose level has no pack yet (e.g.
+  Level 3 today) falls back to a custom map.
+- **The scene plan** (`buildPlan` in import.js) is the single place that
+  merges maps + bundled pack + room file into per-map origins and
+  placed/unplaced rooms. Missing origins → maps laid out side by side
+  (warned). `at:` with `map:` is map-local; without `map:` in a multi-map
+  scene it is whole-scene coordinates.
+- **Unplaced rooms** live in `ctrl.rooms` with `grid: null`. Click-to-place:
+  the panel writes room ids to player metadata `K.placeQueue` and activates
+  `PLACE_TOOL`; background.js handles each map click (label + tokens,
+  `ctrl.rooms` updated with an absolute write, queue advanced). Token art for
+  those rooms is kept in `ctrl.tokenImages` at import, since the background
+  never saw the panel's matches. **Export room file** turns the scene (with
+  nudges folded into origins) back into Markdown.
 - **Scenes are self-describing.** The controller carries `ctrl.mapsInfo`
-  (per-letter cells/origin/pixels), so background.js identifies map items
+  (per-letter cells/origin/pixels/key), so background.js identifies map items
   without any level table. `common.js` ORIGINS/MAP_PIXELS are only a
   fallback for scenes imported before 1.6.0 — never extend them.
 - **Level data is fetched per level.** import.js parses the level from the
@@ -188,7 +226,7 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
   F (+5,+3) relative to the original anchor-derived values, baked into
   `pipeline/build_packs.py` LEVELS.
 
-## Open issues (state as of v1.6.3)
+## Open issues (state as of v1.7.0)
 
 1. **RESOLVED (v1.1.2/v1.2.0): misalignment + door correctness.**
    User-confirmed 2026-07-06: verify residuals all (0.0, 0.0); v1.2.0
@@ -216,9 +254,10 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
 5. Multi-level since 1.6.0: the importer is level-agnostic (level parsed
    from filenames, one level per scene, scenes self-describing via
    `ctrl.mapsInfo`). Levels 1 and 2 fully populated and field-tested
-   (v1.6.1). Levels 3+ need the per-level pipeline rerun (HANDOFF §2 L2
-   procedure is the template), then room content authored into the
-   per-letter packs.
+   (v1.6.1). Level 3: blocked on source access — this session's Google Drive
+   file reads are denied. Plan: author it as a room file (first level built
+   that way), then bundle into packs. Levels 3+ also need anchors/secret
+   doors (HANDOFF §2 L2 procedure is the template).
 6. Combined-scene map picker (v1.6.3): images uploaded via `uploadImages`
    can take a while to become searchable in OBR's library, so the picker
    opened right after upload may not show them (it falls back to showing
@@ -232,3 +271,10 @@ docs/HANDOFF.md   Full narrative: architecture decisions, debugging history,
    anchor is too far from the wall it marks — fix the anchor in
    `packs/anchors_curated.json` / regenerate, or accept the unaligned
    fallback (horizontal 1-cell segment at the anchor).
+8. 1.7.0 room files + click-to-place: verified in Node (round trip, old/new
+   import diff identical for L1/L2, custom-map plan, placement handler
+   against a mocked OBR) but NOT yet field-tested in OBR. Untested against
+   real OBR: the tool/mode registration and onToolClick pointer position,
+   the export download from inside the panel iframe (a copyable text box is
+   always shown as fallback). Room files can't express secret doors or traps
+   yet (bundled DotMM packs only).

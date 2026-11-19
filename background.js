@@ -2,7 +2,10 @@ import OBR, {
   buildWall,
   buildLight,
 } from "https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3/+esm";
-import { PLUGIN, K, MAP_PIXELS, ORIGINS, fmtError } from "./common.js";
+import {
+  PLUGIN, K, MAP_PIXELS, ORIGINS, PLACE_TOOL, PLACE_MODE, fmtError, normalizeName,
+} from "./common.js";
+import { makeBuilders } from "./builders.js";
 
 // ------------------------------------------------------------------
 // The importer persists fog data (walls + lights from the dd2vtt) as
@@ -537,6 +540,143 @@ function registerContextMenus() {
   });
 }
 
+// ---------- click-to-place ----------
+// Rooms imported without a position wait in the controller's room list with
+// grid: null. The importer panel queues room ids in player metadata
+// (K.placeQueue) and activates this tool; each map click places the head of
+// the queue: room label + monster tokens at the click, controller updated,
+// next room announced. The queue lives in player metadata so it survives the
+// panel closing (it closes itself so the map can be clicked).
+const MOVE_TOOL = "rodeo.owlbear.tool/move";
+let placing = false;
+
+async function getPlaceQueue() {
+  const meta = await OBR.player.getMetadata();
+  const q = meta[K.placeQueue];
+  return Array.isArray(q) ? q : [];
+}
+
+function mapAt(cell) {
+  for (const [L, info] of Object.entries(state.mapsInfo || {})) {
+    const [dx, dy] = ovOf(L);
+    const x0 = info.origin[0] + dx, y0 = info.origin[1] + dy;
+    if (cell[0] >= x0 && cell[1] >= y0 && cell[0] <= x0 + info.cells[0] && cell[1] <= y0 + info.cells[1]) {
+      return L;
+    }
+  }
+  return null;
+}
+
+async function placeNextRoom(pointer) {
+  if (placing) return; // ignore double-clicks while a placement is in flight
+  placing = true;
+  try {
+    const queue = await getPlaceQueue();
+    if (queue.length === 0) {
+      await OBR.notification.show("No rooms waiting to be placed - pick some in the importer's Rooms tab.", "WARNING");
+      await OBR.tool.activateTool(MOVE_TOOL);
+      return;
+    }
+    const controllers = await OBR.scene.items.getItems(
+      (it) => it.metadata && it.metadata[K.controller] !== undefined
+    );
+    if (controllers.length === 0) {
+      await OBR.notification.show("This scene wasn't imported by DotMM - nothing to place.", "ERROR");
+      await OBR.player.setMetadata({ [K.placeQueue]: undefined });
+      await OBR.tool.activateTool(MOVE_TOOL);
+      return;
+    }
+    const ctrl = controllers[0].metadata[K.controller];
+    const rooms = ctrl.rooms || [];
+    const idx = rooms.findIndex((r) => r.id === queue[0]);
+    const rest = queue.slice(1);
+    if (idx < 0) {
+      // Stale id (re-imported scene?) - skip it rather than block the queue.
+      await OBR.player.setMetadata({ [K.placeQueue]: rest.length ? rest : undefined });
+      await OBR.notification.show(`Room ${queue[0]} isn't in this scene - skipped. Click again for the next one.`, "WARNING");
+      return;
+    }
+
+    const dpi = await OBR.scene.grid.getDpi().catch(() => state.dpi);
+    const cell = [pointer.x / dpi, pointer.y / dpi];
+    const L = mapAt(cell);
+    const [dx, dy] = ovOf(L);
+    // K.cell is stored in the un-nudged frame; the map's nudge is re-added
+    // when positioning, exactly as reconcile's snapCellItems does.
+    const base = [Math.round((cell[0] - dx) * 100) / 100, Math.round((cell[1] - dy) * 100) / 100];
+    const room = { ...rooms[idx], map: L || rooms[idx].map || null, grid: base };
+
+    // Keep new tokens off cells already holding a token.
+    const occupied = new Set();
+    for (const it of await OBR.scene.items.getItems((i) => i.layer === "CHARACTER" && i.metadata?.[K.cell])) {
+      const c = it.metadata[K.cell];
+      occupied.add(`${Math.round(c[0] - 0.5)},${Math.round(c[1] - 0.5)}`);
+    }
+    const images = ctrl.tokenImages || {};
+    const B = makeBuilders(dpi, [0, 0], occupied, (name) => images[normalizeName(name)] || null);
+    const items = [B.roomLabel(room), ...B.monsterItems(room)];
+    if (room.teleport) items.push(B.teleportMarker(room));
+    for (const item of items) {
+      if (L) item.metadata[K.map] = L;
+      item.position = { x: item.position.x + dx * dpi, y: item.position.y + dy * dpi };
+    }
+
+    // Absolute write of the room list (replay-safe, like every controller update).
+    const nextRooms = rooms.map((r, i) => (i === idx ? room : r));
+    await OBR.scene.items.updateItems(controllers.map((it) => it.id), (drafts) => {
+      for (const d of drafts) {
+        const c = d.metadata[K.controller];
+        c.rooms = nextRooms;
+        d.metadata[K.controller] = c;
+      }
+    });
+    await OBR.scene.items.addItems(items);
+    await OBR.player.setMetadata({ [K.placeQueue]: rest.length ? rest : undefined });
+
+    const label = `${room.label}${room.name && room.name !== room.label ? ` · ${room.name}` : ""}`;
+    if (rest.length) {
+      const next = rooms.find((r) => r.id === rest[0]);
+      await OBR.notification.show(`Placed ${label}. Next: click where ${next ? next.label : rest[0]} goes (${rest.length} left).`, "SUCCESS");
+    } else {
+      await OBR.notification.show(`Placed ${label}. All queued rooms are placed.`, "SUCCESS");
+      await OBR.tool.activateTool(MOVE_TOOL);
+    }
+  } catch (err) {
+    console.error("[DotMM] place room failed:", err);
+    await OBR.notification.show(`Placing the room failed: ${fmtError(err)}`, "ERROR").catch(() => {});
+  } finally {
+    placing = false;
+  }
+}
+
+async function registerPlaceTool() {
+  const icon = new URL("pin.svg", import.meta.url).href;
+  await OBR.tool.create({
+    id: PLACE_TOOL,
+    icons: [{ icon, label: "Place DotMM rooms", filter: { roles: ["GM"] } }],
+    defaultMode: PLACE_MODE,
+  });
+  await OBR.tool.createMode({
+    id: PLACE_MODE,
+    icons: [{ icon, label: "Click to place the next room", filter: { activeTools: [PLACE_TOOL] } }],
+    cursors: [{ cursor: "crosshair" }],
+    onToolClick(_context, event) {
+      placeNextRoom(event.pointerPosition);
+      return false; // no default selection behavior while placing
+    },
+    async onActivate() {
+      try {
+        const queue = await getPlaceQueue();
+        if (queue.length === 0) {
+          await OBR.notification.show("No rooms waiting to be placed - open the importer's Rooms tab and choose rooms to place.", "INFO");
+        }
+      } catch (err) {
+        console.error("[DotMM] place tool activate failed:", err);
+      }
+    },
+  });
+}
+
 // ---------- boot ----------
 async function safeSync(label) {
   try {
@@ -552,6 +692,7 @@ OBR.onReady(() => {
   } catch (err) {
     console.error("[DotMM] context menu registration failed:", err);
   }
+  registerPlaceTool().catch((err) => console.error("[DotMM] place tool registration failed:", err));
   safeSync("initial sync");
   OBR.scene.onReadyChange(() => safeSync("scene-change sync"));
   OBR.scene.items.onChange(async (items) => {

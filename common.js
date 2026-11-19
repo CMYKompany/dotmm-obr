@@ -11,7 +11,12 @@ export const K = {
   mapImage: `${PLUGIN}/map-image`,      // on map image items; value: {letter, cells: [w,h], origin: [x,y]}
   map: `${PLUGIN}/map-letter`,          // on every per-map content item; value: "A".."F" - which sub-map it belongs to
   showRoom: `${PLUGIN}/show-room`,      // on PLAYER metadata; value: {id} - deep link into the room browser
+  placeQueue: `${PLUGIN}/place-queue`,  // on PLAYER metadata; value: [roomId, ...] - rooms waiting for click-to-place
 };
+
+// Click-to-place tool (registered by background.js, activated by the panel).
+export const PLACE_TOOL = `${PLUGIN}/place-tool`;
+export const PLACE_MODE = `${PLUGIN}/place-mode`;
 
 export const DPI = 100; // default dd2vtt pixels_per_grid; read per file where possible
 
