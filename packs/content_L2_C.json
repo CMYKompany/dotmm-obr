@@ -12,123 +12,163 @@
   {
    "id": "13a",
    "label": "13a",
-   "name": "",
+   "name": "Dumathoin's Altar",
    "grid": [
     41.17,
     12.36
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Gibbering Mouther",
+     "count": 1,
+     "note": "wanders the eastern hall"
+    }
+   ],
+   "gm_note": "Cleaning the altar grants 24h secret-door detection; 4 mithral ore chunks (25gp ea) under a mine cart."
   },
   {
    "id": "13b",
    "label": "13b",
-   "name": "",
+   "name": "Wall of Rust and Bones",
    "grid": [
     37.77,
     38.35
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "8-ft skeleton/armor wall (DC 12 Athletics to climb); breaking it summons the nothics from 13e."
   },
   {
    "id": "13c",
    "label": "13c",
-   "name": "",
+   "name": "Vacant Washroom",
    "grid": [
     30.18,
     35.97
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Rusted, inoperable dwarven washroom."
   },
   {
    "id": "13d",
    "label": "13d",
-   "name": "",
+   "name": "Vacant Washroom",
    "grid": [
     30.18,
     47.7
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Rusted, inoperable dwarven washroom."
   },
   {
    "id": "13e",
    "label": "13e",
-   "name": "",
+   "name": "\"Nothic to See Here!\"",
    "grid": [
     22.18,
     42.51
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Nothic",
+     "count": 4,
+     "note": "insane, cowed by displays of magic"
+    }
+   ],
+   "gm_note": "Arcane-locked door (Rizzeryl passes freely, else DC 25 Str); dwarven boots/helmets/goggles stored here."
   },
   {
    "id": "13f",
    "label": "13f",
-   "name": "",
+   "name": "Gibbering Mine",
    "grid": [
     85.29,
     20.73
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Gibbering Mouther",
+     "count": 3,
+     "note": "fight until killed"
+    }
+   ],
+   "gm_note": "Partially collapsed copper-vein mine section."
   },
   {
    "id": "13g",
    "label": "13g",
-   "name": "",
+   "name": "Strike It Rich",
    "grid": [
     57.69,
     34.12
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Mezzoloth",
+     "count": 1,
+     "note": "bound here by Halaster; commands the nothics by telepathy"
+    },
+    {
+     "name": "Nothic",
+     "count": 2
+    }
+   ],
+   "gm_note": "Rex the Hammer (Fine Fellows founder, ally if rescued) is pinned here; mine carts hold 1,000+ gp of copper ore."
   },
   {
    "id": "14a",
    "label": "14a",
-   "name": "",
+   "name": "Rizzeryl's Hideout",
    "grid": [
     7.42,
     39.12
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Drow Mage",
+     "count": 1,
+     "note": "Rizzeryl; casts greater invisibility on sight, summons a quasit if attacked"
+    }
+   ],
+   "gm_note": "Arcane-locked door; stone-map table; secret compartment (DC 15 Perception) holds his spellbook, a stone key, and a wand."
   },
   {
    "id": "14b",
    "label": "14b",
-   "name": "",
+   "name": "Wererat Barracks",
    "grid": [
     9.08,
     46.54
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Wererat",
+     "count": 8,
+     "note": "human form; loyal to the Zhentarim, led by Zilitsa Ilvarren"
+    }
+   ],
+   "gm_note": "Chest: 30gp, copper tankard, silver scepter (25gp), worthless chap-books."
   },
   {
    "id": "15",
    "label": "15",
-   "name": "",
+   "name": "Dusty Throne",
    "grid": [
     9.18,
     30.68
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Already looted by the wererats; nothing of value remains."
   },
   {
    "id": "16",
    "label": "16",
-   "name": "",
+   "name": "Partially Collapsed Room",
    "grid": [
     19.96,
     30.8
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Collapsed, empty, undisturbed."
   }
  ],
  "secret_doors": [

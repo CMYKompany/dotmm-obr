@@ -12,79 +12,85 @@
   {
    "id": "23b",
    "label": "23b",
-   "name": "",
+   "name": "Hall of Dead Dragons",
    "grid": [
     36.69,
     7.7
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "5 harmless posed dragon skeletons (brass, bronze, copper, gold, silver)."
   },
   {
    "id": "24",
    "label": "24",
-   "name": "",
+   "name": "Dead Adventurer",
    "grid": [
     8.24,
     12.03
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Tiefling monk skeleton (Savir, killed by a cloaker); speak with dead reveals a nearby elven tomb's secret door."
   },
   {
    "id": "26a",
    "label": "26a",
-   "name": "",
+   "name": "Do Not Feed the Owlbears!",
    "grid": [
     50.52,
     26.95
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Owlbear",
+     "count": 2,
+     "note": "attack anything that enters"
+    }
+   ],
+   "gm_note": "Secret door north to 26b; a pot of awakening is close to hatching an awakened shrub."
   },
   {
    "id": "26b",
    "label": "26b",
-   "name": "",
+   "name": "Secret Tomb",
    "grid": [
     47.4,
     15.9
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "False sarcophagus (DC 17 Perception) - a solid alabaster block, not openable."
   },
   {
    "id": "26c",
    "label": "26c",
-   "name": "",
+   "name": "Halaster's Crushing Eye",
    "grid": [
     37.55,
     27.71
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Rolling-sphere trap (10d10 bludgeoning, DC 15 Dex) down the sloped hall to 26d."
   },
   {
    "id": "26d",
    "label": "26d",
-   "name": "",
+   "name": "Bloodletting Chamber",
    "grid": [
     22.09,
     19.75
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "6 shackled ritual bloodletting tables."
   },
   {
    "id": "26e",
    "label": "26e",
-   "name": "",
+   "name": "Abandoned Study",
    "grid": [
     8.35,
     18.8
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Dust of disappearance in an urn; a burned spellbook among mundane tomes."
   }
  ],
  "secret_doors": [

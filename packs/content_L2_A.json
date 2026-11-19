@@ -12,211 +12,294 @@
   {
    "id": "1a",
    "label": "1a",
-   "name": "",
+   "name": "Bazaar Side Entrance",
    "grid": [
     33.27,
     39.05
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Junction into the goblin bazaar; banging construction noise carries from 1b."
   },
   {
    "id": "1b",
    "label": "1b",
-   "name": "",
+   "name": "Auction Hall",
    "grid": [
     35.55,
     13.43
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Goblin",
+     "count": 7,
+     "note": "building an auction stage; retreat to 1d if attacked"
+    }
+   ],
+   "gm_note": "Stage under construction for slave/goods auctions."
   },
   {
    "id": "1c",
    "label": "1c",
-   "name": "",
+   "name": "Gibbets and Gravy",
    "grid": [
     36.77,
     19.61
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Goblin",
+     "count": 1,
+     "note": "Glom, caged; informant, betrays freely"
+    }
+   ],
+   "gm_note": "Glom knows this level's layout, the Xanathar outposts, and the stairs to Level 3."
   },
   {
    "id": "1d",
    "label": "1d",
-   "name": "",
+   "name": "Market Hall",
    "grid": [
     47.02,
     26.25
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Goblin",
+     "count": 16,
+     "note": "vendors"
+    },
+    {
+     "name": "Goblin",
+     "count": 6,
+     "note": "guards, knock troublemakers out rather than kill"
+    }
+   ],
+   "gm_note": "Goblin market: buys at half price, sells at 3x; DC 12 Cha to haggle."
   },
   {
    "id": "1e",
    "label": "1e",
-   "name": "",
+   "name": "Yek the Tall",
    "grid": [
     61.16,
     34.81
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Goblin Boss",
+     "count": 1,
+     "note": "Yek the Tall, wears circlet of human perfection"
+    },
+    {
+     "name": "Bugbear",
+     "count": 4
+    },
+    {
+     "name": "Goblin",
+     "count": 10,
+     "note": "Yek's toadies"
+    }
+   ],
+   "gm_note": "Copper Stormforge (Fine Fellows) chained here; can be ransomed or freed."
   },
   {
    "id": "1f",
    "label": "1f",
-   "name": "",
+   "name": "Yek's Treasure",
    "grid": [
     60.3,
     15.53
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Diorama (15 costume jewelry, 1gp ea), ivory chessboard (25gp), chest of 2,000 sp."
   },
   {
    "id": "2a",
    "label": "2a",
-   "name": "",
+   "name": "Water Pump",
    "grid": [
     20.96,
     46.58
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Dead goblin messenger; smell of cooking lures toward 2c."
   },
   {
    "id": "2b",
    "label": "2b",
-   "name": "",
+   "name": "Abandoned Laboratory",
    "grid": [
     13.12,
     51.52
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Noisy search finds 3 potions of healing and a philter of love; alerts the specter in 2c."
   },
   {
    "id": "2c",
    "label": "2c",
-   "name": "",
+   "name": "Wizard's Kitchen",
    "grid": [
     4.83,
     55.87
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Specter",
+     "count": 1,
+     "note": "hides in the cook pot, animates 4 pots/pans as flying swords"
+    }
+   ],
+   "gm_note": "Illusion of a clean kitchen; DC 16 Investigation sees through it."
   },
   {
    "id": "2d",
    "label": "2d",
-   "name": "",
+   "name": "Kalabash's Bedroom",
    "grid": [
     3.27,
     49.95
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Allip",
+     "count": 1,
+     "note": "Kalabash"
+    }
+   ],
+   "gm_note": "Trapped chest (DC 15 Dex or 10 lightning); locked, cursed lore inside a cipher-written tome."
   },
   {
    "id": "3",
    "label": "3",
-   "name": "",
+   "name": "Halaster Puppet",
    "grid": [
     8.11,
     38.07
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Animated Armor",
+     "count": 1,
+     "note": "Halaster puppet construct, AC10 HP8, hidden alchemist's fire"
+    }
+   ],
+   "gm_note": "Threatens intruders in Halaster's voice; optional 'Delver Dance' game show encounter."
   },
   {
    "id": "4",
    "label": "4",
-   "name": "",
+   "name": "Abandoned Camp",
    "grid": [
     6.07,
     23.88
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Xanathar Guild's abandoned camp; corpses carry the outpost pass-phrase, 'As many as there are stars in the sky.'"
   },
   {
    "id": "5",
    "label": "5",
-   "name": "",
+   "name": "Arch Gate to Level 4",
    "grid": [
     8.02,
     10.39
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Feed a gold coin to open 1 minute; 8th level+ only.",
+   "teleport": {
+    "kind": "gate",
+    "label": "Arch Gate to Level 4 (8th level+, feed a gold coin)"
+   }
   },
   {
    "id": "6",
    "label": "6",
-   "name": "",
+   "name": "Music of the Dead",
    "grid": [
     21.56,
     37.02
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Bone harpsichord; playing its tune (DC 20 Performance if unskilled) reveals a scroll of raise dead, or 4d10 necrotic on failure."
   },
   {
    "id": "7a",
    "label": "7a",
-   "name": "",
+   "name": "Trenzia's Workroom",
    "grid": [
     30.12,
     53.66
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Trenzia's electricity-research notes; log entry (Day 1)."
   },
   {
    "id": "7b",
    "label": "7b",
-   "name": "",
+   "name": "Ghoul Barrels",
    "grid": [
     40.92,
     50.97
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Ghoul",
+     "count": 6,
+     "note": "hidden inside barrels, burst out if disturbed"
+    }
+   ],
+   "gm_note": "Copper-plated door to 7c shocks (3d6 lightning) unless 7c's creatures are dead."
   },
   {
    "id": "7c",
    "label": "7c",
-   "name": "",
+   "name": "Trenzia's Laboratory",
    "grid": [
     50.6,
     55.16
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Flameskull",
+     "count": 1,
+     "note": "Trenzia; lightning bolt + Lightning Ray instead of fire"
+    },
+    {
+     "name": "Flesh Golem",
+     "count": 1,
+     "note": "heals on electrified floor instead of taking damage"
+    }
+   ],
+   "gm_note": "Copper floor electrifies each round for 3d6 lightning; chute down to 13a."
   },
   {
    "id": "7d",
    "label": "7d",
-   "name": "",
+   "name": "Mining Woes",
    "grid": [
     39.82,
     67.77
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Ghast",
+     "count": 3,
+     "note": "wait behind the door"
+    }
+   ],
+   "gm_note": "Trenzia's gnawed remains; her skull is notably missing."
   },
   {
    "id": "7e",
    "label": "7e",
-   "name": "",
+   "name": "Copper Vein",
    "grid": [
     51.91,
     68.53
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Trenzia's log (Day 10); 1d4+1 potions of healing + 2 potions of lightning resistance in 7c's wreckage."
   }
  ],
  "secret_doors": [

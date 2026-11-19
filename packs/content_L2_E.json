@@ -12,266 +12,410 @@
   {
    "id": "20a",
    "label": "20a",
-   "name": "",
+   "name": "Beholder Zombie",
    "grid": [
     41.41,
     11.84
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Beholder Zombie",
+     "count": 1,
+     "note": "attacks anyone not showing Xanathar's symbol"
+    }
+   ],
+   "gm_note": "Combat here draws reinforcements from 20b."
   },
   {
    "id": "20b",
    "label": "20b",
-   "name": "",
+   "name": "Watch Post Barracks",
    "grid": [
     33.2,
     12.97
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Berserker",
+     "count": 1,
+     "note": "Nadia the Unbent"
+    },
+    {
+     "name": "Human Thug",
+     "count": 5
+    },
+    {
+     "name": "Bugbear",
+     "count": 5
+    }
+   ],
+   "gm_note": "Secret door west to 20c; Nadia eagerly leads any fight."
   },
   {
    "id": "20c",
    "label": "20c",
-   "name": "",
+   "name": "Arch Gate to Level 6",
    "grid": [
-    28.0,
+    28,
     8.01
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Secret doors to 20b/20d nearby.",
+   "teleport": {
+    "kind": "gate",
+    "label": "Arch Gate to Level 6 (9th level+, touch ferrous metal)"
+   }
   },
   {
    "id": "20d",
    "label": "20d",
-   "name": "",
+   "name": "Secret Armory",
    "grid": [
     18.53,
-    17.0
+    17
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Bugbear",
+     "count": 3,
+     "note": "searching for treasure"
+    }
+   ],
+   "gm_note": "Mostly ruined dwarven arms and armor."
   },
   {
    "id": "21",
    "label": "21",
-   "name": "",
+   "name": "Animated Ballistae",
    "grid": [
     21.23,
     22.89
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Animated Object",
+     "count": 2,
+     "note": "animated ballistae, AC15 HP50, 3d10 fire bolt, blindsight 120ft"
+    }
+   ],
+   "gm_note": "Ignore creatures in the easternmost 60ft of the hall."
   },
   {
    "id": "23a",
    "label": "23a",
-   "name": "",
+   "name": "Defaced Dwarves",
    "grid": [
     22.09,
     39.08
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Harmless writhing stone tentacles replace the original dwarf carvings."
   },
   {
    "id": "25a",
    "label": "25a",
-   "name": "",
+   "name": "Caryatids of Restoration",
    "grid": [
-    11.0,
+    11,
     50.1
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Modron",
+     "count": 1,
+     "note": "Halastron, a rogue quadrone; friendly, defends the caryatids"
+    }
+   ],
+   "gm_note": "Command phrase 'Elf magic!' cures blind/deaf/petrified/poisoned/stunned in the area, 4 charges/dawn."
   },
   {
    "id": "25b",
    "label": "25b",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     22.11,
     43.82
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Bullywug",
+     "count": 4,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25c",
    "label": "25c",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     27.98,
     43.82
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Grick",
+     "count": 3,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25d",
    "label": "25d",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     33.99,
     43.82
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Drow",
+     "count": 2,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25e",
    "label": "25e",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     39.93,
     43.82
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Rust Monster",
+     "count": 4,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25f",
    "label": "25f",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     47.06,
     43.82
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Troglodyte",
+     "count": 5,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25g",
    "label": "25g",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     55.01,
     43.82
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Goat",
+     "count": 6,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25h",
    "label": "25h",
-   "name": "",
+   "name": "Halaster's Statue",
    "grid": [
     61.02,
     43.82
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Halaster Blackcloak",
+     "count": 1,
+     "note": "petrified; hidden behind a secret door"
+    }
+   ],
+   "gm_note": "Restoring it triggers a magic mouth: \"Fools!\""
   },
   {
    "id": "25i",
    "label": "25i",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     23.03,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Boar",
+     "count": 1,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25j",
    "label": "25j",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
-    27.0,
+    27,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Constrictor Snake",
+     "count": 1,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25k",
    "label": "25k",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     31.04,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Kenku",
+     "count": 1,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25l",
    "label": "25l",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     35.03,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Lizardfolk",
+     "count": 1,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25m",
    "label": "25m",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     38.94,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Mind Flayer",
+     "count": 1,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "An illusory (intangible) wall behind it conceals a tunnel."
   },
   {
    "id": "25n",
    "label": "25n",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     43.15,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Nothic",
+     "count": 1,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25o",
    "label": "25o",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     47.05,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Orc War Chief",
+     "count": 1,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25p",
    "label": "25p",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     51.01,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Badger",
+     "count": 1,
+     "note": "petrified, giant"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25q",
    "label": "25q",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
     54.92,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Quaggoth",
+     "count": 1,
+     "note": "petrified"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   },
   {
    "id": "25r",
    "label": "25r",
-   "name": "",
+   "name": "Lifelike Statues",
    "grid": [
-    59.0,
+    59,
     55.49
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Human Wererat",
+     "count": 1,
+     "note": "petrified; Zarn Kassifax, tries to join Rizzeryl's gang if freed"
+    }
+   ],
+   "gm_note": "Restorable with greater restoration or the caryatids."
   }
  ],
  "secret_doors": [

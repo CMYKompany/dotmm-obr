@@ -52,15 +52,20 @@ Stages (scripts in /pipeline, in order):
    Hough voting) and failed for structural reasons (no shared art,
    axis-aligned aliasing).
 
-Regenerating `content.js` (repo root) after editing packs:
+Regenerating the shipped data after editing packs:
 
 ```
-python3 pipeline/build_content_js.py
+python3 pipeline/build_packs.py
 ```
 
-Since 1.6.0 content.js exports `DOTMM_LEVELS` — `{level: {name, origins,
-packs}}` — plus `TOKEN_MANIFEST`. New levels: add `packs/content_L<n>_*.json`
-and a LEVELS entry (name + origins) in `pipeline/build_content_js.py`.
+Sources of truth are the per-letter packs (`packs/content_{L}.json` for
+L1, `packs/content_L<n>_{L}.json` for later levels) plus the LEVELS table
+(name + origins) in `pipeline/build_packs.py`. It writes
+`packs/level<N>.json` (`{name, origins, packs}`, fetched at runtime by
+import.js since 1.6.1) and `content.js` (TOKEN_MANIFEST only, aggregated
+from every level's rooms; `packs/token_manifest.json` supplies just its
+note). Never hand-edit `packs/level<N>.json` or `content.js` — a rebuild
+overwrites them. New levels: add the per-letter packs and a LEVELS entry.
 
 Level 2 pipeline (the template for Levels 3+, run 2026-07-07):
 1. `pipeline/l2_ocr_overlays.py` — clusters + OCR on the DM overlay PNGs
@@ -239,19 +244,36 @@ connectors between included maps are dropped as noise.
     scenes only — do not extend them); trap markers (orange triangles,
     GM-only) from pack `traps`; connector kind level<N> generalized.
 
+17. v1.6.1: Level 2 content filled in (87 rooms: names, monster rosters,
+    short paraphrased GM notes, arch-gate teleports) from
+    `level2_merged.md` (module + Companion, merged and room-numbered).
+    Petrified-statue rooms 25b–25r use names matching the user's
+    `PetrifiedCreature_*.png` token art. Field-confirmed L2 origin
+    corrections baked: B (+4,-2), C (+4,+2), D (0,+1), E (+4,+1),
+    F (+5,+3). DOTMM_LEVELS split out of content.js into fetched
+    `packs/level<N>.json`. Field test: maps, fog, content and tokens all
+    load correctly.
+
+18. v1.6.2 → v1.6.3: combined-scene map picker. `uploadImages` resolves
+    on dialog confirm, but freshly uploaded images can take a while to
+    become searchable in OBR's library; a picker opened right after
+    shows nothing useful (its pre-filled search finds no match and it
+    shows unrelated library images instead). v1.6.2 auto-reopened the
+    picker with backoff — it didn't outlast the lag and the user rejected
+    dialogs opening on their own, so v1.6.3 reverted it: one upload, one
+    pick, then a status message telling the user to click "Pick uploaded
+    maps" once the images appear. v1.6.3 also tracks
+    `state.uploadedLetters` so retries don't re-upload (the retry loop had
+    been creating a duplicate library copy per attempt). There is no
+    non-interactive library query in the SDK, so the lag can't be polled.
+
 ## 5. Immediate next steps
 
-1. User re-imports Level 1 with v1.6.0 (regression check: origins baked,
-   nudges at ±0) and imports Level 2 for the first time (map/fog/doors/
-   secret doors/traps/room-number badges; room names and monsters are
-   empty pending module text).
-2. Level 2 content pass: user supplies module text or condensed notes →
-   fill names/rosters/gm_notes in packs/content_L2_*.json, rerun
-   build_content_js.py. The petrified-creature prop tokens map to rooms
-   25c–25r.
-3. Check the import console for `[DotMM] secret door … no wall within
+1. Levels 3+: rerun the §2 Level-2 procedure per level (anchors, origins,
+   secret doors/traps), then author room content into the per-letter
+   packs and run `pipeline/build_packs.py`.
+2. Check the import console for `[DotMM] secret door … no wall within
    2.5 cells` warnings — each one is a curated anchor needing a nudge.
-4. Levels 3+: rerun the §2 Level-2 procedure per level.
 
 ## 6. Multi-level readiness audit (Levels 2–23 + Yawning Portal, Skullport)
 
