@@ -504,7 +504,7 @@
      "name": "Room of Secrets",
      "grid": [
       21.77,
-      38
+      38.0
      ],
      "monsters": [],
      "gm_note": "Wear the copper helm while sitting on the copper throne: a wand of secrets drops from the ceiling."

@@ -12,145 +12,198 @@
   {
    "id": "8",
    "label": "8",
-   "name": "",
+   "name": "Fresco Cross Hall",
    "grid": [
     2.02,
     45.52
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Animated (harmless) dwarf frescoes at a four-way intersection."
   },
   {
    "id": "9a",
    "label": "9a",
-   "name": "",
+   "name": "Trapped Hall",
    "grid": [
     7.26,
     7.84
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Bugbear",
+     "count": 2,
+     "note": "guard the east narrows; disarm traps for known Xanathar members"
+    }
+   ],
+   "gm_note": "5 poison dart traps in the north wall; pass-phrase 'As many as there are stars in the sky.'"
   },
   {
    "id": "9a-2",
    "label": "9a",
-   "name": "",
+   "name": "Trapped Hall (west)",
    "grid": [
     25.2,
     7.98
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Western stretch of the same trapped hallway."
   },
   {
    "id": "9b",
    "label": "9b",
-   "name": "",
+   "name": "Shunn's Gang",
    "grid": [
     23.23,
-    15.0
+    15
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Xanathar Guild Thug",
+     "count": 7
+    },
+    {
+     "name": "Drow Elite Warrior",
+     "count": 1,
+     "note": "Shunn Shurreth, spider-cursed, prefers diplomacy"
+    },
+    {
+     "name": "Intellect Devourer",
+     "count": 2,
+     "note": "riding in two guild members' skulls"
+    }
+   ],
+   "gm_note": "Shunn offers 50gp for the wererats' stone key if approached peacefully."
   },
   {
    "id": "9c",
    "label": "9c",
-   "name": "",
+   "name": "Gang's Treasure",
    "grid": [
     7.93,
     16.53
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Silver-bound chest (Shunn's key or DC 15 thieves' tools) holds 100gp."
   },
   {
    "id": "9d",
    "label": "9d",
-   "name": "",
+   "name": "Bugbear Barracks",
    "grid": [
-    8.0,
+    8,
     27.31
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Bugbear",
+     "count": 10,
+     "note": "investigate commotion from 9b"
+    }
+   ],
+   "gm_note": "Sleeping barracks."
   },
   {
    "id": "10a",
    "label": "10a",
-   "name": "",
+   "name": "Skull in the Cube",
    "grid": [
     25.39,
     31.14
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Gelatinous Cube",
+     "count": 1,
+     "note": "enlarged to Gargantuan by the dwarf skull inside"
+    }
+   ],
+   "gm_note": "Removing the skull shrinks the cube back to normal size."
   },
   {
    "id": "10b",
    "label": "10b",
-   "name": "",
+   "name": "Flooded Room",
    "grid": [
     16.04,
     27.77
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "24,000 cu ft salt water floods out when opened (DC 12 Str or prone+1d10); Salamanth's corpse; glass wand worth 25gp."
   },
   {
    "id": "10c",
    "label": "10c",
-   "name": "",
+   "name": "Altar to Juiblex",
    "grid": [
     16.07,
     37.36
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Ochre Jelly",
+     "count": 1,
+     "note": "disguised as a gold offering in magical stasis"
+    }
+   ],
+   "gm_note": "Stasis breaks on touch or dispel magic (DC 17)."
   },
   {
    "id": "10d",
    "label": "10d",
-   "name": "",
+   "name": "Caved-In Room",
    "grid": [
     23.84,
     39.71
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Partial cave-in with bored tunnels south and east."
   },
   {
    "id": "11a",
    "label": "11a",
-   "name": "",
+   "name": "Hall of Degeneration",
    "grid": [
     37.05,
     46.87
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Wall paintings depict wizards mutating into nothics and a gibbering mouther."
   },
   {
    "id": "11b",
    "label": "11b",
-   "name": "",
+   "name": "Master of the Unseen",
    "grid": [
     49.13,
     38.54
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Priest",
+     "count": 1,
+     "note": "Midna Tauberth, NE, worships Shar; prefers to wait out or ingratiate"
+    },
+    {
+     "name": "Unseen Servant",
+     "count": 9
+    }
+   ],
+   "gm_note": "Banquet table magically replenished daily; holy symbols of Shar and Waukeen worth 25gp each."
   },
   {
    "id": "12",
    "label": "12",
-   "name": "",
+   "name": "Dwarven Tools",
    "grid": [
     13.92,
     50.78
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Dwarven tool storage.",
+   "teleport": {
+    "kind": "gate",
+    "label": "Arch Gate to Level 5 (8th level+, touch a dead twig/branch)"
+   }
   }
  ],
  "secret_doors": [

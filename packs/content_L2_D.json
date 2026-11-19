@@ -12,145 +12,181 @@
   {
    "id": "17",
    "label": "17",
-   "name": "",
+   "name": "Hungry Rust Monsters",
    "grid": [
     25.39,
     40.92
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Rust Monster",
+     "count": 2,
+     "note": "fighting over a rusted helm; torch brackets can distract them 1d6 min"
+    }
+   ],
+   "gm_note": "Old festival hall, 30ft ceiling."
   },
   {
    "id": "18",
    "label": "18",
-   "name": "",
+   "name": "Cold Storage",
    "grid": [
     12.12,
     11.92
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "0°F room; any spell cast here triggers 8d8 cold damage to all present (1/hour)."
   },
   {
    "id": "19a",
    "label": "19a",
-   "name": "",
+   "name": "Arachnid Down",
    "grid": [
     6.04,
     44.7
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Dead giant spider under a fallen chandelier."
   },
   {
    "id": "19b",
    "label": "19b",
-   "name": "",
+   "name": "Old Bedchamber",
    "grid": [
     5.65,
     54.08
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Dead giant spider; armoire holds a halfling skeleton with a ring of swimming."
   },
   {
    "id": "19c",
    "label": "19c",
-   "name": "",
+   "name": "Sticky Webs",
    "grid": [
     7.25,
     36.1
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Disturbing the webs alerts the spiders in 19d."
   },
   {
    "id": "19d",
    "label": "19d",
-   "name": "",
+   "name": "Spider Warren",
    "grid": [
     4.1,
     12.46
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Giant Spider",
+     "count": 5,
+     "note": "attack all intruders"
+    }
+   ],
+   "gm_note": "Spider lair."
   },
   {
    "id": "19e",
    "label": "19e",
-   "name": "",
+   "name": "Spider Larder",
    "grid": [
     4.96,
     24.1
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Swarm of Spiders",
+     "count": 1,
+     "note": "inside the sixth cocoon"
+    }
+   ],
+   "gm_note": "5 cocoons hold desiccated goblin/nothic corpses (20cp, 18sp, 5gp, silvered dagger)."
   },
   {
    "id": "22a",
    "label": "22a",
-   "name": "",
+   "name": "Ale Dispenser",
    "grid": [
     52.79,
     53.37
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Skeleton",
+     "count": 9,
+     "note": "dwarf skeletons, brew ale endlessly; passive unless attacked or robbed"
+    }
+   ],
+   "gm_note": "6th spigot releases green slime (1d10 acid/round until scraped/destroyed)."
   },
   {
    "id": "22b",
    "label": "22b",
-   "name": "",
+   "name": "\"Brewers Only!\"",
    "grid": [
     49.12,
     52.79
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "Halaster's voice trap triggers on entry."
   },
   {
    "id": "22c",
    "label": "22c",
-   "name": "",
+   "name": "Ale Vats",
    "grid": [
     40.38,
     52.93
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Beholder Zombie",
+     "count": 1,
+     "note": "rises from the southwest vat if disturbed"
+    }
+   ],
+   "gm_note": "30 empty zurkhwood barrels can be used to cross 22d's pit traps safely."
   },
   {
    "id": "22d",
    "label": "22d",
-   "name": "",
+   "name": "Barrel Run",
    "grid": [
     26.98,
     52.91
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "3 hidden 20-ft pits (DC 15 Perception, 2d6 bludgeoning); rolling in a barrel avoids them."
   },
   {
    "id": "22e",
    "label": "22e",
-   "name": "",
+   "name": "North Ale Storage",
    "grid": [
     14.25,
     48.02
    ],
    "monsters": [],
-   "gm_note": ""
+   "gm_note": "140 barrels of preserved dwarven ale, 40gp each in Waterdeep."
   },
   {
    "id": "22f",
    "label": "22f",
-   "name": "",
+   "name": "South Ale Storage",
    "grid": [
     14.09,
     58.14
    ],
-   "monsters": [],
-   "gm_note": ""
+   "monsters": [
+    {
+     "name": "Mimic",
+     "count": 3,
+     "note": "disguised as 3 of the 59 intact barrels"
+    }
+   ],
+   "gm_note": "Collapsed barrel pyramid; mimics hide within 10ft of each other."
   }
  ],
  "secret_doors": [
@@ -199,7 +235,7 @@
    53.03
   ],
   [
-   25.0,
+   25,
    53.03
   ],
   [
