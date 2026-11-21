@@ -1,9 +1,12 @@
-# DotMM Level 1 — All-in-One Owlbear Rodeo Importer
+# DotMM Importer — All-in-One Owlbear Rodeo Importer
 
-One import per sub-map gives you: the map, dynamic fog (walls + doors + lights
-from the dd2vtt), GM-only room labels with names, monster tokens placed per the
-book, GM notes, secret-door markers, teleport/gate markers, and map-to-map
-connector labels. Fog rendering is native (OBR Warp Core wall/light primitives)
+Import dd2vtt maps into Owlbear Rodeo in one step: the map, dynamic fog
+(walls + doors + lights from the dd2vtt), GM-only room labels with names,
+monster tokens, GM notes, secret-door markers, teleport/gate markers, and
+map-to-map connector labels. Dungeon of the Mad Mage Levels 1–2 come with
+their rooms built in; for **any other maps**, add a *room file* listing rooms
+and monsters — written by hand or by an LLM from your adventure text (see
+[docs/CONTENT_FORMAT.md](docs/CONTENT_FORMAT.md)). Fog rendering is native (OBR Warp Core wall/light primitives)
 — no other extension is required.
 
 ## Hosting (one-time, ~5 minutes)
@@ -27,18 +30,24 @@ The extension is static files; any static host works. GitHub Pages:
    **Character** images. Name each file after the monster —
    `Bandit Captain.png`, `giant-rat.webp`, `intellect_devourer.jpg` all match
    (case, spaces, hyphens and underscores are ignored).
-2. `token_manifest.json` lists the 26 monster names the packs use.
+2. The importer's token step lists every monster name it needs for the maps
+   and room file you dropped.
 
-## Importing a map
+## Importing maps
 
 1. Open the DotMM Importer action.
-2. Drop one of the `Level1_<A-F>_BG_*.dd2vtt` files — the sub-map is
-   auto-detected from the filename or grid size.
+2. Drop the map files (`.dd2vtt`). Several at once become one combined scene.
+   - DotMM files (`Level2_A_BG_*.dd2vtt` etc.) are recognized from the name
+     and bring their own rooms and map layout.
+   - Any other maps: also drop a room file (`.md` or `.json`). Without one you
+     get the maps, walls, doors and lights only.
 3. (Optional) **Match tokens from my OBR library** — pick your token images;
    the chips show what matched. Unmatched monsters get named placeholder pills
    you can swap later.
-4. **Import scene**. The scene appears in your Atlas
-   (`DotMM L1 · Map A` etc.). Repeat per sub-map.
+4. **Import scene**. The scene appears in your Atlas.
+5. Rooms that had no position in the room file show as **unplaced** in the
+   Rooms tab: place them by clicking the map, then **Export room file** to
+   keep those positions for next time.
 
 ## Running the game
 
@@ -55,10 +64,8 @@ The extension is static files; any static host works. GitHub Pages:
   so the dungeon starts fully dark.
 - **Rooms tab**: with an imported scene open, browse/search all rooms, see
   monster rosters and GM notes, and *Jump to room* to pan the view.
-- **Teleports**: area 27's alcove/demiplane pair, the 26d mirror gate
-  (→ level 10), the 39a stairs (→ level 2) and the Entrywell all carry ⇋
-  markers plus notes in the room browser. Cross-map connectors are labelled
-  at the map edges (`→ To map D`, etc.).
+- **Teleports and gates** carry ⇋ markers plus notes in the room browser.
+  Cross-map connectors are labelled at the map edges (`→ To map D`, etc.).
 
 ## Data provenance and accuracy
 

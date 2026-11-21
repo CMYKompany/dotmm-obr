@@ -267,12 +267,33 @@ connectors between included maps are dropped as noise.
     been creating a duplicate library copy per attempt). There is no
     non-interactive library query in the SDK, so the lag can't be polled.
 
+19. v1.7.0: generic import. Decisions (user, 2026-11-19): rooms come from a
+    user-supplied room file, written by hand or by an LLM; a looser
+    Markdown format plus JSON; positions optional with click-to-place;
+    map arrangement via a `maps:` line or the existing Align nudges (no
+    drag-to-arrange — explicitly deferred). Implementation:
+    `contentfile.js` (parser/exporter, one doc shape for MD + JSON + bundled
+    levels), `builders.js` (item builders shared with background.js),
+    `buildPlan()` in import.js (maps + pack + room file → origins and
+    placed/unplaced rooms), custom-map support (any dd2vtt; letters by
+    arrival, room files key maps by file name), click-to-place tool in
+    background.js driven by a player-metadata queue, Export room file.
+    Docs: CONTENT_FORMAT.md (user guide), LLM_PROMPT.md, content.schema.json,
+    rendered via docs/guide.html. Verification without OBR: round trip of
+    L1/L2 through Markdown (159 rooms exact); old (main) vs new import.js
+    run side by side in Node with a stubbed SDK — scene items, room list,
+    fog identical for L1/L2, full and single-map, bundled and via a
+    Markdown room file; custom-map plan and the placement handler tested
+    against mocks. Field test in OBR still pending.
+
 ## 5. Immediate next steps
 
-1. Levels 3+: rerun the §2 Level-2 procedure per level (anchors, origins,
-   secret doors/traps), then author room content into the per-letter
-   packs and run `pipeline/build_packs.py`.
-2. Check the import console for `[DotMM] secret door … no wall within
+1. Field-test 1.7.0 in OBR: a DotMM level (regression), a custom map with a
+   room file that has some rooms without positions, click-to-place, Export.
+2. Level 3 (blocked: Drive file reads denied in the 2026-11-19 session):
+   write it as a room file first; anchors/secret doors via the §2 procedure.
+   Note a `Level3_*` file already imports as a custom map (no pack yet).
+3. Check the import console for `[DotMM] secret door … no wall within
    2.5 cells` warnings — each one is a curated anchor needing a nudge.
 
 ## 6. Multi-level readiness audit (Levels 2–23 + Yawning Portal, Skullport)

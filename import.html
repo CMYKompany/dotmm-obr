@@ -161,12 +161,40 @@
   .hidden { display: none !important; }
   .hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
   .hint code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+  .hint a, .linkbtn { color: var(--accent); text-decoration: none; }
+  .hint a:hover, .linkbtn:hover { text-decoration: underline; }
+  .cardhead { display: flex; align-items: baseline; justify-content: space-between; }
+  .linkbtn { font-size: 11px; cursor: pointer; background: none; border: none; padding: 0; font: inherit; font-size: 11px; }
+  .contentbox {
+    margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12px;
+    background: var(--panel-2); border-left: 3px solid var(--good);
+  }
+  .contentbox.err { border-left-color: var(--bad); color: var(--text); }
+  .contentbox ul { margin: 4px 0 0; padding-left: 18px; }
+  .contentbox li { margin: 2px 0; color: var(--muted); font-size: 11px; }
+  .contentbox details { margin-top: 4px; }
+  .contentbox summary { cursor: pointer; color: var(--warn); font-size: 11px; }
+  .room.unplaced { opacity: 0.85; border-style: dashed; border-color: var(--line); }
+  .room.unplaced:hover { border-color: var(--warn); }
+  .unplacedtag {
+    font-size: 10px; color: var(--warn); border: 1px solid rgba(240, 179, 95, 0.45);
+    border-radius: 999px; padding: 1px 6px;
+  }
+  .roomdetail .jump.place { background: rgba(240, 179, 95, 0.15); color: var(--warn); }
+  .roomdetail .jump.place:hover { background: rgba(240, 179, 95, 0.3); }
+  .toolrow { display: flex; gap: 6px; margin-bottom: 8px; }
+  .toolrow .btn { flex: 1; padding: 7px 10px; font-size: 12px; }
+  #exportText {
+    width: 100%; height: 140px; margin-top: 6px; padding: 8px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+    font: 11px/1.4 ui-monospace, Consolas, monospace; resize: vertical;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>DotMM · Undermountain</h1>
+    <h1>DotMM Importer</h1>
     <span class="sub">all-in-one importer</span>
   </header>
 
@@ -179,13 +207,21 @@
   <!-- ============ IMPORT TAB ============ -->
   <section id="tab-import">
     <div class="card">
-      <h2>1 · Map file</h2>
+      <div class="cardhead">
+        <h2>1 · Map files + room file</h2>
+        <button class="linkbtn hidden" id="clearFiles">Clear</button>
+      </div>
       <label class="drop" id="drop">
-        <div class="big" id="dropTitle">Drop Level&lt;N&gt;_*.dd2vtt files here</div>
-        <div id="dropSub">one file = single scene · several files = one combined scene (one level per scene)</div>
-        <input type="file" id="file" multiple accept=".dd2vtt,.uvtt,application/json" />
+        <div class="big" id="dropTitle">Drop map files (.dd2vtt) here</div>
+        <div id="dropSub">plus an optional room file (.md or .json) · several maps = one combined scene</div>
+        <input type="file" id="file" multiple accept=".dd2vtt,.uvtt,.json,.md,.markdown,.txt,application/json,text/markdown,text/plain" />
       </label>
       <div style="margin-top:8px" id="mapchips"></div>
+      <div id="contentInfo"></div>
+      <div class="hint">DotMM levels (<code>Level&lt;N&gt;_A_…</code> files) bring their own rooms.
+        For any other maps, add a room file listing rooms and monsters —
+        <a id="formatGuide" target="_blank" rel="noopener">how to write one</a>
+        (by hand, or by having an LLM convert your adventure text).</div>
     </div>
 
     <div class="card" style="margin-top:10px">
@@ -203,7 +239,7 @@
       <button class="btn ghost" id="pickMaps" style="margin-top:6px">Pick uploaded maps…</button>
       <div class="hint">A scene upload carries one map file; the rest are placed from
         your library. <b>Import handles this automatically</b> (an upload dialog, then a
-        picker). Use these buttons only to point at <code>DotMM-L&lt;N&gt;-*</code> images from an
+        picker). Use these buttons only to point at <code>DotMM-*</code> images from an
         earlier import (Pick) instead of uploading fresh copies.</div>
     </div>
 
@@ -219,9 +255,24 @@
   <section id="tab-rooms" class="hidden">
     <div class="card">
       <h2>Room browser <span style="text-transform:none;letter-spacing:0" id="roomsScene"></span></h2>
+      <div class="toolrow hidden" id="roomtools">
+        <button class="btn" id="placeAll">Place unplaced rooms…</button>
+        <button class="btn ghost" id="exportContent" title="Download this scene's rooms, positions and map offsets as a room file">Export room file</button>
+      </div>
+      <div class="status" id="placeStatus"></div>
+      <div class="hidden" id="exportBox">
+        <div class="hint" style="margin-top:0">If no download started, copy this into a <code>.md</code> file:</div>
+        <textarea id="exportText" readonly></textarea>
+        <button class="btn ghost" id="copyExport" style="margin-top:6px">Copy</button>
+      </div>
       <input class="search" id="search" placeholder="Filter rooms, names, monsters…" />
       <div class="roomlist" id="roomlist"></div>
       <div id="roomdetail"></div>
+      <div class="hint">Rooms marked <span class="unplacedtag">unplaced</span> came in
+        without a position. Place them one at a time from a room's details, or
+        all in order with the button above: the panel closes, then click the map
+        where each room goes. Export afterwards so the next import puts them
+        there automatically.</div>
     </div>
   </section>
 

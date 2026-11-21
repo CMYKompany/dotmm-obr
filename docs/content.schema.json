@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmykompany.github.io/dotmm-obr/docs/content.schema.json",
+  "title": "DotMM importer room file (JSON form)",
+  "description": "Same content as the Markdown room file (docs/CONTENT_FORMAT.md). The importer is lenient: unknown fields are ignored, strings are accepted where numbers are expected, and problems are reported rather than fatal.",
+  "type": "object",
+  "properties": {
+    "title": { "type": "string", "description": "Scene name." },
+    "maps": {
+      "description": "Top-left corner of each map in the combined scene, in grid cells. Keys are map file names without extension, or map letters.",
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/point" }
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "Unique id. Defaults to the label." },
+          "label": { "type": "string", "description": "What the map label shows, e.g. \"7\" or \"12b\". Defaults to id." },
+          "name": { "type": "string" },
+          "map": { "type": "string", "description": "Map the position is relative to (file name or letter). Without it, `at` is in whole-scene coordinates." },
+          "at": { "$ref": "#/$defs/point", "description": "Position in grid cells. Omit to import the room unplaced." },
+          "monsters": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "type": "string", "description": "Same as a Markdown monster line, e.g. \"3 Skeleton — note\"." },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "count": { "type": ["integer", "string"], "minimum": 1, "default": 1 },
+                    "note": { "type": "string" },
+                    "size": { "description": "Token size in cells, or tiny/small/medium/large/huge/gargantuan.", "type": ["integer", "string"] }
+                  },
+                  "required": ["name"]
+                }
+              ]
+            }
+          },
+          "notes": { "type": "string" },
+          "teleport": {
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "properties": {
+                  "label": { "type": "string" },
+                  "kind": { "type": "string" },
+                  "pair": { "type": "string", "description": "id of the room at the other end." }
+                },
+                "required": ["label"]
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "point": {
+      "oneOf": [
+        { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        { "type": "object", "properties": { "x": { "type": "number" }, "y": { "type": "number" } }, "required": ["x", "y"] }
+      ]
+    }
+  }
+}

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Room file guide</title>
+<style>
+  :root {
+    --bg: #16141d; --panel: #201d2a; --line: #3a3450; --text: #e9e5f4;
+    --muted: #9d95b5; --accent: #b48cff; --code: #2a2637;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 15px/1.6 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  nav { display: flex; gap: 16px; font-size: 13px; margin-bottom: 8px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1, h2, h3 { line-height: 1.25; }
+  h1 { font-size: 26px; margin-top: 12px; }
+  h2 { font-size: 20px; margin-top: 32px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  h3 { font-size: 16px; margin-top: 24px; }
+  code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+  pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; position: relative; }
+  pre code { background: none; padding: 0; font-size: 13px; line-height: 1.5; }
+  .copy { position: absolute; top: 6px; right: 6px; font-family: inherit; font-size: 12px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+  .copy:hover { color: var(--accent); border-color: var(--accent); }
+  hr { border: none; border-top: 1px solid var(--line); margin: 32px 0; }
+  li { margin: 4px 0; }
+  #error { color: #f07a7a; }
+</style>
+</head>
+<body>
+<main>
+  <nav>
+    <a href="?f=CONTENT_FORMAT.md">Writing a room file</a>
+    <a href="?f=LLM_PROMPT.md">LLM prompt</a>
+  </nav>
+  <article id="doc">Loading…</article>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script>
+  // Renders the Markdown guides from this folder, so the .md files stay the
+  // single source (GitHub Pages serves .md raw). Only these files are allowed.
+  const ALLOWED = ["CONTENT_FORMAT.md", "LLM_PROMPT.md"];
+  const want = new URLSearchParams(location.search).get("f");
+  const file = ALLOWED.includes(want) ? want : ALLOWED[0];
+  fetch(file)
+    .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text(); })
+    .then((md) => {
+      const doc = document.getElementById("doc");
+      doc.innerHTML = marked.parse(md);
+      document.title = doc.querySelector("h1")?.textContent || document.title;
+      // Links between the guides stay inside the viewer.
+      for (const a of doc.querySelectorAll("a[href]")) {
+        const h = a.getAttribute("href");
+        if (ALLOWED.includes(h)) a.setAttribute("href", `?f=${h}`);
+      }
+      // Heading ids so "#using-an-llm" style anchors work.
+      for (const h of doc.querySelectorAll("h2, h3")) {
+        h.id = h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      }
+      // Copy buttons on code blocks (the LLM prompt is meant to be copied).
+      for (const pre of doc.querySelectorAll("pre")) {
+        const b = document.createElement("button");
+        b.className = "copy";
+        b.textContent = "Copy";
+        b.addEventListener("click", async () => {
+          try { await navigator.clipboard.writeText((pre.querySelector("code") || pre).textContent.trimEnd()); b.textContent = "Copied"; }
+          catch { b.textContent = "Select and copy"; }
+          setTimeout(() => { b.textContent = "Copy"; }, 2000);
+        });
+        pre.appendChild(b);
+      }
+      if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+    })
+    .catch((err) => {
+      document.getElementById("doc").innerHTML = `<p id="error">Couldn't load ${file}: ${err.message}</p>`;
+    });
+</script>
+</body>
+</html>
